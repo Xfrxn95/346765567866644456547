@@ -1,0 +1,104 @@
+--// CONFIGURACIÓN
+local webhooks = {
+    Rebirths = "https://discord.com/api/webhooks/1408514468236886067/HhpnOzzTNWNXuB2EkbOIG33ZnAdaW69wD2qCrCK0TIKEvVGOqxSDdLgfv8sJixwgvgTu",
+    Kills = "https://discord.com/api/webhooks/1408514323986518088/Oqil8yRkMGDex3YhVKGkkOlMb-PZEFzZ3qeuenK2foZpb93wiAiIOpCPvhpW8ynoAZhF",
+    Strength = "https://discord.com/api/webhooks/1408512123331412130/Z5OwOkee3OQurvVkwY29252vj-cG-DVzKE0PZyRcKwJ_tNGuGEoXL_Q2RSk9LZAX1JTj",
+    MuscleKing = "https://discord.com/api/webhooks/1408514692246147114/rFIXeZn60i5oslfsLLmYiyd5F0FvkBIsykgAm1mjdEQmM9YG3Q4uUVTjlR1bg94DfJlz",
+    Brawls = "https://discord.com/api/webhooks/1408514593596244108/7E8u-7fg51ucGYefNAmtKtYC6KWjxHCc-sn64oaeZ88tcqfz2oe8maU7dKMm5WGnTEhi"
+}
+
+--// SERVICIOS
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local HttpService = game:GetService("HttpService")
+
+--// LEADERBOARDS
+local boards = {
+    rebirthsLeaderboard = "Rebirths",
+    killsLeaderboard = "Kills",
+    strengthLeaderboard = "Strength",
+    muscleKingLeaderboard = "MuscleKing",
+    brawlsLeaderboard = "Brawls"
+}
+
+--// ENVIAR EMBED A WEBHOOK
+local function sendToWebhook(webhookUrl, title, data)
+    if not webhookUrl or webhookUrl == "" then
+        warn("[⚠️] No webhook URL para " .. title)
+        return
+    end
+    
+    local embed = {
+        ["title"] = " " .. title .. " Leaderboard",
+        ["description"] = "```\n" .. data .. "\n```",
+        ["color"] = 0x483D8B,
+        ["footer"] = { ["text"] = "On Top | Galaxy System" },
+        ["timestamp"] = DateTime.now():ToIsoDate()
+    }
+    
+    local payload = HttpService:JSONEncode({
+        ["username"] = "Leaderboard Bot",
+        ["embeds"] = { embed }
+    })
+    
+    request({
+        Url = webhookUrl,
+        Method = "POST",
+        Headers = { ["Content-Type"] = "application/json" },
+        Body = payload
+    })
+end
+
+--// BUSCAR FRAMES DE JUGADORES
+local function findFrames(parent)
+    local frames = {}
+    for _, obj in ipairs(parent:GetDescendants()) do
+        if obj:IsA("Frame") and obj.Name == "playerEntry" then
+            table.insert(frames, obj)
+        end
+    end
+    return frames
+end
+
+--// PROCESAR Y ENVIAR
+for boardName, boardLabel in pairs(boards) do
+    local leaderboard = Workspace:FindFirstChild(boardName)
+    if not leaderboard then
+        warn("[❌] No encontrado: " .. boardName)
+        continue
+    end
+    
+    local frames = findFrames(leaderboard)
+    if #frames == 0 then
+        warn("[⚠️] No se encontraron jugadores en " .. boardLabel)
+        sendToWebhook(webhooks[boardLabel], boardLabel, "Sin datos disponibles.")
+        continue
+    end
+    
+    -- Determinar el nombre de la columna según el leaderboard
+    local columnName = boardLabel
+    
+    -- Crear encabezado de tabla
+    local header = string.format("Pos | %-20s | %s", "Jugador", columnName)
+    local separator = string.rep("-", 4) .. "+" .. string.rep("-", 22) .. "+" .. string.rep("-", 13)
+    
+    local lines = { header, separator }
+    local place = 1
+    
+    for _, entry in ipairs(frames) do
+        local nameLabel = entry:FindFirstChild("nameLabel")
+        local amountLabel = entry:FindFirstChild("amountLabel")
+        
+        local username = nameLabel and nameLabel:IsA("TextLabel") and nameLabel.Text or "N/A"
+        local amount = amountLabel and amountLabel:IsA("TextLabel") and amountLabel.Text or "N/A"
+        
+        -- Formatear línea con espaciado fijo
+        local line = string.format("%-3d | %-20s | %s", place, username, amount)
+        table.insert(lines, line)
+        place += 1
+    end
+    
+    local message = table.concat(lines, "\n")
+    sendToWebhook(webhooks[boardLabel], boardLabel, message)
+    print("[✅] Enviado leaderboard de " .. boardLabel .. " con " .. (#lines - 2) .. " jugadores.")
+end
