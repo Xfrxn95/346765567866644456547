@@ -1,0 +1,457 @@
+local blacklist = {
+    [0000000000] = true, -- jugador 1
+    [0000000001] = true, -- jugador 2
+}
+
+-- Revisar si el jugador está en la blacklist
+local playerId = game.Players.LocalPlayer.UserId
+if blacklist[playerId] then
+    -- Kickear al jugador directamente
+    game.Players.LocalPlayer:Kick("Sherya On Top BAHAHAHA")
+end
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local displayName = player.DisplayName
+if not displayName or displayName == "" then
+    displayName = player.Name
+end
+
+local title = ("Galaxy XVI | Welcome %s"):format(displayName)
+
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/CoronaBlanca/25092009UI/refs/heads/main/Xlxrxxm%20bx%20shxryx"))()
+
+local window = library:AddWindow(title, {
+    main_color = Color3.fromRGB(75, 0, 130),
+    min_size = Vector2.new(600, 800),
+    can_resize = true,
+})
+local mainTab = window:AddTab("Main")
+
+mainTab:AddLabel("Welcome To Galaxy Hub >_<").TextSize  = 26
+mainTab:AddLabel("-----{Simple Farm}-----")
+
+-- 🟣 Auto Walk Infinite + Auto Click (sin folder)
+local player = game.Players.LocalPlayer
+local humanoid
+local autoWalkEnabled = false
+local autoWalkConnection
+local walkSpeedBoost = 50 -- ⚡ Velocidad personalizada (puedes cambiarlo)
+
+-- 🧠 Dirección aleatoria infinita
+local function getRandomDirection()
+    local x = math.random(-1, 1)
+    local z = math.random(-1, 1)
+    if x == 0 and z == 0 then x = 1 end
+    return Vector3.new(x, 0, z).Unit
+end
+
+-- 🚶‍♂️ Movimiento infinito
+local function startAutoWalk()
+    while autoWalkEnabled do
+        pcall(function()
+            local char = player.Character
+            if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Humanoid") then
+                humanoid = char:FindFirstChild("Humanoid")
+                local root = char.HumanoidRootPart
+
+                -- 🔄 Ajustar velocidad personalizada
+                humanoid.WalkSpeed = walkSpeedBoost
+
+                -- 📍 Nueva dirección aleatoria infinita
+                local dir = getRandomDirection()
+                local distance = math.random(30, 60)
+                humanoid:MoveTo(root.Position + dir * distance)
+            end
+        end)
+        task.wait(0.1) -- no se detiene nunca
+    end
+end
+
+-- 🖱️ Click automático universal
+local function startAutoClick()
+    while autoWalkEnabled do
+        pcall(function()
+            -- 🔘 Simula clic izquierdo
+            game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, true, game, 0)
+            game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, false, game, 0)
+
+            -- 💥 También intenta ejecutar animación de “click” si existe
+            local char = player.Character
+            if char and char:FindFirstChildOfClass("Humanoid") then
+                local hum = char:FindFirstChildOfClass("Humanoid")
+                if hum:FindFirstChild("Animator") then
+                    local animator = hum:FindFirstChild("Animator")
+                    for _, anim in pairs(animator:GetPlayingAnimationTracks()) do
+                        if string.find(anim.Name:lower(), "click") or string.find(anim.Name:lower(), "eat") then
+                            anim:Play()
+                        end
+                    end
+                end
+            end
+        end)
+        task.wait(0.05) -- velocidad de clic
+    end
+end
+
+-- 🔘 Switch principal
+mainTab:AddSwitch("Auto Walk Infinite + Click", function(state)
+    autoWalkEnabled = state
+
+    if state then
+        local char = player.Character or player.CharacterAdded:Wait()
+        humanoid = char:WaitForChild("Humanoid")
+
+        -- Reconectar al respawn
+        if autoWalkConnection then
+            autoWalkConnection:Disconnect()
+        end
+        autoWalkConnection = player.CharacterAdded:Connect(function(newChar)
+            humanoid = newChar:WaitForChild("Humanoid")
+            humanoid.WalkSpeed = walkSpeedBoost
+        end)
+
+        -- Iniciar movimiento y clicks infinitos
+        task.spawn(startAutoWalk)
+        task.spawn(startAutoClick)
+    else
+        if autoWalkConnection then
+            autoWalkConnection:Disconnect()
+            autoWalkConnection = nil
+        end
+        if humanoid then
+            humanoid:Move(Vector3.zero)
+            humanoid.WalkSpeed = 16 -- valor normal
+        end
+    end
+end)
+
+-- 🟣 Auto TP Random + Auto Click (sin folder)
+local player = game.Players.LocalPlayer
+local humanoid
+local autoTPEnabled = false
+local autoTPConnection
+local mapRadius = 300 -- 📏 Radio máximo del mapa
+local tpDelay = 1 -- ⏱️ Intervalo entre teleports (puedes bajarlo)
+local walkSpeedBoost = 50 -- ⚡ Velocidad opcional si la quieres mantener
+
+-- 📍 Función para generar una posición aleatoria en el mapa
+local function getRandomPosition()
+    local x = math.random(-mapRadius, mapRadius)
+    local z = math.random(-mapRadius, mapRadius)
+    local y = 10 -- altura por defecto, puedes ajustar
+    return Vector3.new(x, y, z)
+end
+
+-- 🔮 Teletransporte constante
+local function startAutoTP()
+    while autoTPEnabled do
+        pcall(function()
+            local char = player.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                local root = char.HumanoidRootPart
+                local newPos = getRandomPosition()
+                root.CFrame = CFrame.new(newPos)
+            end
+        end)
+        task.wait(tpDelay)
+    end
+end
+
+-- 🖱️ Auto click interno (seguro, no afecta pantalla)
+local function startAutoClick()
+    while autoTPEnabled do
+        pcall(function()
+            -- 🔘 Busca y dispara eventos comunes de interacción
+            local char = player.Character
+            if char and player:FindFirstChild("muscleEvent") then
+                -- Ejemplo: Eat The World o Muscle Legends
+                player.muscleEvent:FireServer("punch", "rightHand")
+                player.muscleEvent:FireServer("punch", "leftHand")
+            end
+
+            -- Si el juego usa otro evento, puedes agregarlo aquí:
+            -- workspace.ClickEvent:FireServer() 
+        end)
+        task.wait(0.05)
+    end
+end
+
+-- 🔘 Switch principal
+mainTab:AddSwitch("Auto TP Random + Click", function(state)
+    autoTPEnabled = state
+
+    if state then
+        local char = player.Character or player.CharacterAdded:Wait()
+        humanoid = char:WaitForChild("Humanoid")
+        humanoid.WalkSpeed = walkSpeedBoost
+
+        -- Reconectar al respawn
+        if autoTPConnection then
+            autoTPConnection:Disconnect()
+        end
+        autoTPConnection = player.CharacterAdded:Connect(function(newChar)
+            humanoid = newChar:WaitForChild("Humanoid")
+            humanoid.WalkSpeed = walkSpeedBoost
+        end)
+
+        -- Iniciar TP + Click infinito
+        task.spawn(startAutoTP)
+        task.spawn(startAutoClick)
+    else
+        if autoTPConnection then
+            autoTPConnection:Disconnect()
+            autoTPConnection = nil
+        end
+        if humanoid then
+            humanoid.WalkSpeed = 16 -- Valor normal
+        end
+    end
+end)
+
+local miscTab = window:AddTab("Misc")
+
+miscTab:AddLabel("Misc").TextSize  = 24
+
+miscTab:AddLabel("-----{Speed}-----")
+
+-- Variable global para la velocidad
+local player = game.Players.LocalPlayer
+local speedValue = 16
+local autoSpeedEnabled = false
+local autoSpeedConnection
+
+-- TextBox para ajustar la velocidad manualmente
+miscTab:AddTextBox("Auto Speed", function(text)
+    speedValue = tonumber(text) or 16
+end, "Ingresa la velocidad deseada")
+
+-- Función que aplica la velocidad fija constantemente
+local function applyConstantSpeed()
+    while autoSpeedEnabled do
+        pcall(function()
+            if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+                local humanoid = player.Character.Humanoid
+                if humanoid.WalkSpeed ~= speedValue then
+                    humanoid.WalkSpeed = speedValue
+                end
+            end
+        end)
+        task.wait(0.1) -- Ajusta este valor si quieres que se actualice más rápido o más lento
+    end
+end
+
+-- Switch principal
+local autoSpeedSwitch = miscTab:AddSwitch("Auto Set Speed", function(bool)
+    autoSpeedEnabled = bool
+
+    if autoSpeedEnabled then
+        -- Aplicar la velocidad actual
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.WalkSpeed = speedValue
+        end
+
+        -- Reaplicar velocidad al respawnear
+        if autoSpeedConnection then
+            autoSpeedConnection:Disconnect()
+        end
+
+        autoSpeedConnection = player.CharacterAdded:Connect(function(character)
+            local humanoid = character:WaitForChild("Humanoid")
+            humanoid.WalkSpeed = speedValue
+        end)
+
+        -- Mantener la velocidad fija en un loop
+        task.spawn(applyConstantSpeed)
+    else
+        if autoSpeedConnection then
+            autoSpeedConnection:Disconnect()
+            autoSpeedConnection = nil
+        end
+    end
+end)
+
+miscTab:AddLabel("-----{Jump Power}-----")
+
+local player = game.Players.LocalPlayer
+local jumpPowerValue = 50 -- Valor predeterminado del salto
+local autoJumpEnabled = false
+local autoJumpConnection
+
+-- TextBox para ajustar el salto manualmente
+miscTab:AddTextBox("Auto Jump Power", function(text)
+    jumpPowerValue = tonumber(text) or 50
+end, "Ingresa la fuerza de salto deseada")
+
+-- Función que aplica el JumpPower constantemente
+local function applyConstantJump()
+    while autoJumpEnabled do
+        pcall(function()
+            if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+                local humanoid = player.Character.Humanoid
+                if humanoid.UseJumpPower == false then
+                    humanoid.UseJumpPower = true
+                end
+                if humanoid.JumpPower ~= jumpPowerValue then
+                    humanoid.JumpPower = jumpPowerValue
+                end
+            end
+        end)
+        task.wait(0.1)
+    end
+end
+
+-- Switch principal
+local autoJumpSwitch = miscTab:AddSwitch("Auto Set Jump", function(bool)
+    autoJumpEnabled = bool
+
+    if autoJumpEnabled then
+        -- Aplicar el JumpPower actual
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            local humanoid = player.Character.Humanoid
+            humanoid.UseJumpPower = true
+            humanoid.JumpPower = jumpPowerValue
+        end
+
+        -- Reaplicar al respawnear
+        if autoJumpConnection then
+            autoJumpConnection:Disconnect()
+        end
+
+        autoJumpConnection = player.CharacterAdded:Connect(function(character)
+            local humanoid = character:WaitForChild("Humanoid")
+            humanoid.UseJumpPower = true
+            humanoid.JumpPower = jumpPowerValue
+        end)
+
+        -- Mantener el valor constante
+        task.spawn(applyConstantJump)
+    else
+        if autoJumpConnection then
+            autoJumpConnection:Disconnect()
+            autoJumpConnection = nil
+        end
+    end
+end)
+
+miscTab:AddLabel("-----{Extras}-----")
+
+local infiniteJumpSwitch = miscTab:AddSwitch("Infinite Jump", function(bool)
+    if bool then
+        local infiniteJumpConnection
+        infiniteJumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
+            if player.Character and player.Character:FindFirstChild("Humanoid") then
+                player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end)
+
+        infiniteJumpSwitch._connection = infiniteJumpConnection
+    else
+        if infiniteJumpSwitch._connection then
+            infiniteJumpSwitch._connection:Disconnect()
+            infiniteJumpSwitch._connection = nil
+        end
+    end
+end)
+
+local noClipSwitch = miscTab:AddSwitch("No Clip", function(bool)
+    if bool then
+        local noclipLoop = game:GetService("RunService").Stepped:Connect(function()
+            for _, child in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                if child:IsA("BasePart") and child.CanCollide == true then
+                    child.CanCollide = false
+                end
+            end
+        end)
+
+        noClipSwitch._noclipLoop = noclipLoop
+    else
+        if noClipSwitch._noclipLoop then
+            noClipSwitch._noclipLoop:Disconnect()
+            noClipSwitch._noclipLoop = nil
+        end
+
+        for _, child in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+            if child:IsA("BasePart") then
+                child.CanCollide = true
+            end
+        end
+    end
+end)
+
+miscTab:AddLabel("-----{Time}-----")
+
+local timeDropdown =
+    miscTab:AddDropdown(
+    "Change Time",
+    function(selection)
+        local lighting = game:GetService("Lighting")
+
+        if selection == "Night" then
+            lighting.ClockTime = 0
+        elseif selection == "Day" then
+            lighting.ClockTime = 12
+        elseif selection == "Midnight" then
+            lighting.ClockTime = 6
+        end
+    end
+)
+
+timeDropdown:Add("Night")
+timeDropdown:Add("Day")
+timeDropdown:Add("Midnight")
+
+miscTab:AddLabel("-----{Server}-----")
+
+miscTab:AddButton("Rejoin Server", function()
+    local TeleportService = game:GetService("TeleportService")
+    
+    -- Obtener servidores disponibles y unirse a uno aleatorio
+    local success, result = pcall(function()
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, nil, player)
+    end)
+    
+    if not success then
+        -- Si falla, intentar teleport normal a un nuevo servidor
+        TeleportService:Teleport(game.PlaceId, player)
+    end
+    
+    print("Cambiando a otro servidor...")
+end)
+
+miscTab:AddLabel("-----{External scripts}-----")
+
+miscTab:AddButton("Infinite Yield", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+end)
+
+miscTab:AddButton("GhostX Hub", function()
+    loadstring(game:HttpGet("https://scriptblox.com/raw/Universal-Script-GhostX-Hub-7158"))()
+end)
+
+local killerTab = window:AddTab("Killer")
+local teleportTab = window:AddTab("Teleport")
+
+local creditsTab = window:AddTab("Credits")
+
+creditsTab:AddLabel("╭──────────────────────────╮")
+creditsTab:AddLabel("         Galaxy Hub")
+creditsTab:AddLabel("╰──────────────────────────╯")
+creditsTab:AddLabel("")
+creditsTab:AddLabel("Script Made By")
+creditsTab:AddLabel("")
+creditsTab:AddLabel("Sherya (Isabella)")
+creditsTab:AddLabel("")
+creditsTab:AddLabel("Instagram : sheryaluck")
+creditsTab:AddLabel("Tik tok : xvishxrys")
+creditsTab:AddLabel("Discord : isabella_hrz")
+creditsTab:AddLabel("Roblox : MissSherya")
+creditsTab:AddLabel("")
+creditsTab:AddLabel("Thanks for using the script")
+creditsTab:AddLabel("Errors to MD")
+creditsTab:AddLabel("")
+
+creditsTab:AddButton("Servidor Discord", function()
+    setclipboard("https://discord.gg/zYrg2qPjTp")
+end)
