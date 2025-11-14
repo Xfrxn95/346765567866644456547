@@ -1,0 +1,114 @@
+-- Discord Webhook Spam Script
+-- Compatible con Delta, Solara, etc.
+
+-- ============================================
+-- CONFIGURACIÓN - EDITA AQUÍ
+-- ============================================
+
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1436708593096462500/c7grZvBRsRqEBdnd4SzB4nFEJ8F_zZk1naIUfZ63AwxhNKQHE7QsZ0r_eS4hfilEYCnU" -- Coloca tu webhook de Discord aquí
+
+-- Mensaje fuera del embed (texto normal)
+local MENSAJE_NORMAL = "@everyone @here Server Raided By Galaxy Team https://discord.gg/rnDrhTZZCF https://discord.gg/zYrg2qPjTp" -- Puedes dejarlo vacío: ""
+
+-- Configuración del embed
+local EMBED_CONFIG = {
+    title = "Galaxy XVI On Top",
+    description = "Por peticion de algunos amigos este servidor ah sido raideado By Sherya, Galaxy XVI On Top, Vortex Clan On Top, SC On Top, Genesis Hub On Top",
+    color = 4522239, -- Color morado oscuro
+    footer = "By Galaxy Team",
+    author_name = "By Galaxy Team",
+    thumbnail = "", -- URL de imagen pequeña (opcional)
+    image = "https://media.discordapp.net/attachments/1235744013236043888/1253141221019222106/a_832743ec23bf9876b41d0b1611c07603-1CACD.gif?ex=691085f5&is=690f3475&hm=8ad5581542771f9f39342caeee9f3fbd0cf8e0fa97b73c9fa0d06d7bfc9058af&=" -- URL de imagen grande (opcional)
+}
+
+local CANTIDAD_WEBHOOKS = 50 -- Cantidad de webhooks a enviar
+
+-- ============================================
+-- CÓDIGO PRINCIPAL - NO EDITAR
+-- ============================================
+
+local HttpService = game:GetService("HttpService")
+
+-- Función para crear el embed
+local function crearEmbed()
+    local embed = {
+        ["title"] = EMBED_CONFIG.title,
+        ["description"] = EMBED_CONFIG.description,
+        ["color"] = EMBED_CONFIG.color,
+        ["footer"] = {
+            ["text"] = EMBED_CONFIG.footer
+        },
+        ["author"] = {
+            ["name"] = EMBED_CONFIG.author_name
+        }
+    }
+    
+    -- Agregar thumbnail si existe
+    if EMBED_CONFIG.thumbnail ~= "" then
+        embed["thumbnail"] = {
+            ["url"] = EMBED_CONFIG.thumbnail
+        }
+    end
+    
+    -- Agregar imagen si existe
+    if EMBED_CONFIG.image ~= "" then
+        embed["image"] = {
+            ["url"] = EMBED_CONFIG.image
+        }
+    end
+    
+    return embed
+end
+
+-- Función para enviar webhook
+local function enviarWebhook()
+    local data = {
+        ["content"] = MENSAJE_NORMAL,
+        ["embeds"] = {crearEmbed()}
+    }
+    
+    local jsonData = HttpService:JSONEncode(data)
+    
+    local success, result = pcall(function()
+        return request({
+            Url = WEBHOOK_URL,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = jsonData
+        })
+    end)
+    
+    return success
+end
+
+-- Enviar webhooks RÁPIDO (con pequeño delay para evitar rate limit)
+print("🚀 Enviando " .. CANTIDAD_WEBHOOKS .. " webhooks...")
+
+local enviados = 0
+local fallidos = 0
+
+for i = 1, CANTIDAD_WEBHOOKS do
+    task.spawn(function()
+        local success = enviarWebhook()
+        
+        if success then
+            enviados = enviados + 1
+            print("✅ Webhook #" .. i .. " enviado")
+        else
+            fallidos = fallidos + 1
+            print("❌ Webhook #" .. i .. " falló")
+        end
+    end)
+    
+    -- Pequeño delay para evitar rate limit de Discord (0.4 segundos)
+    task.wait(0.4)
+end
+
+-- Esperar un poco más para asegurar que todos terminen
+task.wait(1)
+
+print("Enviados: " .. enviados)
+print("Fallidos: " .. fallidos)
+print("¡Proceso completado en tiempo récord!")
