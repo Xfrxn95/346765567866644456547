@@ -3,7 +3,7 @@ local VirtualUser = game:GetService("VirtualUser")
 local LocalPlayer = Players.LocalPlayer
 
 local whitelist = {
-    "Vortex", 
+    "MVX", 
 }
 
 local allowed = false
@@ -27,9 +27,9 @@ end)
 
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Sherya-Script-Private/Elerium-V5/refs/heads/main/Library"))()
 
-local title = ("Vortex Private | Welcome %s"):format(LocalPlayer.DisplayName)
+local title = ("MVX Private | Welcome %s"):format(LocalPlayer.DisplayName)
 local window = library:AddWindow(title, {
-    main_color = Color3.fromRGB(13, 0, 161),
+    main_color = Color3.fromRGB(34, 56, 34),
     min_size = Vector2.new(700, 800),
     can_resize = true,
 })
