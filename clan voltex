@@ -496,7 +496,7 @@ AutoFarm:AddSwitch("Anti AFK", function(state)
         uselesslabelone.Position = UDim2.new(0.3,0,0,0)
         uselesslabelone.Size = UDim2.new(0,95,0,24)
         uselesslabelone.Font = Enum.Font.SourceSans
-        uselesslabelone.Text = "Anti AFK V2 By Sherya"
+        uselesslabelone.Text = "Anti AFK V2"
         uselesslabelone.TextColor3 = Color3.fromRGB(255,255,255)
         uselesslabelone.TextSize = 14
 
@@ -3222,10 +3222,12 @@ end)
 
 local Credits = window:AddTab("Credits")
 
-Credits:AddLabel("Script Clan Vortex").TextSize = 30
+Credits:AddLabel("Script Clan MVX Private").TextSize = 30
 Credits:AddLabel("")
 Credits:AddLabel("Made By").TextSize = 25
 Credits:AddLabel("---{Sherya}---").TextSize = 20
 Credits:AddLabel("---{Alejandro}---").TextSize = 20
+Credits:AddLabel("---{Rafael}---").TextSize = 20
+Credits:AddLabel("---{Jxssxn}---").TextSize = 20
 Credits:AddLabel("----------------------------------------------------")
-Credits:AddLabel("Vortex On Top").Texsize = 30
+Credits:AddLabel("MVX On Top").Texsize = 30
