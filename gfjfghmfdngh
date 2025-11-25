@@ -1,0 +1,2507 @@
+local v32 = loadstring(game:HttpGet("https://raw.githubusercontent.com/memejames/elerium-v2-ui-library//main/Library", true))():AddWindow("Beamed v2 (Rework) Cracked By Sherya", {
+	["main_color"] = Color3.fromRGB(50, 50, 50),
+	["min_size"] = Vector2.new(510, 490),
+	["can_resize"] = false
+})
+local v33 = v32:AddTab("Main")
+local v34 = v33:AddFolder(" Auto Brawl")
+v34:AddSwitch("Auto Join Brawl (God mode)", function(p35)
+	if p35 then
+		_G.autobrawl = true
+		game:GetService("ReplicatedStorage").rEvents.brawlEvent:FireServer(unpack({ "joinBrawl" }))
+		game:GetService("RunService").RenderStepped:Wait()
+		if not _G.autobrawl then
+			goto l5
+		end
+	end
+	_G.autobrawl = false
+	::l5::
+end)
+v34:AddSwitch("Auto Join Brawl (For Farming)", function(p36)
+	if p36 then
+		_G.autobrawl = true
+		game:GetService("ReplicatedStorage").rEvents.brawlEvent:FireServer(unpack({ "joinBrawl" }))
+		for _ = 1, 60 do
+			if not _G.autobrawl then
+				break
+			end
+			wait(1)
+		end
+		if not _G.autobrawl then
+			goto l11
+		end
+	end
+	_G.autobrawl = false
+	::l11::
+end)
+local v37 = v33:AddFolder("Jungle Gym Farm")
+v37:AddLabel("Jungle Gym")
+v37:AddSwitch("Auto Jungle Bench", function(p38)
+	if p38 then
+		_G.automlking = true
+		while true do
+			local v39 = { "useMachine", workspace.machinesFolder:FindFirstChild("Jungle Bench").interactSeat }
+			game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v39))
+			local v40 = game.Players.LocalPlayer.Character
+			local v41 = Vector3.new(-8172.83154296875, 6.800222396850586, 1916.639404296875)
+			if v40 then
+				v40.HumanoidRootPart.CFrame = CFrame.new(v41)
+			end
+			wait()
+			local v42 = { "rep", workspace.machinesFolder:FindFirstChild("Jungle Bench").interactSeat }
+			game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v42))
+			game:GetService("RunService").RenderStepped:Wait()
+			if not _G.automlking then
+				goto l10
+			end
+		end
+	else
+		_G.automlking = false
+		::l10::
+		return
+	end
+end)
+v37:AddSwitch("Auto Jungle Bar Lift", function(p43)
+	if p43 then
+		_G.automlking = true
+		while true do
+			local v44 = { "useMachine", workspace.machinesFolder:FindFirstChild("Jungle Bar Lift").interactSeat }
+			game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v44))
+			local v45 = game.Players.LocalPlayer.Character
+			local v46 = Vector3.new(-8652.8671875, 6.800219535827637, 2089.26171875)
+			if v45 then
+				v45.HumanoidRootPart.CFrame = CFrame.new(v46)
+			end
+			wait()
+			local v47 = { "rep", workspace.machinesFolder:FindFirstChild("Jungle Bar Lift").interactSeat }
+			game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v47))
+			game:GetService("RunService").RenderStepped:Wait()
+			if not _G.automlking then
+				goto l10
+			end
+		end
+	else
+		_G.automlking = false
+		::l10::
+		return
+	end
+end)
+v37:AddSwitch("Auto Jungle Boulder", function(p48)
+	if p48 then
+		_G.automlking = true
+		local v49 = { "useMachine", workspace.machinesFolder:FindFirstChild("Jungle Boulder").interactSeat }
+		game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v49))
+		local v50 = game.Players.LocalPlayer.Character
+		local v51 = Vector3.new(-8616.591796875, 6.800220489501953, 2677.15478515625)
+		if v50 then
+			v50.HumanoidRootPart.CFrame = CFrame.new(v51)
+		end
+		wait()
+		local v52 = { "rep", workspace.machinesFolder:FindFirstChild("Jungle Boulder").interactSeat }
+		game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v52))
+		game:GetService("RunService").RenderStepped:Wait()
+		if not _G.automlking then
+			goto l8
+		end
+	end
+	_G.automlking = false
+	::l8::
+end)
+v37:AddSwitch("Auto Jungle Squat", function(p53)
+	if p53 then
+		_G.automlking = true
+		while true do
+			local v54 = { "useMachine", workspace.machinesFolder:FindFirstChild("Jungle Squat").interactSeat }
+			game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v54))
+			local v55 = game.Players.LocalPlayer.Character
+			local v56 = Vector3.new(-8377.27734375, 6.800219535827637, 2863.696533203125)
+			if v55 then
+				v55.HumanoidRootPart.CFrame = CFrame.new(v56)
+			end
+			wait();
+			({ "rep" })[2] = workspace.machinesFolder:FindFirstChild("Jungle Squat").interactSeat
+			game:GetService()
+			game:GetService("RunService").RenderStepped:Wait()
+			if not _G.automlking then
+				goto l10
+			end
+		end
+	else
+		_G.automlking = falseice("Players").LocalPlayer.muscleEvent:FireServer(unpack(args))
+		::l10::
+		return
+	end
+end)
+local v57 = v33:AddFolder("Auto Gym")
+v57:AddLabel("King Island")
+v57:AddSwitch("Auto Muscle King Bench", function(p58)
+	if p58 then
+		_G.automlking = true
+		while true do
+			local v59 = { "useMachine", workspace.machinesFolder:FindFirstChild("Muscle King Bench").interactSeat }
+			game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v59))
+			local v60 = game.Players.LocalPlayer.Character
+			local v61 = Vector3.new(-8593.6884765625, 22.231548309326172, -6061.2900390625)
+			if v60 then
+				v60.HumanoidRootPart.CFrame = CFrame.new(v61)
+			end
+			wait()
+			local v62 = { "rep", workspace.machinesFolder:FindFirstChild("Muscle King Bench").interactSeat }
+			game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v62))
+			game:GetService("RunService").RenderStepped:Wait()
+			if not _G.automlking then
+				goto l10
+			end
+		end
+	else
+		_G.automlking = false
+		::l10::
+		return
+	end
+end)
+v57:AddSwitch("Auto Muscle King Squat", function(p63)
+	if p63 then
+		_G.automlking = true
+		while true do
+			local v64 = { "useMachine", workspace.machinesFolder:FindFirstChild("Muscle King Squat").interactSeat }
+			game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v64))
+			local v65 = game.Players.LocalPlayer.Character
+			local v66 = Vector3.new(-8758.4794921875, 45.82110595703125, -6042.20263671875)
+			if v65 then
+				v65.HumanoidRootPart.CFrame = CFrame.new(v66)
+			end
+			wait()
+			local v67 = { "rep", workspace.machinesFolder:FindFirstChild("Muscle King Squat").interactSeat }
+			game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v67))
+			game:GetService("RunService").RenderStepped:Wait()
+			if not _G.automlking then
+				goto l10
+			end
+		end
+	else
+		_G.automlking = false
+		::l10::
+		return
+	end
+end)
+v57:AddSwitch("Auto Muscle Boulder", function(p68)
+	if p68 then
+		_G.automlking = true
+		while true do
+			local v69 = { "useMachine", workspace.machinesFolder:FindFirstChild("King Boulder").interactSeat }
+			game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v69))
+			local v70 = game.Players.LocalPlayer.Character
+			local v71 = Vector3.new(-8942.234375, 49.40863800048828, -5691.60986328125)
+			if v70 then
+				v70.HumanoidRootPart.CFrame = CFrame.new(v71)
+			end
+			wait()
+			local v72 = { "rep", workspace.machinesFolder:FindFirstChild("King Boulder").interactSeat }
+			game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v72))
+			game:GetService("RunService").RenderStepped:Wait()
+			if not _G.automlking then
+				goto l10
+			end
+		end
+	else
+		_G.automlking = false
+		::l10::
+		return
+	end
+end)
+v57:AddSwitch("Auto Muscle King Lift", function(p73)
+	if p73 then
+		_G.automlking = true
+		while true do
+			local v74 = { "useMachine", workspace.machinesFolder:FindFirstChild("Muscle King Lift").interactSeat }
+			game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v74))
+			local v75 = game.Players.LocalPlayer.Character
+			local v76 = Vector3.new(-8772.962890625, 51.2847785949707, -5662.82373046875)
+			if v75 then
+				v75.HumanoidRootPart.CFrame = CFrame.new(v76)
+			end
+			wait()
+			local v77 = { "rep", workspace.machinesFolder:FindFirstChild("Muscle King Lift").interactSeat }
+			game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v77))
+			game:GetService("RunService").RenderStepped:Wait()
+			if not _G.automlking then
+				goto l10
+			end
+		end
+	else
+		_G.automlking = false
+		::l10::
+		return
+	end
+end)
+v57:AddLabel("Legends ISland")
+v57:AddSwitch("Auto Legends Press", function(p78)
+	if p78 then
+		_G.autolegends = true
+		local v79 = { "useMachine", workspace.machinesFolder:FindFirstChild("Legends Press").interactSeat }
+		game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v79))
+		local v80 = game.Players.LocalPlayer.Character
+		local v81 = Vector3.new(4097.8427734375, 996.5140380859375, -3787.60791015625)
+		if v80 then
+			v80.HumanoidRootPart.CFrame = CFrame.new(v81)
+		end
+		wait()
+		local v82 = { "rep", workspace.machinesFolder:FindFirstChild("Legends Press").interactSeat }
+		game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v82))
+		game:GetService("RunService").RenderStepped:Wait()
+		if not _G.autolegends then
+			goto l8
+		end
+	end
+	_G.autolegends = false
+	::l8::
+end)
+v57:AddSwitch("Auto Legends Squat", function(p83)
+	if p83 then
+		_G.autolegends = true
+		local v84 = { "useMachine", workspace.machinesFolder:FindFirstChild("Legends Squat").interactSeat }
+		game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v84))
+		local v85 = game.Players.LocalPlayer.Character
+		local v86 = Vector3.new(4439.38720703125, 1019.1768798828125, -4057.5859375)
+		if v85 then
+			v85.HumanoidRootPart.CFrame = CFrame.new(v86)
+		end
+		wait()
+		local v87 = { "rep", workspace.machinesFolder:FindFirstChild("Legends Squat").interactSeat }
+		game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v87))
+		game:GetService("RunService").RenderStepped:Wait()
+		if not _G.autolegends then
+			goto l8
+		end
+	end
+	_G.autolegends = false
+	::l8::
+end)
+v57:AddSwitch("Auto Legends Lift", function(p88)
+	if p88 then
+		_G.autolegends = true
+		local v89 = { "useMachine", workspace.machinesFolder:FindFirstChild("Legends Lift").interactSeat }
+		game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v89))
+		local v90 = game.Players.LocalPlayer.Character
+		local v91 = Vector3.new(4532.28466796875, 1023.3535766601562, -4002.943115234375)
+		if v90 then
+			v90.HumanoidRootPart.CFrame = CFrame.new(v91)
+		end
+		wait()
+		local v92 = { "rep", workspace.machinesFolder:FindFirstChild("Legends Lift").interactSeat }
+		game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v92))
+		game:GetService("RunService").RenderStepped:Wait()
+		if not _G.autolegends then
+			goto l8
+		end
+	end
+	_G.autolegends = false
+	::l8::
+end)
+v57:AddSwitch("Auto Legends Pullup", function(p93)
+	if p93 then
+		_G.autolegends = true
+		local v94 = { "useMachine", workspace.machinesFolder:FindFirstChild("Legends Pullup").interactSeat }
+		game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v94))
+		local v95 = game.Players.LocalPlayer.Character
+		local v96 = Vector3.new(4304.2138671875, 1020.4078369140625, -4121.30810546875)
+		if v95 then
+			v95.HumanoidRootPart.CFrame = CFrame.new(v96)
+		end
+		wait()
+		local v97 = { "rep", workspace.machinesFolder:FindFirstChild("Legends Pullup").interactSeat }
+		game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v97))
+		game:GetService("RunService").RenderStepped:Wait()
+		if not _G.autolegends then
+			goto l8
+		end
+	end
+	_G.autolegends = false
+	::l8::
+end)
+local v98 = game:GetService("Players")
+game:GetService("RunService")
+local v_u_99 = v98.LocalPlayer
+local v_u_100 = nil
+local v_u_101 = {}
+local function v_u_107()
+	-- upvalues: (ref) v_u_99, (ref) v_u_100, (ref) v_u_101
+	local v102 = v_u_99.Character
+	if v102 then
+		local v_u_103 = v102:WaitForChild("Humanoid")
+		local v_u_104 = v102:WaitForChild("HumanoidRootPart")
+		v_u_100 = Instance.new("BodyVelocity")
+		v_u_100.Velocity = Vector3.new(0, 0, 0)
+		v_u_100.MaxForce = Vector3.new(100000, 0, 100000)
+		v_u_100.Parent = v_u_104
+		local v105 = v_u_104
+		table.insert(v_u_101, v_u_104.GetPropertyChangedSignal(v105, "Velocity"):Connect(function()
+			-- upvalues: (ref) v_u_104
+			if _G.antiKnockback then
+				v_u_104.Velocity = Vector3.new(0, v_u_104.Velocity.Y, 0)
+			end
+		end))
+		local v106 = v_u_103
+		table.insert(v_u_101, v_u_103.GetPropertyChangedSignal(v106, "PlatformStand"):Connect(function()
+			-- upvalues: (ref) v_u_103
+			if _G.antiKnockback and v_u_103.PlatformStand then
+				v_u_103.PlatformStand = false
+			end
+		end))
+	end
+end
+local function v_u_112()
+	-- upvalues: (ref) v_u_100, (ref) v_u_101
+	if v_u_100 then
+		v_u_100:Destroy()
+		v_u_100 = nil
+	end
+	local v108, v109, v110 = ipairs(v_u_101)
+	while true do
+		local v111
+		v110, v111 = v108(v109, v110)
+		if v110 == nil then
+			break
+		end
+		v111:Disconnect()
+	end
+	v_u_101 = {}
+end
+local function v113(_)
+	-- upvalues: (ref) v_u_107
+	if _G.antiKnockback then
+		v_u_107()
+	end
+end
+if v_u_99.Character then
+	v113(v_u_99.Character)
+end
+v_u_99.CharacterAdded:Connect(v113)
+local v_u_114 = v33:AddFolder("OP things/farms")
+v_u_114:AddSwitch("Anti Knockback", function(p115)
+	-- upvalues: (ref) v_u_107, (ref) v_u_112
+	_G.antiKnockback = p115
+	if p115 then
+		v_u_107()
+	else
+		v_u_112()
+	end
+end)
+_G.antiKnockback = _G.antiKnockback or false
+v_u_114:AddLabel("-----| Weight + Punch |-----")
+game:GetService("RunService")
+local v_u_116 = game:GetService("Players").LocalPlayer
+local function v133(p117, p_u_118, p_u_119, p_u_120)
+	-- upvalues: (ref) v_u_116, (ref) v_u_114
+	local v_u_121 = false
+	local function v_u_124()
+		-- upvalues: (ref) v_u_116, (ref) p_u_118
+		local v122 = v_u_116:FindFirstChild("Backpack")
+		local v123 = v122 and v122:FindFirstChild(p_u_118)
+		if v123 and not v_u_116.Character:FindFirstChild(p_u_118) then
+			v_u_116.Character.Humanoid:EquipTool(v123)
+		end
+	end
+	local function v_u_126()
+		-- upvalues: (ref) v_u_116, (ref) p_u_118
+		local v125 = v_u_116.Character and v_u_116.Character:FindFirstChild(p_u_118)
+		if v125 then
+			v125.Parent = v_u_116.Backpack
+		end
+	end
+	local v132 = v_u_114:AddSwitch(p117, function(p127)
+		-- upvalues: (ref) v_u_121, (ref) v_u_124, (ref) v_u_116, (ref) p_u_119, (ref) p_u_120, (ref) v_u_126
+		v_u_121 = p127
+		if v_u_121 then
+			v_u_124()
+			_G.autopunch = true
+			task.spawn(function()
+				-- upvalues: (ref) v_u_121, (ref) v_u_116, (ref) p_u_119, (ref) p_u_120, (ref) v_u_124
+				while v_u_121 do
+					v_u_116.muscleEvent:FireServer(unpack({ "rep" }))
+					local v128 = game.workspace.machinesFolder:FindFirstChild(p_u_119)
+					if v128 and v_u_116.Character and v_u_116.Character:FindFirstChild("LeftHand") then
+						firetouchinterest(v128.Rock, v_u_116.Character.LeftHand, 0)
+						wait(p_u_120)
+						firetouchinterest(v128.Rock, v_u_116.Character.LeftHand, 1)
+					end
+					local v129 = v_u_116.Character
+					local v130
+					if v129 then
+						v130 = v129:FindFirstChildOfClass("Humanoid")
+					else
+						v130 = v129
+					end
+					if v129 and v130 then
+						local v131 = v_u_116.Backpack:FindFirstChild("Punch")
+						if v131 then
+							v130:EquipTool(v131)
+						end
+						v_u_116.muscleEvent:FireServer(unpack({ "punch", "rightHand" }))
+						v_u_116.muscleEvent:FireServer(unpack({ "punch", "leftHand" }))
+					end
+					game:GetService("RunService").RenderStepped:Wait()
+					v_u_124()
+				end
+			end)
+		else
+			_G.autopunch = false
+			v_u_126()
+		end
+	end)
+	v_u_116.CharacterAdded:Connect(function(_)
+		-- upvalues: (ref) v_u_121, (ref) v_u_124, (ref) v_u_126
+		if v_u_121 then
+			v_u_124()
+		else
+			v_u_126()
+		end
+	end)
+	v132:Set(false)
+end
+v133("Auto Pushup + Auto Punch Rock", "Pushups", "Ancient Jungle Rock", 0.0001)
+v133("Auto Situp + Auto Punch Rock", "Situps", "Ancient Jungle Rock", 0.0001)
+v133("Auto Handstands + Auto Punch Rock", "Handstands", "Ancient Jungle Rock", 0.0001)
+v133("Auto Weight + Auto Punch Rock", "Weight", "Ancient Jungle Rock", 0.0001)
+v_u_114:AddLabel("-----| Auto Glitch |-----")
+local v_u_134 = game:GetService("RunService")
+local v_u_135 = game:GetService("Players").LocalPlayer
+local v_u_136 = game:GetService("Workspace")
+local function v_u_138()
+	-- upvalues: (ref) v_u_136
+	local v137 = Instance.new("Part")
+	v137.Size = Vector3.new(30, 1, 30)
+	v137.Position = Vector3.new(5048.706, 0, 24828.689)
+	v137.Anchored = true
+	v137.Parent = v_u_136
+	return v137
+end
+local function v_u_139()
+	-- upvalues: (ref) v_u_135, (ref) v_u_134
+	while _G.autoTeleport do
+		if v_u_135.Character and v_u_135.Character:FindFirstChild("HumanoidRootPart") then
+			v_u_135.Character.HumanoidRootPart.CFrame = CFrame.new(5048.706, 5, 24828.689)
+		end
+		v_u_134.Heartbeat:Wait()
+	end
+end
+local function v146(p140, p_u_141, p_u_142)
+	-- upvalues: (ref) v_u_114, (ref) v_u_138, (ref) v_u_139, (ref) v_u_136, (ref) v_u_135, (ref) v_u_134
+	local v_u_143 = false
+	v_u_114:AddSwitch("Auto Glitch | " .. p140, function(p144)
+		-- upvalues: (ref) v_u_143, (ref) v_u_138, (ref) v_u_139, (ref) v_u_136, (ref) p_u_141, (ref) v_u_135, (ref) p_u_142, (ref) v_u_134
+		v_u_143 = p144
+		_G.autoTeleport = p144
+		if v_u_143 then
+			v_u_138()
+			task.spawn(v_u_139)
+			task.spawn(function()
+				-- upvalues: (ref) v_u_143, (ref) v_u_136, (ref) p_u_141, (ref) v_u_135, (ref) p_u_142, (ref) v_u_134
+				while v_u_143 do
+					local v145 = v_u_136.machinesFolder:FindFirstChild(p_u_141)
+					if v145 and v_u_135.Character and v_u_135.Character:FindFirstChild("LeftHand") then
+						firetouchinterest(v145.Rock, v_u_135.Character.LeftHand, 0)
+						wait(p_u_142)
+						firetouchinterest(v145.Rock, v_u_135.Character.LeftHand, 1)
+					end
+					v_u_134.Heartbeat:Wait()
+				end
+			end)
+		end
+	end)
+end
+v146("Jungle Rock (10M)", "Ancient Jungle Rock", 0.0001)
+v146("King Rock (5M)", "Muscle King Mountain", 0.0001)
+v146("Legends Rock (1M)", "Rock Of Legends", 0.01)
+v_u_114:AddSwitch("Auto Punch | Click me!", function(p147)
+	-- upvalues: (ref) v_u_134, (ref) v_u_135
+	_G.autopunch = p147
+	if p147 then
+		local v_u_148 = nil
+		v_u_148 = v_u_134.Heartbeat:Connect(function()
+			-- upvalues: (ref) v_u_148, (ref) v_u_135
+			if _G.autopunch then
+				local v149 = v_u_135.Character
+				local v150
+				if v149 then
+					v150 = v149:FindFirstChildOfClass("Humanoid")
+				else
+					v150 = v149
+				end
+				if v149 and v150 then
+					local v151 = v_u_135.Backpack:FindFirstChild("Punch")
+					if v151 then
+						v150:EquipTool(v151)
+					end
+					v_u_135.muscleEvent:FireServer(unpack({ "punch", "rightHand" }))
+					v_u_135.muscleEvent:FireServer(unpack({ "punch", "leftHand" }))
+				end
+			else
+				v_u_148:Disconnect()
+				return
+			end
+		end)
+	end
+end)
+local v152 = v32:AddTab("Farm++")
+local v153 = v152:AddFolder("Auto Gym++")
+v153:AddLabel("Inferno ISland")
+v153:AddSwitch("Auto Inferno Press", function(p154)
+	if p154 then
+		_G.autoet = true
+		local v155 = { "useMachine", workspace.machinesFolder:FindFirstChild("Eternal Press").interactSeat }
+		game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v155))
+		local v156 = game.Players.LocalPlayer.Character
+		local v157 = Vector3.new(-7162.3154296875, 12.490599632263184, -1088.469482421875)
+		if v156 then
+			v156.HumanoidRootPart.CFrame = CFrame.new(v157)
+		end
+		wait()
+		local v158 = { "rep", workspace.machinesFolder:FindFirstChild("Eternal Press").interactSeat }
+		game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v158))
+		game:GetService("RunService").RenderStepped:Wait()
+		if not _G.autoet then
+			goto l8
+		end
+	end
+	_G.autoet = false
+	::l8::
+end)
+v153:AddLabel("Mythical ISland")
+v153:AddSwitch("Auto Mythical Press", function(p159)
+	if p159 then
+		_G.automy = true
+		local v160 = { "useMachine", workspace.machinesFolder:FindFirstChild("Mythical Press").interactSeat }
+		game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v160))
+		local v161 = game.Players.LocalPlayer.Character
+		local v162 = Vector3.new(2387.612060546875, 12.143051147460938, 1242.2725830078125)
+		if v161 then
+			v161.HumanoidRootPart.CFrame = CFrame.new(v162)
+		end
+		wait()
+		local v163 = { "rep", workspace.machinesFolder:FindFirstChild("Mythical Press").interactSeat }
+		game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v163))
+		game:GetService("RunService").RenderStepped:Wait()
+		if not _G.automy then
+			goto l8
+		end
+	end
+	_G.automy = false
+	::l8::
+end)
+v153:AddSwitch("Auto Mythical Throw", function(p164)
+	if p164 then
+		_G.automy = true
+		local v165 = { "useMachine", workspace.machinesFolder:FindFirstChild("Mythical Throw").interactSeat }
+		game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v165))
+		local v166 = game.Players.LocalPlayer.Character
+		local v167 = Vector3.new(2667.735107421875, 50.8892936706543, 1203.2392578125)
+		if v166 then
+			v166.HumanoidRootPart.CFrame = CFrame.new(v167)
+		end
+		wait()
+		local v168 = { "rep", workspace.machinesFolder:FindFirstChild("Mythical Throw").interactSeat }
+		game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v168))
+		game:GetService("RunService").RenderStepped:Wait()
+		if not _G.automy then
+			goto l8
+		end
+	end
+	_G.automy = false
+	::l8::
+end)
+v153:AddSwitch("Auto Mythical Pullup", function(p169)
+	if p169 then
+		_G.automy = true
+		while true do
+			local v170 = { "useMachine", workspace.machinesFolder:FindFirstChild("Mythical Pullup").interactSeat }
+			game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v170))
+			local v171 = game.Players.LocalPlayer.Character
+			local v172 = Vector3.new(2487.224365234375, 30.185104370117188, 849.0030517578125)
+			if v171 then
+				v171.HumanoidRootPart.CFrame = CFrame.new(v172)
+			end
+			wait()
+			local v173 = { "rep", workspace.machinesFolder:FindFirstChild("Mythical Pullup").interactSeat }
+			game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v173))
+			game:GetService("RunService").RenderStepped:Wait()
+			if not _G.automy then
+				goto l10
+			end
+		end
+	else
+		_G.automy = false
+		::l10::
+		return
+	end
+end)
+v153:AddLabel("Frost Island")
+v153:AddSwitch("Auto Frost Press", function(p174)
+	if p174 then
+		_G.autofrost = true
+		while true do
+			local v175 = { "useMachine", workspace.machinesFolder:FindFirstChild("Frost Press").interactSeat }
+			game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v175))
+			local v176 = game.Players.LocalPlayer.Character
+			local v177 = Vector3.new(-3022.441650390625, 12.486576080322266, -324.4793701171875)
+			if v176 then
+				v176.HumanoidRootPart.CFrame = CFrame.new(v177)
+			end
+			wait()
+			local v178 = { "rep", workspace.machinesFolder:FindFirstChild("Frost Press").interactSeat }
+			game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v178))
+			game:GetService("RunService").RenderStepped:Wait()
+			if not _G.autofrost then
+				goto l10
+			end
+		end
+	else
+		_G.autofrost = false
+		::l10::
+		return
+	end
+end)
+v153:AddSwitch("Auto Frost Lift", function(p179)
+	if p179 then
+		_G.autofrost = true
+		while true do
+			local v180 = { "useMachine", workspace.machinesFolder:FindFirstChild("Frost Lift").interactSeat }
+			game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v180))
+			local v181 = game.Players.LocalPlayer.Character
+			local v182 = Vector3.new(-2917.79833984375, 39.843353271484375, -209.55641174316406)
+			if v181 then
+				v181.HumanoidRootPart.CFrame = CFrame.new(v182)
+			end
+			wait()
+			local v183 = { "rep", workspace.machinesFolder:FindFirstChild("Frost Lift").interactSeat }
+			game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v183))
+			game:GetService("RunService").RenderStepped:Wait()
+			if not _G.autofrost then
+				goto l10
+			end
+		end
+	else
+		_G.autofrost = false
+		::l10::
+		return
+	end
+end)
+v153:AddSwitch("Auto Frost Squat", function(p184)
+	if p184 then
+		_G.autofrost = true
+		while true do
+			local v185 = { "useMachine", workspace.machinesFolder:FindFirstChild("Frost Squat").interactSeat }
+			game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer(unpack(v185))
+			local v186 = game.Players.LocalPlayer.Character
+			local v187 = Vector3.new(-2720.13232421875, 29.353620529174805, -590.1256103515625)
+			if v186 then
+				v186.HumanoidRootPart.CFrame = CFrame.new(v187)
+			end
+			wait()
+			local v188 = { "rep", workspace.machinesFolder:FindFirstChild("Frost Squat").interactSeat }
+			game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack(v188))
+			game:GetService("RunService").RenderStepped:Wait()
+			if not _G.autofrost then
+				goto l10
+			end
+		end
+	else
+		_G.autofrost = false
+		::l10::
+		return
+	end
+end)
+local v_u_189 = v152:AddFolder("Auto Rock")
+local v_u_190 = game:GetService("RunService")
+local v_u_191 = game:GetService("Players").LocalPlayer
+local function v199(p192, p_u_193, p_u_194)
+	-- upvalues: (ref) v_u_189, (ref) v_u_191, (ref) v_u_190
+	local v_u_195 = false
+	v_u_189:AddSwitch(p192, function(p196)
+		-- upvalues: (ref) v_u_195, (ref) p_u_193, (ref) v_u_191, (ref) p_u_194, (ref) v_u_190
+		v_u_195 = p196
+		if v_u_195 then
+			task.spawn(function()
+				-- upvalues: (ref) v_u_195, (ref) p_u_193, (ref) v_u_191, (ref) p_u_194, (ref) v_u_190
+				while v_u_195 do
+					local v197 = game.workspace.machinesFolder:FindFirstChild(p_u_193)
+					if v197 and v_u_191.Character and v_u_191.Character:FindFirstChild("LeftHand") then
+						firetouchinterest(v197.Rock, v_u_191.Character.LeftHand, 0)
+						wait(p_u_194)
+						firetouchinterest(v197.Rock, v_u_191.Character.LeftHand, 1)
+					end
+					v_u_190.Heartbeat:Wait()
+				end
+			end)
+		end
+	end)
+	v_u_191.CharacterAdded:Connect(function()
+		-- upvalues: (ref) v_u_195, (ref) p_u_193, (ref) v_u_191, (ref) p_u_194, (ref) v_u_190
+		if v_u_195 then
+			task.spawn(function()
+				-- upvalues: (ref) v_u_195, (ref) p_u_193, (ref) v_u_191, (ref) p_u_194, (ref) v_u_190
+				while v_u_195 do
+					local v198 = game.workspace.machinesFolder:FindFirstChild(p_u_193)
+					if v198 and v_u_191.Character and v_u_191.Character:FindFirstChild("LeftHand") then
+						firetouchinterest(v198.Rock, v_u_191.Character.LeftHand, 0)
+						wait(p_u_194)
+						firetouchinterest(v198.Rock, v_u_191.Character.LeftHand, 1)
+					end
+					v_u_190.Heartbeat:Wait()
+				end
+			end)
+		end
+	end)
+end
+v199("Auto Punch Jungle Rock (10M)", "Ancient Jungle Rock", 0.0001)
+v199("Auto Punch King Rock (5M)", "Muscle King Mountain", 0.0001)
+v199("Auto Punch Legends Rock (1M)", "Rock Of Legends", 0.01)
+v199("Auto Punch Inferno Rock (750K)", "Inferno Rock", 0.01)
+v199("Auto Punch Mystic Rock (400K) Broken", "machinesFolder:GetChildren()[6]", 0.01)
+v199("Auto Punch Frozen Rock (150K)", "Frozen Rock", 0.01)
+local v200 = v_u_189
+v_u_189.AddLabel(v200, "-- Other Rock --")
+v199("Auto Punch Golden Rock (5K)", "Punching Rock", 0.01)
+v199("Auto Punch Tiny Rock (0)", "Tiny Rock", 0.01)
+local v201 = v152:AddFolder(" Auto Rock V2")
+v201:AddSwitch("Auto Rock (5M)", function(p202)
+	if p202 then
+		_G.SafeZone = true
+		while true do
+			local v203 = game.Players.LocalPlayer.Character
+			local v204 = Vector3.new(-8976, 9, -6130)
+			if v203 then
+				v203.HumanoidRootPart.CFrame = CFrame.new(v204)
+			end
+			wait(0.001)
+			if not _G.SafeZone then
+				goto l10
+			end
+		end
+	else
+		_G.SafeZone = false
+		::l10::
+		return
+	end
+end)
+v201:AddSwitch("Auto Rock (1M)", function(p205)
+	if p205 then
+		_G.SafeZone = true
+		while true do
+			local v206 = game.Players.LocalPlayer.Character
+			local v207 = Vector3.new(4111.1640625, 991.6776123046875, -4043.022216796875)
+			if v206 then
+				v206.HumanoidRootPart.CFrame = CFrame.new(v207)
+			end
+			wait(0.001)
+			if not _G.SafeZone then
+				goto l10
+			end
+		end
+	else
+		_G.SafeZone = false
+		::l10::
+		return
+	end
+end)
+v201:AddSwitch("Auto Rock (750K)", function(p208)
+	if p208 then
+		_G.SafeZone = true
+		local v209 = game.Players.LocalPlayer.Character
+		local v210 = Vector3.new(-7293.1806640625, 8.422783851623535, -1232.740478515625)
+		if v209 then
+			v209.HumanoidRootPart.CFrame = CFrame.new(v210)
+		end
+		wait(0.001)
+		if not _G.SafeZone then
+			goto l8
+		end
+	end
+	_G.SafeZone = false
+	::l8::
+end)
+v201:AddSwitch("Auto Rock (400K)", function(p211)
+	if p211 then
+		_G.SafeZone = true
+		local v212 = game.Players.LocalPlayer.Character
+		local v213 = Vector3.new(2152.554931640625, 10.173534393310547, 1272.4615478515625)
+		if v212 then
+			v212.HumanoidRootPart.CFrame = CFrame.new(v213)
+		end
+		wait(0.001)
+		if not _G.SafeZone then
+			goto l8
+		end
+	end
+	_G.SafeZone = false
+	::l8::
+end)
+v201:AddSwitch("Auto Rock (150K)", function(p214)
+	if p214 then
+		_G.SafeZone = true
+		while true do
+			local v215 = game.Players.LocalPlayer.Character
+			local v216 = Vector3.new(-2528.792724609375, 7.32121467590332, -207.19921875)
+			if v215 then
+				v215.HumanoidRootPart.CFrame = CFrame.new(v216)
+			end
+			wait(0.001)
+			if not _G.SafeZone then
+				goto l10
+			end
+		end
+	else
+		_G.SafeZone = false
+		::l10::
+		return
+	end
+end)
+v201:AddLabel("----Use Auto Punch {With Movement}----")
+local v217 = v152:AddFolder("Rebirth (Use with caution)")
+local v_u_218 = 0
+local v_u_219 = false
+v217:AddTextBox("Target Rebirth", function(p220)
+	-- upvalues: (ref) v_u_218
+	local v221 = tonumber(p220)
+	if v221 then
+		v_u_218 = v221
+	end
+end)
+v217:AddSwitch("Auto Rebirth on Target rebirths", function(p222)
+	-- upvalues: (ref) v_u_219
+	v_u_219 = p222
+	if v_u_219 then
+		FarmRebirths()
+	end
+end)
+function FarmRebirths()
+	-- upvalues: (ref) v_u_219, (ref) v_u_218
+	local v223 = game.Players.LocalPlayer
+	local v224 = v223:WaitForChild("leaderstats"):WaitForChild("Rebirths")
+	while v_u_219 do
+		wait(1)
+		if v_u_218 <= v224.Value then
+			v_u_219 = false
+			return
+		end
+		if v223.Character and v223.Character:FindFirstChild("HumanoidRootPart") then
+			game:GetService("ReplicatedStorage").rEvents.rebirthRemote:InvokeServer(unpack({ "rebirthRequest" }))
+		end
+	end
+end
+v217:AddSwitch("Auto Rebirth", function(p225)
+	if p225 then
+		_G.autoreb = true
+		repeat
+			game:GetService("ReplicatedStorage").rEvents.rebirthRemote:InvokeServer(unpack({ "rebirthRequest" }))
+		until not _G.autoreb
+	else
+		_G.autoreb = false
+	end
+end)
+local v_u_226 = 2
+local v_u_227 = false
+v217:AddSwitch("Auto Set Size 2", function(p228)
+	-- upvalues: (ref) v_u_227, (ref) v_u_226
+	v_u_227 = p228
+	if p228 then
+		_G.autoSetSizeEnabled = true
+		game:GetService("ReplicatedStorage").rEvents.changeSpeedSizeRemote:InvokeServer("changeSize", v_u_226)
+		if not _G.autoSetSizeEnabled then
+			goto l5
+		end
+	end
+	_G.autoSetSizeEnabled = false
+	::l5::
+end)
+local function v229()
+	-- upvalues: (ref) v_u_227, (ref) v_u_226
+	while v_u_227 do
+		game:GetService("ReplicatedStorage").rEvents.changeSpeedSizeRemote:InvokeServer("changeSize", v_u_226)
+		wait(0.01)
+	end
+end
+spawn(v229)
+v217:AddSwitch("Auto Teleport King", function(p230)
+	if p230 then
+		_G.SafeZone = true
+		while true do
+			local v231 = game.Players.LocalPlayer.Character
+			local v232 = Vector3.new(-8636, 17, -5759)
+			if v231 then
+				v231.HumanoidRootPart.CFrame = CFrame.new(v232)
+			end
+			wait(0.001)
+			if not _G.SafeZone then
+				goto l10
+			end
+		end
+	else
+		_G.SafeZone = false
+		::l10::
+		return
+	end
+end)
+v217:AddButton("Anti rebirth", function(_)
+	local v_u_233 = nil
+	local _ = hookmetamethod(game, "__namecall", function(p234)
+		-- upvalues: (ref) v_u_233
+		local v235 = { ... }
+		if p234.Name ~= "rebirthRemote" or v235[1] ~= "rebirthRequest" then
+			return v_u_233(p234, unpack(v235))
+		end
+	end)
+end)
+local v_u_236 = v152:AddFolder("Auto Equip Weight Tools")
+local function v249(p237, p_u_238)
+	-- upvalues: (ref) v_u_236
+	local v_u_239 = false
+	local v_u_240 = game:GetService("Players").LocalPlayer
+	local function v_u_243()
+		-- upvalues: (ref) v_u_240, (ref) p_u_238
+		local v241 = v_u_240:FindFirstChild("Backpack")
+		local v242 = v241 and v241:FindFirstChild(p_u_238)
+		if v242 and not v_u_240.Character:FindFirstChild(p_u_238) then
+			v_u_240.Character.Humanoid:EquipTool(v242)
+		end
+	end
+	local function v_u_245()
+		-- upvalues: (ref) v_u_240, (ref) p_u_238
+		local v244 = v_u_240.Character and v_u_240.Character:FindFirstChild(p_u_238)
+		if v244 then
+			v244.Parent = v_u_240.Backpack
+		end
+	end
+	local v247 = v_u_236:AddSwitch(p237, function(p246)
+		-- upvalues: (ref) v_u_239, (ref) v_u_243, (ref) v_u_240, (ref) v_u_245
+		v_u_239 = p246
+		if v_u_239 then
+			v_u_243()
+			task.spawn(function()
+				-- upvalues: (ref) v_u_239, (ref) v_u_240, (ref) v_u_243
+				while v_u_239 do
+					v_u_240.muscleEvent:FireServer(unpack({ "rep" }))
+					game:GetService("RunService").RenderStepped:Wait()
+					v_u_243()
+				end
+			end)
+		else
+			v_u_245()
+		end
+	end)
+	v_u_240.CharacterAdded:Connect(function(p248)
+		-- upvalues: (ref) v_u_239, (ref) v_u_243, (ref) v_u_245
+		if v_u_239 then
+			p248:WaitForChild("Humanoid")
+			v_u_243()
+		else
+			v_u_245()
+		end
+	end)
+	v247:Set(false)
+end
+v249("Auto Weight", "Weight")
+v249("Auto Pushup", "Pushups")
+v249("Auto Handstands", "Handstands")
+v249("Auto Situps", "Situps")
+local v_u_250 = v32:AddTab("Stats")
+local v251 = v_u_250
+v_u_250.AddLabel(v251, "------------------------")
+local v_u_252 = {}
+local v_u_253 = nil
+local v_u_254 = nil
+local function v_u_258(p255)
+	local v256 = {
+		"",
+		"k",
+		"M",
+		"B",
+		"T",
+		"qa",
+		"qi"
+	}
+	local v257 = 1
+	while 1000 <= p255 and v257 < #v256 do
+		p255 = p255 / 1000
+		v257 = v257 + 1
+	end
+	return string.format("%.1f", p255) .. v256[v257]
+end
+local function v_u_265(p259)
+	-- upvalues: (ref) v_u_250, (ref) v_u_258, (ref) v_u_252
+	local v260 = p259.Name
+	local v_u_261 = {
+		["DurabilityLabel"] = v_u_250:AddLabel("Durability: " .. (v_u_258(p259:WaitForChild("Durability").Value) or "N/A")),
+		["StrengthLabel"] = v_u_250:AddLabel("Strength: " .. (v_u_258(p259:WaitForChild("leaderstats"):WaitForChild("Strength").Value) or "N/A"))
+	}
+	v_u_252[v260] = v_u_261
+	local v_u_262 = p259:FindFirstChild("Durability")
+	if v_u_262 then
+		v_u_262.Changed:Connect(function()
+			-- upvalues: (ref) v_u_262, (ref) v_u_261, (ref) v_u_258
+			print("Durability changed:", v_u_262.Value)
+			v_u_261.DurabilityLabel.Text = "Durability: " .. (v_u_258(v_u_262.Value) or "N/A")
+		end)
+	else
+		print("Durability not found for player:", v260)
+	end
+	local v263 = p259:FindFirstChild("leaderstats")
+	if v263 then
+		local v_u_264 = v263:FindFirstChild("Strength")
+		if v_u_264 then
+			v_u_264.Changed:Connect(function()
+				-- upvalues: (ref) v_u_264, (ref) v_u_261, (ref) v_u_258
+				print("Strength changed:", v_u_264.Value)
+				v_u_261.StrengthLabel.Text = "Strength: " .. (v_u_258(v_u_264.Value) or "N/A")
+			end)
+		else
+			print("Strength not found for player:", v260)
+		end
+	else
+		print("leaderstats not found for player:", v260)
+	end
+end
+local function v_u_268(p266)
+	-- upvalues: (ref) v_u_252
+	local v267 = v_u_252[p266]
+	if v267 then
+		v267.DurabilityLabel:Remove()
+		v267.StrengthLabel:Remove()
+		v_u_252[p266] = nil
+	end
+end
+local function v_u_275()
+	-- upvalues: (ref) v_u_254, (ref) v_u_250, (ref) v_u_253, (ref) v_u_268, (ref) v_u_265
+	if v_u_254 then
+		v_u_254:Remove()
+	end
+	v_u_254 = v_u_250:AddDropdown("Players", function(p269)
+		-- upvalues: (ref) v_u_253, (ref) v_u_268, (ref) v_u_265
+		local v270 = game.Players:FindFirstChild(p269)
+		if v270 then
+			if v_u_253 then
+				v_u_268(v_u_253)
+			end
+			v_u_265(v270)
+			v_u_253 = p269
+		end
+	end)
+	local v271, v272, v273 = ipairs(game.Players:GetPlayers())
+	while true do
+		local v274
+		v273, v274 = v271(v272, v273)
+		if v273 == nil then
+			break
+		end
+		v_u_254:Add(v274.Name)
+	end
+end
+v_u_275()
+game.Players.PlayerAdded:Connect(function(p276)
+	-- upvalues: (ref) v_u_254
+	v_u_254:Add(p276.Name)
+end)
+game.Players.PlayerRemoving:Connect(function(p277)
+	-- upvalues: (ref) v_u_268, (ref) v_u_275
+	v_u_268(p277.Name)
+	v_u_275()
+end)
+local v278, v279, v280 = ipairs(game.Players:GetPlayers())
+local v_u_281 = v_u_250
+local v282 = v_u_265
+local v283 = v_u_253
+while true do
+	local v284, v285 = v278(v279, v280)
+	if v284 == nil then
+		break
+	end
+	v280 = v284
+	if v285 == v283 then
+		v282(v285)
+	end
+end
+v_u_281:AddLabel("0. Is not accurate sometimes lol")
+v_u_281:AddLabel("------------------------")
+local function v_u_300()
+	local v286 = Instance.new("ScreenGui")
+	v286.ResetOnSpawn = false
+	local v_u_287 = Instance.new("Frame", v286)
+	v_u_287.Size = UDim2.new(0.15, 0, 0.1, 0)
+	v_u_287.Position = UDim2.new(0.25, 0, 0.25, 0)
+	v_u_287.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	local v_u_288 = Instance.new("TextLabel", v_u_287)
+	v_u_288.Size = UDim2.new(1, 0, 1, 0)
+	v_u_288.Position = UDim2.new(0, 0, 0, 0)
+	v_u_288.TextColor3 = Color3.fromRGB(255, 255, 255)
+	v_u_288.TextScaled = true
+	local function v_u_289()
+		-- upvalues: (ref) v_u_288
+		v_u_288.Text = "Kills: " .. game.Players.LocalPlayer.leaderstats.Kills.Value
+	end
+	v286.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+	v_u_289()
+	game.Players.LocalPlayer.leaderstats.Kills:GetPropertyChangedSignal("Value"):Connect(function()
+		-- upvalues: (ref) v_u_289
+		v_u_289()
+	end)
+	local v_u_290 = nil
+	local v_u_291 = nil
+	local v_u_292 = nil
+	local v_u_293 = nil
+	local function v_u_296(p294)
+		-- upvalues: (ref) v_u_292, (ref) v_u_287, (ref) v_u_293
+		local v295 = p294.Position - v_u_292
+		v_u_287.Position = UDim2.new(v_u_293.X.Scale, v_u_293.X.Offset + v295.X, v_u_293.Y.Scale, v_u_293.Y.Offset + v295.Y)
+	end
+	v_u_287.InputBegan:Connect(function(p_u_297)
+		-- upvalues: (ref) v_u_290, (ref) v_u_292, (ref) v_u_293, (ref) v_u_287
+		if p_u_297.UserInputType == Enum.UserInputType.MouseButton1 or p_u_297.UserInputType == Enum.UserInputType.Touch then
+			v_u_290 = true
+			v_u_292 = p_u_297.Position
+			v_u_293 = v_u_287.Position
+			p_u_297.Changed:Connect(function()
+				-- upvalues: (ref) p_u_297, (ref) v_u_290
+				if p_u_297.UserInputState == Enum.UserInputState.End then
+					v_u_290 = false
+				end
+			end)
+		end
+	end)
+	v_u_287.InputChanged:Connect(function(p298)
+		-- upvalues: (ref) v_u_291
+		if p298.UserInputType == Enum.UserInputType.MouseMovement or p298.UserInputType == Enum.UserInputType.Touch then
+			v_u_291 = p298
+		end
+	end)
+	game:GetService("UserInputService").InputChanged:Connect(function(p299)
+		-- upvalues: (ref) v_u_290, (ref) v_u_291, (ref) v_u_296
+		if v_u_290 and p299 == v_u_291 then
+			v_u_296(p299)
+		end
+	end)
+end
+v_u_281:AddButton("Show Kills GUI", function()
+	-- upvalues: (ref) v_u_300
+	v_u_300()
+end)
+local v_u_301 = {}
+local function v_u_305(p302)
+	local v303 = {
+		"",
+		"k",
+		"M",
+		"B",
+		"T",
+		"qa",
+		"qi"
+	}
+	local v304 = 1
+	while 1000 <= p302 and v304 < #v303 do
+		p302 = p302 / 1000
+		v304 = v304 + 1
+	end
+	return string.format("%.1f", p302) .. v303[v304]
+end
+local function v_u_319(p306)
+	-- upvalues: (ref) v_u_281, (ref) v_u_301, (ref) v_u_305
+	local v_u_307 = p306.Name
+	local v308 = p306:WaitForChild("Durability").Value
+	local v309 = p306:WaitForChild("leaderstats"):WaitForChild("Strength").Value
+	local v310 = p306:WaitForChild("leaderstats")
+	local v_u_311 = {
+		["DurabilityGainLabel"] = v_u_281:AddLabel("Durability Gain: 0"),
+		["StrengthGainLabel"] = v_u_281:AddLabel("Strength Gain: 0"),
+		["KillsGainLabel"] = v_u_281:AddLabel("Kills Gain: 0")
+	}
+	v_u_301[v_u_307] = {
+		["Labels"] = v_u_311,
+		["InitialDurability"] = v308,
+		["InitialStrength"] = v309,
+		["InitialKills"] = v310:WaitForChild("Kills").Value
+	}
+	local v_u_312 = p306:FindFirstChild("Durability")
+	if v_u_312 then
+		v_u_312.Changed:Connect(function()
+			-- upvalues: (ref) v_u_312, (ref) v_u_301, (ref) v_u_307, (ref) v_u_311, (ref) v_u_305
+			local v313 = v_u_312.Value - v_u_301[v_u_307].InitialDurability
+			v_u_311.DurabilityGainLabel.Text = "Durability Gain: " .. v_u_305(v313)
+		end)
+	else
+		print("Durability not found for player:", v_u_307)
+	end
+	local v314 = p306:FindFirstChild("leaderstats")
+	if v314 then
+		local v_u_315 = v314:FindFirstChild("Strength")
+		if v_u_315 then
+			v_u_315.Changed:Connect(function()
+				-- upvalues: (ref) v_u_315, (ref) v_u_301, (ref) v_u_307, (ref) v_u_311, (ref) v_u_305
+				local v316 = v_u_315.Value - v_u_301[v_u_307].InitialStrength
+				v_u_311.StrengthGainLabel.Text = "Strength Gain: " .. v_u_305(v316)
+			end)
+		else
+			print("Strength not found for player:", v_u_307)
+		end
+		local v_u_317 = v314:FindFirstChild("Kills")
+		if v_u_317 then
+			v_u_317.Changed:Connect(function()
+				-- upvalues: (ref) v_u_317, (ref) v_u_301, (ref) v_u_307, (ref) v_u_311, (ref) v_u_305
+				local v318 = v_u_317.Value - v_u_301[v_u_307].InitialKills
+				v_u_311.KillsGainLabel.Text = "Kills Gain: " .. v_u_305(v318)
+			end)
+		else
+			print("Kills not found for player:", v_u_307)
+		end
+	else
+		print("leaderstats not found for player:", v_u_307)
+	end
+end
+local function v_u_321()
+	-- upvalues: (ref) v_u_319
+	local v320 = game.Players.LocalPlayer
+	if v320 then
+		v_u_319(v320)
+	else
+		print("Local player not found")
+	end
+end
+v_u_321()
+game.Players.PlayerRemoving:Connect(function(p322)
+	-- upvalues: (ref) v_u_301
+	local v323 = p322.Name
+	local v324 = v_u_301[v323]
+	if v324 then
+		local v325, v326, v327 = pairs(v324.Labels)
+		while true do
+			local v328
+			v327, v328 = v325(v326, v327)
+			if v327 == nil then
+				break
+			end
+			v328:Remove()
+		end
+		v_u_301[v323] = nil
+	end
+end)
+game.Players.PlayerAdded:Connect(function(p329)
+	-- upvalues: (ref) v_u_321
+	if p329 == game.Players.LocalPlayer then
+		v_u_321()
+	end
+end)
+v_u_281:AddLabel("------------------------")
+local v330 = v32:AddTab("Eggs")
+v_u_254 = v330:AddDropdown("Select Crystal", function(p331)
+	selectcrystal = p331
+end)
+local v332 = v_u_254
+v_u_254.Add(v332, "Blue Crystal")
+local v333 = v_u_254
+v_u_254.Add(v333, "Green Crystal")
+local v334 = v_u_254
+v_u_254.Add(v334, "Frozen Crystal")
+local v335 = v_u_254
+v_u_254.Add(v335, "Mythical Crystal")
+local v336 = v_u_254
+v_u_254.Add(v336, "Inferno Crystal")
+local v337 = v_u_254
+v_u_254.Add(v337, "Legends Crystal")
+local v338 = v_u_254
+v_u_254.Add(v338, "Dark Nebula Crystal")
+local v339 = v_u_254
+v_u_254.Add(v339, "Muscle Elite Crystal")
+local v340 = v_u_254
+v_u_254.Add(v340, "Galaxy Oracle Crystal")
+local v341 = v_u_254
+v_u_254.Add(v341, "Battle Legends Crystal")
+local v342 = v_u_254
+v_u_254.Add(v342, "Sky Eclipse Crystal")
+local v343 = v_u_254
+v_u_254.Add(v343, "Jungle Crystal")
+v330:AddSwitch("Auto Hatch Crystal", function(p344)
+	getgenv().crystal = p344
+	while getgenv().crystal do
+		wait()
+		game:GetService("ReplicatedStorage").rEvents.openCrystalRemote:InvokeServer("openCrystal", selectcrystal)
+	end
+end)
+local v345 = v330:AddFolder(" Auto Sell Pets")
+v345:AddSwitch("Auto Delete Basic Pet", function(p346)
+	if p346 then
+		_G.autodelete = true
+		local v347 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Basic:FindFirstChild("Red Kitty") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v347))
+		wait(0.0001)
+		local v348 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Basic:FindFirstChild("Orange Hedgehog") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v348))
+		wait(0.0001)
+		local v349 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Basic:FindFirstChild("Blue Birdie") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v349))
+		wait(0.0001)
+		local v350 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Basic:FindFirstChild("Blue Bunny") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v350))
+		wait(0.0001)
+		local v351 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Basic:FindFirstChild("Silver Dog") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v351))
+		if not _G.autodelete then
+			goto l5
+		end
+	end
+	_G.autodelete = false
+	::l5::
+end)
+v345:AddSwitch("Auto Delete Advanced Pet", function(p352)
+	if p352 then
+		_G.autodelete = true
+		repeat
+			local v353 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Advanced:FindFirstChild("Yellow Butterfly") }
+			game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v353))
+			wait(0.0001)
+			local v354 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Advanced:FindFirstChild("Dark Vampy") }
+			game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v354))
+			wait(0.0001)
+			local v355 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Advanced:FindFirstChild("Dark Golem") }
+			game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v355))
+			wait(0.0001)
+			local v356 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Advanced:FindFirstChild("Green Butterfly") }
+			game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v356))
+		until not _G.autodelete
+	else
+		_G.autodelete = false
+	end
+end)
+v345:AddSwitch("Auto Delete Rare Pet", function(p357)
+	if p357 then
+		_G.autodelete = true
+		local v358 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Rare:FindFirstChild("Crimson Falcon") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v358))
+		wait(0.0001)
+		local v359 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Rare:FindFirstChild("Purple Dragon") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v359))
+		wait(0.0001)
+		local v360 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Rare:FindFirstChild("Orange Pegasus") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v360))
+		wait(0.0001)
+		local v361 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Rare:FindFirstChild("Red Dragon") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v361))
+		wait(0.0001)
+		local v362 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Rare:FindFirstChild("Purple Falcon") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v362))
+		wait(0.0001)
+		local v363 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Rare:FindFirstChild("White Pegasus") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v363))
+		wait(0.0001)
+		local v364 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Rare:FindFirstChild("Frostwave Legends Penguin") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v364))
+		wait(0.0001)
+		local v365 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Rare:FindFirstChild("Phantom Genesis Dragon") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v365))
+		wait(0.0001)
+		local v366 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Rare:FindFirstChild("Eternal Strike Leviathan") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v366))
+		if not _G.autodelete then
+			goto l5
+		end
+	end
+	_G.autodelete = false
+	::l5::
+end)
+v345:AddSwitch("Auto Delete Epic Pet", function(p367)
+	if p367 then
+		_G.autodelete = true
+		local v368 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Epic:FindFirstChild("Blue Pheonix") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v368))
+		wait(0.0001)
+		local v369 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Epic:FindFirstChild("Blue Firecaster") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v369))
+		wait(0.0001)
+		local v370 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Epic:FindFirstChild("Golden Pheonix") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v370))
+		wait(0.0001)
+		local v371 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Epic:FindFirstChild("Red Firecaster") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v371))
+		wait(0.0001)
+		local v372 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Epic:FindFirstChild("Blue Firecaster") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v372))
+		wait(0.0001)
+		local v373 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Epic:FindFirstChild("Green Firecaster") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v373))
+		wait(0.0001)
+		local v374 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Epic:FindFirstChild("White Pheonix") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v374))
+		wait(0.0001)
+		local v375 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Epic:FindFirstChild("Dark Legends Manticore") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v375))
+		wait(0.0001)
+		local v376 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Epic:FindFirstChild("Ultimate Supernova Pegasus") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v376))
+		wait(0.0001)
+		local v377 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Epic:FindFirstChild("Lightning Strike Phantom") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v377))
+		if not _G.autodelete then
+			goto l5
+		end
+	end
+	_G.autodelete = false
+	::l5::
+end)
+v345:AddSwitch("Auto Delete Unique Pet", function(p378)
+	if p378 then
+		_G.autodelete = true
+		local v379 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Unique:FindFirstChild("Infernal Dragon") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v379))
+		wait(0.0001)
+		local v380 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Unique:FindFirstChild("Magic Butterfly") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v380))
+		wait(0.0001)
+		local v381 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Unique:FindFirstChild("Ultra Birdie") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v381))
+		wait(0.0001)
+		local v382 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Unique:FindFirstChild("Aether Spirit Bunny") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v382))
+		wait(0.0001)
+		local v383 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Unique:FindFirstChild("Cybernetic Showdown Dragon") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v383))
+		wait(0.0001)
+		local v384 = { "sellPet", game:GetService("Players").LocalPlayer.petsFolder.Unique:FindFirstChild("Darkstar Dragon") }
+		game:GetService("ReplicatedStorage").rEvents.sellPetEvent:FireServer(unpack(v384))
+		if not _G.autodelete then
+			goto l5
+		end
+	end
+	_G.autodelete = false
+	::l5::
+end)
+local v385 = v330:AddFolder(" Auto Evolve Pets")
+v385:AddSwitch("Auto Evolve Darkstar Hunter", function(p386)
+	if p386 then
+		_G.autoevolve = true
+		game:GetService("ReplicatedStorage").rEvents.petEvolveEvent:FireServer(unpack({ "evolvePet", "Darkstar Hunter" }))
+		game:GetService("RunService").RenderStepped:Wait()
+		if not _G.autoevolve then
+			goto l5
+		end
+	end
+	_G.autoevolve = false
+	::l5::
+end)
+v385:AddSwitch("Auto Evolve Cybernetis Showdown Dragon", function(p387)
+	if p387 then
+		_G.autoevolve = true
+		game:GetService("ReplicatedStorage").rEvents.petEvolveEvent:FireServer(unpack({ "evolvePet", "Cybernetis Showdown Dragon" }))
+		game:GetService("RunService").RenderStepped:Wait()
+		if not _G.autoevolve then
+			goto l5
+		end
+	end
+	_G.autoevolve = false
+	::l5::
+end)
+v385:AddSwitch("Auto Evolve Aether Spirit Bunny", function(p388)
+	if p388 then
+		_G.autoevolve = true
+		game:GetService("ReplicatedStorage").rEvents.petEvolveEvent:FireServer(unpack({ "evolvePet", "Aether Spirit Bunny" }))
+		game:GetService("RunService").RenderStepped:Wait()
+		if not _G.autoevolve then
+			goto l5
+		end
+	end
+	_G.autoevolve = false
+	::l5::
+end)
+v385:AddSwitch("Auto Evolve Ultra Birdie", function(p389)
+	if p389 then
+		_G.autoevolve = true
+		game:GetService("ReplicatedStorage").rEvents.petEvolveEvent:FireServer(unpack({ "evolvePet", "Ultra Birdie" }))
+		game:GetService("RunService").RenderStepped:Wait()
+		if not _G.autoevolve then
+			goto l5
+		end
+	end
+	_G.autoevolve = false
+	::l5::
+end)
+v385:AddSwitch("Auto Evolve Magic Butterfly", function(p390)
+	if p390 then
+		_G.autoevolve = true
+		game:GetService("ReplicatedStorage").rEvents.petEvolveEvent:FireServer(unpack({ "evolvePet", "Magic Butterfly" }))
+		game:GetService("RunService").RenderStepped:Wait()
+		if not _G.autoevolve then
+			goto l5
+		end
+	end
+	_G.autoevolve = false
+	::l5::
+end)
+v385:AddSwitch("Auto Evolve Infernal Dragon", function(p391)
+	if p391 then
+		_G.autoevolve = true
+		repeat
+			game:GetService("ReplicatedStorage").rEvents.petEvolveEvent:FireServer(unpack({ "evolvePet", "Infernal Dragon" }))
+			game:GetService("RunService").RenderStepped:Wait()
+		until not _G.autoevolve
+	else
+		_G.autoevolve = false
+	end
+end)
+v330:AddLabel("Thanks to Doca for doing some of codes lol")
+local v392 = v32:AddTab("Misc")
+local v393 = v392:AddFolder(" Misc #1")
+v393:AddButton("Remove Ad Portal (They annoying fr)", function()
+	game.Workspace.GameTeleportPortals:Destroy()
+	game.Workspace.RobloxAdBoards:Destroy()
+	game.Workspace.RobloxForwardPortals:Destroy()
+end)
+local v_u_394 = { "disableTrading" }
+v393:AddButton("Disable trade", function()
+	-- upvalues: (ref) v_u_394
+	game:GetService("ReplicatedStorage").rEvents.tradingEvent:FireServer(unpack(v_u_394))
+end)
+v393:AddSwitch("Hide Pets", function(p395)
+	if p395 then
+		game:GetService("ReplicatedStorage").rEvents.showPetsEvent:FireServer(unpack({ "hidePets" }))
+	else
+		game:GetService("ReplicatedStorage").rEvents.showPetsEvent:FireServer(unpack({ "showPets" }))
+	end
+end)
+v393:AddSwitch("Disable Trade", function(p396)
+	if p396 then
+		game:GetService("ReplicatedStorage").rEvents.tradingEvent:FireServer(unpack({ "disableTrading" }))
+	else
+		game:GetService("ReplicatedStorage").rEvents.tradingEvent:FireServer(unpack({ "enableTrading" }))
+	end
+end)
+v393:AddButton("Walk on Water", function()
+	local v397 = Vector3.new(2048, 0, 2048)
+	local v398 = 20
+	local v399 = 20
+	local v400 = 0
+	for v401 = -v398, v398 do
+		local v402 = v401
+		for v403 = -v399, v399 do
+			local v404 = Instance.new("Part")
+			v404.Parent = game.Workspace
+			v404.Anchored = true
+			v404.Position = Vector3.new(v402 * (v397.X + v400), -9, v403 * (v397.Z + v400))
+			v404.Size = v397
+			v404.Transparency = 0
+		end
+	end
+end)
+v393:AddButton("Claim all chest", function()
+	game:GetService("ReplicatedStorage").rEvents.groupRemote:InvokeServer(unpack({ "groupRewards" }))
+	game:GetService("RunService").RenderStepped:Wait()
+	game:GetService("ReplicatedStorage").rEvents.checkChestRemote:InvokeServer(unpack({ "Golden Chest" }))
+	game:GetService("RunService").RenderStepped:Wait()
+	game:GetService("ReplicatedStorage").rEvents.checkChestRemote:InvokeServer(unpack({ "Enchanted Chest" }))
+	game:GetService("RunService").RenderStepped:Wait()
+	game:GetService("ReplicatedStorage").rEvents.checkChestRemote:InvokeServer(unpack({ "Enchanted Chest" }))
+	game:GetService("RunService").RenderStepped:Wait()
+	game:GetService("ReplicatedStorage").rEvents.checkChestRemote:InvokeServer(unpack({ "Mythical Chest" }))
+	game:GetService("RunService").RenderStepped:Wait()
+	game:GetService("ReplicatedStorage").rEvents.checkChestRemote:InvokeServer(unpack({ "Magma Chest" }))
+	game:GetService("RunService").RenderStepped:Wait()
+	game:GetService("ReplicatedStorage").rEvents.checkChestRemote:InvokeServer(unpack({ "Legends Chest" }))
+	game:GetService("RunService").RenderStepped:Wait()
+end)
+v393:AddButton("Claim All Codes", function()
+	game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("codeRemote"):InvokeServer(unpack({ "Epicreward500" }))
+	game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("codeRemote"):InvokeServer(unpack({ "Frostgems10" }))
+	game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("codeRemote"):InvokeServer(unpack({ "Galaxycrystal50" }))
+	game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("codeRemote"):InvokeServer(unpack({ "Launch250" }))
+	game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("codeRemote"):InvokeServer(unpack({ "Megalift50" }))
+	game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("codeRemote"):InvokeServer(unpack({ "Millionwarriors" }))
+	game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("codeRemote"):InvokeServer(unpack({ "Musclestorm50" }))
+	game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("codeRemote"):InvokeServer(unpack({ "Spacegems50" }))
+	game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("codeRemote"):InvokeServer(unpack({ "Speedy50" }))
+	game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("codeRemote"):InvokeServer(unpack({ "Skyagility50" }))
+	game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("codeRemote"):InvokeServer(unpack({ "Supermuscle100" }))
+	game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("codeRemote"):InvokeServer(unpack({ "Superpunch100" }))
+end)
+local v405 = v392:AddFolder(" Misc #2")
+v405:AddSwitch("Fast Weight", function(p406)
+	if p406 then
+		game:GetService("Players").LocalPlayer.Backpack.Weight:FindFirstChildOfClass("NumberValue").Value = 0.01
+	else
+		game:GetService("Players").LocalPlayer.Backpack.Weight:FindFirstChildOfClass("NumberValue").Value = 0.5
+	end
+end)
+v405:AddSwitch("Fast Pushups", function(p407)
+	if p407 then
+		game:GetService("Players").LocalPlayer.Backpack.Pushups:FindFirstChildOfClass("NumberValue").Value = 0.01
+	else
+		game:GetService("Players").LocalPlayer.Backpack.Pushups:FindFirstChildOfClass("NumberValue").Value = 0.5
+	end
+end)
+v405:AddSwitch("Fast Situps", function(p408)
+	if p408 then
+		game:GetService("Players").LocalPlayer.Backpack.Situps:FindFirstChildOfClass("NumberValue").Value = 0.01
+	else
+		game:GetService("Players").LocalPlayer.Backpack.Situps:FindFirstChildOfClass("NumberValue").Value = 0.5
+	end
+end)
+v405:AddSwitch("Fast Handstands", function(p409)
+	if p409 then
+		game:GetService("Players").LocalPlayer.Backpack.Handstands:FindFirstChildOfClass("NumberValue").Value = 0.01
+	else
+		game:GetService("Players").LocalPlayer.Backpack.Handstands:FindFirstChildOfClass("NumberValue").Value = 0.5
+	end
+end)
+local v410 = v392:AddFolder("Misc #3")
+v410:AddSwitch("AutoFarm weights (equip any farming tools)", function()
+	while true do
+		game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack({ "rep" }))
+		game:GetService("RunService").RenderStepped:Wait()
+	end
+end)
+v410:AddLabel("----Script Hub----")
+v410:AddSwitch("Permanent Shiftlock", function()
+	loadstring(game:HttpGet("https://pastebin.com/raw/CjNsnSDy"))()
+end)
+v410:AddLabel("----Time----")
+v410:AddButton("Morning", function()
+	game.Lighting.ClockTime = 7
+end)
+v410:AddButton("Daytime", function()
+	game.Lighting.ClockTime = 8
+end)
+v410:AddButton("Night", function()
+	game.Lighting.ClockTime = 5
+end)
+local v411 = v392:AddFolder(" Misc #4")
+v411:AddLabel("Ultimate Upgrades")
+local v412, v413, v414 = ipairs({
+	{
+		["name"] = "RepSpeed",
+		["title"] = "+5% Rep Speed"
+	},
+	{
+		["name"] = "PetSlot",
+		["title"] = "+1 Pet Slot"
+	},
+	{
+		["name"] = "ItemCapacity",
+		["title"] = "+10 Item Capacity"
+	},
+	{
+		["name"] = "DailySpin",
+		["title"] = "+1 Daily Spin"
+	},
+	{
+		["name"] = "ChestRewards",
+		["title"] = "x2 Chest Rewards"
+	},
+	{
+		["name"] = "QuestRewards",
+		["title"] = "x2 Quest Rewards"
+	},
+	{
+		["name"] = "MuscleMind",
+		["title"] = "Muscle Mind"
+	},
+	{
+		["name"] = "JungleSwift",
+		["title"] = "Jungle Swift"
+	},
+	{
+		["name"] = "InfernalHealth",
+		["title"] = "Infernal Health"
+	},
+	{
+		["name"] = "GalaxyGains",
+		["title"] = "Galaxy Gains"
+	},
+	{
+		["name"] = "DemonDamage",
+		["title"] = "Demon Damage"
+	},
+	{
+		["name"] = "GoldenRebirth",
+		["title"] = "Golden Rebirth"
+	}
+})
+local v_u_415 = {}
+while true do
+	local v_u_416
+	v414, v_u_416 = v412(v413, v414)
+	if v414 == nil then
+		break
+	end
+	v411:AddSwitch(v_u_416.title, function(p417)
+		-- upvalues: (ref) v_u_415, (ref) v_u_416
+		v_u_415[v_u_416.name] = p417
+	end):Set(false)
+end
+task.spawn(function()
+	-- upvalues: (ref) v_u_415
+	::l0::
+	local v418, v419, v420 = pairs(v_u_415)
+	goto l1
+	::l2::
+	if v421 then
+		ReplicatedStorage.rEvents.ultimatesRemote:InvokeServer("upgradeUltimate", v420)
+		task.wait(0.1)
+	end
+	::l1::
+	local v421
+	v420, v421 = v418(v419, v420)
+	if v420 ~= nil then
+		goto l2
+	end
+	task.wait(1)
+	goto l0
+end)
+local v422 = v32:AddTab("Killing")
+v422:AddSwitch("Auto Punch", function(p423)
+	if p423 then
+		_G.autopunch = true
+		local v_u_424 = nil
+		v_u_424 = game:GetService("RunService").Heartbeat:Connect(function()
+			-- upvalues: (ref) v_u_424
+			if _G.autopunch then
+				local v425 = game.Players.LocalPlayer.Character
+				local v426
+				if v425 then
+					v426 = v425:FindFirstChildOfClass("Humanoid")
+				else
+					v426 = v425
+				end
+				if v425 and v426 then
+					local v427 = game.Players.LocalPlayer.Backpack:FindFirstChild("Punch")
+					if v427 then
+						v426:EquipTool(v427)
+					end
+					game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack({ "punch", "rightHand" }))
+					game:GetService("Players").LocalPlayer.muscleEvent:FireServer(unpack({ "punch", "leftHand" }))
+				end
+			else
+				v_u_424:Disconnect()
+				return
+			end
+		end)
+	else
+		_G.autopunch = false
+	end
+end)
+v422:AddSwitch("Auto Punch {With Movement}", function(p428)
+	if p428 then
+		_G.punchanim = true
+		local v_u_429 = nil
+		v_u_429 = game:GetService("RunService").Heartbeat:Connect(function()
+			-- upvalues: (ref) v_u_429
+			if _G.punchanim then
+				local v430 = game.Players.LocalPlayer
+				local v431 = v430.Character or v430.CharacterAdded:Wait()
+				local v432 = v431:FindFirstChildOfClass("Humanoid")
+				local v433 = v430.Backpack:FindFirstChild("Punch") or v431:FindFirstChild("Punch")
+				if v432 and v433 then
+					if v433.Parent ~= v431 then
+						v432:EquipTool(v433)
+					end
+					v433:Activate()
+				elseif not v433 then
+					warn("Punch tool not found")
+				end
+			else
+				v_u_429:Disconnect()
+			end
+		end)
+	else
+		_G.punchanim = false
+	end
+end)
+v422:AddSwitch("Fast Punch", function(p434)
+	if p434 then
+		_G.punchanim = true
+		local v_u_435 = nil
+		v_u_435 = game:GetService("RunService").Heartbeat:Connect(function()
+			-- upvalues: (ref) v_u_435
+			if _G.punchanim then
+				local v436 = game.Players.LocalPlayer
+				local v437 = v436.Character or v436.CharacterAdded:Wait()
+				local v438 = v437:FindFirstChildOfClass("Humanoid")
+				local v439 = v436.Backpack:FindFirstChild("Punch") or v437:FindFirstChild("Punch")
+				if v439 and v439:FindFirstChild("attackTime") then
+					v439.attackTime.Value = 0
+				end
+				if v438 and v439 then
+					if v439.Parent ~= v437 then
+						v438:EquipTool(v439)
+					end
+					v439:Activate()
+				elseif not v439 then
+					warn("Punch tool not found")
+				end
+			else
+				v_u_435:Disconnect()
+			end
+		end)
+	else
+		_G.punchanim = false
+		local v440 = game.Players.LocalPlayer
+		local v441 = v440.Backpack:FindFirstChild("Punch")
+		local v442 = game.Workspace:FindFirstChild(v440.Name)
+		local v443
+		if v442 then
+			v443 = v442:FindFirstChild("Punch")
+		else
+			v443 = nil
+		end
+		if v441 and v441:FindFirstChild("attackTime") then
+			v441.attackTime.Value = 0.35
+		elseif v443 and v443:FindFirstChild("attackTime") then
+			v443.attackTime.Value = 0.35
+		end
+	end
+end)
+local function v_u_450(p444, p445)
+	local v446, v447, v448 = ipairs(p445)
+	while true do
+		local v449
+		v448, v449 = v446(v447, v448)
+		if v448 == nil then
+			break
+		end
+		if p444.Name == v449 then
+			return true
+		end
+	end
+	return false
+end
+local v_u_451 = {}
+local function v_u_453(p452)
+	-- upvalues: (ref) v_u_451
+	if table.find(v_u_451, p452) then
+		print(p452 .. " is already in the whitelist.")
+	else
+		table.insert(v_u_451, p452)
+		print(p452 .. " has been added to the whitelist.")
+	end
+end
+local v_u_455 = v422:AddDropdown("Add to Whitelist", function(p454)
+	-- upvalues: (ref) v_u_453
+	v_u_453(p454)
+end)
+local v456, v457, v458 = pairs(game.Players:GetPlayers())
+local v_u_459 = v_u_451
+while true do
+	local v460
+	v458, v460 = v456(v457, v458)
+	if v458 == nil then
+		break
+	end
+	v_u_455:Add(v460.Name)
+end
+game.Players.PlayerAdded:Connect(function(p461)
+	-- upvalues: (ref) v_u_455
+	v_u_455:Add(p461.Name)
+end)
+game.Players.PlayerRemoving:Connect(function(p462)
+	-- upvalues: (ref) v_u_459, (ref) v_u_455
+	local v463, v464, v465 = ipairs(v_u_459)
+	while true do
+		local v466
+		v465, v466 = v463(v464, v465)
+		if v465 == nil then
+			break
+		end
+		if v466 == p462.Name then
+			table.remove(v_u_459, v465)
+			print(p462.Name .. " has been removed from the whitelist.")
+		end
+	end
+	v_u_455:Remove(p462.Name)
+end)
+v422:AddTextBox("Remove from Whitelist", function(p467)
+	-- upvalues: (ref) v_u_459
+	local v468, v469, v470 = ipairs(v_u_459)
+	while true do
+		local v471
+		v470, v471 = v468(v469, v470)
+		if v470 == nil then
+			break
+		end
+		if v471 == p467 then
+			table.remove(v_u_459, v470)
+			break
+		end
+	end
+end)
+v422:AddButton("Clear Whitelist", function()
+	-- upvalues: (ref) v_u_459
+	v_u_459 = {}
+end)
+local function v_u_476(p472)
+	-- upvalues: (ref) v_u_450, (ref) v_u_459
+	local v473 = p472.Character
+	if v473 and not v_u_450(p472, v_u_459) then
+		local v_u_474 = v473:FindFirstChild("Head")
+		local v_u_475 = game.Players.LocalPlayer
+		if v_u_475 then
+			v_u_475 = v_u_475.Character:FindFirstChild("LeftHand")
+		end
+		if v_u_474 and v_u_475 then
+			pcall(function()
+				-- upvalues: (ref) v_u_474, (ref) v_u_475
+				firetouchinterest(v_u_474, v_u_475, 0)
+				wait(0.01)
+				firetouchinterest(v_u_474, v_u_475, 1)
+			end)
+		end
+	end
+end
+v422:AddSwitch("Auto Kill", function(p477)
+	-- upvalues: (ref) v_u_476
+	if p477 then
+		_G.autokill = true
+		repeat
+			local v_u_478 = game:GetService("Players")
+			local v_u_479 = false
+			local function v_u_485()
+				-- upvalues: (ref) v_u_479, (ref) v_u_478, (ref) v_u_476
+				while v_u_479 and _G.autokill do
+					local v480 = v_u_478
+					local v481, v482, v483 = ipairs(v480:GetPlayers())
+					while true do
+						local v484
+						v483, v484 = v481(v482, v483)
+						if v483 == nil then
+							break
+						end
+						if v484 ~= v_u_478.LocalPlayer then
+							v_u_476(v484)
+						end
+					end
+					wait(0.1)
+				end
+			end
+			(function()
+				-- upvalues: (ref) v_u_479, (ref) v_u_485
+				v_u_479 = true
+				v_u_485()
+			end)()
+		until not _G.autokill
+	else
+		_G.autokill = false
+	end
+end)
+local v_u_486 = {}
+local v_u_487 = game:GetService("RunService")
+local v_u_488 = game:GetService("Players")
+local v_u_489 = false
+local v_u_490 = nil
+local v_u_491 = nil
+local function v_u_493(p492)
+	-- upvalues: (ref) v_u_491
+	if v_u_491 then
+		v_u_491:Add(p492.Name)
+	end
+end
+local function v_u_495(p494)
+	-- upvalues: (ref) v_u_491
+	if v_u_491 then
+		v_u_491:Remove(p494.Name)
+	end
+end
+local function v_u_500(p496)
+	-- upvalues: (ref) v_u_488
+	if p496 and p496.Character then
+		local v497 = p496.Character:FindFirstChild("Head")
+		local v498 = v_u_488.LocalPlayer.Character
+		if v498 then
+			v498 = v_u_488.LocalPlayer.Character:FindFirstChild("LeftHand")
+		end
+		local v499 = v_u_488.LocalPlayer.Character
+		if v499 then
+			v499 = v_u_488.LocalPlayer.Character:FindFirstChild("RightHand")
+		end
+		if v497 and (v498 and v499) then
+			firetouchinterest(v497, v498, 0)
+			firetouchinterest(v497, v498, 1)
+			firetouchinterest(v497, v499, 0)
+			firetouchinterest(v497, v499, 1)
+		end
+	end
+end
+local function v_u_505()
+	-- upvalues: (ref) v_u_486, (ref) v_u_500
+	local v501, v502, v503 = ipairs(v_u_486)
+	while true do
+		local v504
+		v503, v504 = v501(v502, v503)
+		if v503 == nil then
+			break
+		end
+		v_u_500(v504)
+	end
+end
+local function v_u_506()
+	-- upvalues: (ref) v_u_489, (ref) v_u_490, (ref) v_u_487, (ref) v_u_505
+	v_u_489 = true
+	v_u_490 = v_u_487.Stepped:Connect(v_u_505)
+end
+local function v_u_507()
+	-- upvalues: (ref) v_u_489, (ref) v_u_490, (ref) v_u_486, (ref) v_u_491
+	v_u_489 = false
+	if v_u_490 then
+		v_u_490:Disconnect()
+	end
+	v_u_486 = {}
+	if v_u_491 then
+		v_u_491:ClearSelection()
+	end
+end
+v422:AddSwitch("Auto Kill Players", function(p508)
+	-- upvalues: (ref) v_u_506, (ref) v_u_507
+	if p508 then
+		v_u_506()
+	else
+		v_u_507()
+	end
+end)
+v_u_488.PlayerAdded:Connect(function(p509)
+	-- upvalues: (ref) v_u_493, (ref) v_u_491, (ref) v_u_488
+	v_u_493(p509)
+	v_u_491:ClearOptions()
+	local v510 = v_u_488
+	local v511, v512, v513 = ipairs(v510:GetPlayers())
+	while true do
+		local v514
+		v513, v514 = v511(v512, v513)
+		if v513 == nil then
+			break
+		end
+		v_u_491:AddOption(v514.Name)
+	end
+end)
+v_u_488.PlayerRemoving:Connect(function(p515)
+	-- upvalues: (ref) v_u_495
+	v_u_495(p515)
+end)
+v_u_491 = v422:AddDropdown("Players", function(p516)
+	-- upvalues: (ref) v_u_488, (ref) v_u_486
+	local v517 = v_u_488:FindFirstChild(p516)
+	if v517 then
+		table.insert(v_u_486, v517)
+	end
+end)
+local v518 = v_u_488
+local v519, v520, v521 = ipairs(v_u_488.GetPlayers(v518))
+local v_u_522 = v_u_486
+local v_u_523 = v_u_488
+local v524 = v_u_493
+while true do
+	local v525
+	v521, v525 = v519(v520, v521)
+	if v521 == nil then
+		break
+	end
+	v524(v525)
+end
+v422:AddTextBox("Auto Kill Player", function(p526)
+	-- upvalues: (ref) v_u_523, (ref) v_u_522
+	local v527 = v_u_523:FindFirstChild(p526)
+	if v527 then
+		table.insert(v_u_522, v527)
+	end
+end)
+v422:AddLabel("----------")
+local v_u_528 = nil
+local v_u_529 = nil
+local function v_u_538(p530)
+	-- upvalues: (ref) v_u_528, (ref) v_u_529
+	local v531, v532, v533 = ipairs(game.Players:GetPlayers())
+	local v534 = nil
+	while true do
+		local v535
+		v533, v535 = v531(v532, v533)
+		if v533 == nil then
+			v535 = v534
+			break
+		end
+		if v535.Name:lower():match(p530:lower()) then
+			break
+		end
+	end
+	if v535 then
+		local function v537(p536)
+			game.Workspace.CurrentCamera.CameraSubject = p536
+		end
+		v537(v535.Character or v535.CharacterAdded:Wait())
+		if v_u_528 then
+			v_u_528:Disconnect()
+			v_u_528 = nil
+		end
+		v_u_528 = v535.CharacterAdded:Connect(v537)
+		v_u_529 = v535
+	else
+		warn("Player not found:", p530)
+	end
+end
+v422:AddTextBox("View Player", function(p539)
+	-- upvalues: (ref) v_u_538
+	v_u_538(p539)
+end)
+v422:AddButton("Unview Player", function()
+	-- upvalues: (ref) v_u_528, (ref) v_u_529
+	if v_u_528 then
+		v_u_528:Disconnect()
+		v_u_528 = nil
+	end
+	local v540 = game.Players.LocalPlayer
+	game.Workspace.CurrentCamera.CameraSubject = v540.Character or v540.CharacterAdded:Wait()
+	v_u_529 = nil
+end)
+local v541 = v32:AddTab("Players")
+local function v_u_543(p542)
+	game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = p542
+end
+v541:AddTextBox("WalkSpeed", function(p544)
+	-- upvalues: (ref) v_u_543
+	local v545 = tonumber(p544)
+	if v545 then
+		v_u_543(v545)
+	end
+end)
+local function v_u_547(p546)
+	game.Players.LocalPlayer.Character.Humanoid.JumpPower = p546
+end
+v541:AddTextBox("JumpPower", function(p548)
+	-- upvalues: (ref) v_u_547
+	local v549 = tonumber(p548)
+	if v549 then
+		v_u_547(v549)
+	end
+end)
+local function v_u_551(p550)
+	if game:GetService("Players").LocalPlayer then
+		game:GetService("Players").LocalPlayer.CameraMaxZoomDistance = p550
+	end
+end
+v541:AddTextBox("Max Zoom Distance", function(p552)
+	-- upvalues: (ref) v_u_551
+	local v553 = tonumber(p552)
+	if v553 then
+		v_u_551(v553)
+	else
+		warn("Invalid input. Please enter a valid number for the max zoom distance.")
+	end
+end)
+v_u_551(100)
+v541:AddLabel("-------------")
+v541:AddSwitch("Lock Client Position", function(p554)
+	function freezePlayer()
+		local v_u_555 = game.Players.LocalPlayer
+		local v_u_556 = (v_u_555.Character or v_u_555.CharacterAdded:Wait()):WaitForChild("HumanoidRootPart")
+		local v_u_557 = v_u_556.Position
+		local v558 = game:GetService("RunService")
+		v_u_555:SetAttribute("Frozen", true)
+		local v_u_559 = Instance.new("BodyPosition")
+		v_u_559.Position = v_u_557
+		v_u_559.MaxForce = Vector3.new(1000000, 1000000, 1000000)
+		v_u_559.P = 10000
+		v_u_559.D = 1000
+		local v_u_560 = Instance.new("BodyGyro")
+		v_u_560.CFrame = v_u_556.CFrame
+		v_u_560.MaxTorque = Vector3.new(1000000, 1000000, 1000000)
+		v_u_560.P = 10000
+		v_u_559.Parent = v_u_556
+		v_u_560.Parent = v_u_556
+		local v_u_561 = nil
+		v_u_561 = v558.Stepped:Connect(function()
+			-- upvalues: (ref) v_u_555, (ref) v_u_556, (ref) v_u_557, (ref) v_u_559, (ref) v_u_560, (ref) v_u_561
+			if v_u_555:GetAttribute("Frozen") then
+				v_u_556.Velocity = Vector3.new(0, 0, 0)
+				v_u_556.RotVelocity = Vector3.new(0, 0, 0)
+				v_u_556.CFrame = CFrame.new(v_u_557)
+				v_u_559.Position = v_u_557
+				v_u_560.CFrame = v_u_556.CFrame
+			else
+				v_u_561:Disconnect()
+				v_u_559:Destroy()
+				v_u_560:Destroy()
+			end
+		end)
+	end
+	function unfreezePlayer()
+		game.Players.LocalPlayer:SetAttribute("Frozen", false)
+	end
+	if p554 then
+		freezePlayer()
+	else
+		unfreezePlayer()
+	end
+end)
+v541:AddButton("Remove Punch Animation", function()
+	game:GetService("Players").LocalPlayer.Backpack.Punch.RequiresHandle = true
+end)
+v541:AddButton("Recover Punch Animation", function()
+	game:GetService("Players").LocalPlayer.Backpack.Punch.RequiresHandle = false
+end)
+local v_u_562 = false
+game:GetService("UserInputService").JumpRequest:connect(function()
+	-- upvalues: (ref) v_u_562
+	if v_u_562 then
+		game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+	end
+end)
+v541:AddSwitch("Infinite Jump", function(p563)
+	-- upvalues: (ref) v_u_562
+	v_u_562 = p563
+end):Set(false)
+local v_u_564 = false
+local v_u_565 = nil
+local function v_u_571()
+	-- upvalues: (ref) v_u_564, (ref) v_u_565
+	v_u_564 = true
+	local function v570()
+		-- upvalues: (ref) v_u_564
+		if v_u_564 and game.Players.LocalPlayer.Character then
+			local v566, v567, v568 = pairs(game.Players.LocalPlayer.Character:GetDescendants())
+			while true do
+				local v569
+				v568, v569 = v566(v567, v568)
+				if v568 == nil then
+					break
+				end
+				if v569:IsA("BasePart") and v569.CanCollide then
+					v569.CanCollide = false
+				end
+			end
+		end
+	end
+	v_u_565 = game:GetService("RunService").Stepped:Connect(v570)
+end
+local function v_u_572()
+	-- upvalues: (ref) v_u_564, (ref) v_u_565
+	v_u_564 = false
+	if v_u_565 then
+		v_u_565:Disconnect()
+	end
+end
+v541:AddSwitch("Noclip", function(p573)
+	-- upvalues: (ref) v_u_571, (ref) v_u_572
+	if p573 then
+		v_u_571()
+	else
+		v_u_572()
+	end
+end):Set(false)
+v541:AddButton("Anti Afk", function(_)
+	loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-AntiAFK-script-18076"))()
+end)
+v541:AddButton("ChatSpy", function()
+	enabled = true
+	spyOnMyself = true
+	public = false
+	publicItalics = true
+	privateProperties = {
+		["Color"] = Color3.fromRGB(0, 255, 255),
+		["Font"] = Enum.Font.SourceSansBold,
+		["TextSize"] = 18
+	}
+	local v_u_574 = game:GetService("StarterGui")
+	local v_u_575 = game:GetService("Players")
+	local v_u_576 = v_u_575.LocalPlayer or (v_u_575:GetPropertyChangedSignal("LocalPlayer"):Wait() or v_u_575.LocalPlayer)
+	local v_u_577 = game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("SayMessageRequest")
+	local v_u_578 = game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("OnMessageDoneFiltering")
+	local v_u_579 = (_G.chatSpyInstance or 0) + 1
+	_G.chatSpyInstance = v_u_579
+	local function v_u_588(p_u_580, p581)
+		-- upvalues: (ref) v_u_579, (ref) v_u_576, (ref) v_u_574, (ref) v_u_578, (ref) v_u_575, (ref) v_u_577
+		if _G.chatSpyInstance == v_u_579 then
+			if p_u_580 ~= v_u_576 or p581:lower():sub(1, 4) ~= "/spy" then
+				if enabled and (spyOnMyself == true or p_u_580 ~= v_u_576) then
+					local v_u_582 = p581:gsub("[\n\r]", ""):gsub("\t", " "):gsub("[ ]+", " ")
+					local v_u_583 = true
+					local v587 = v_u_578.OnClientEvent:Connect(function(p584, p585)
+						-- upvalues: (ref) p_u_580, (ref) v_u_582, (ref) v_u_575, (ref) v_u_576, (ref) v_u_583
+						if p584.SpeakerUserId == p_u_580.UserId then
+							local v586 = v_u_582
+							if p584.Message == v586:sub(#v_u_582 - #p584.Message + 1) and (p585 == "All" or p585 == "Team" and (public == false and v_u_575[p584.FromSpeaker].Team == v_u_576.Team)) then
+								v_u_583 = false
+							end
+						end
+					end)
+					wait(1)
+					v587:Disconnect()
+					if v_u_583 and enabled then
+						if public then
+							v_u_577:FireServer((publicItalics and "/me " or "") .. "{SPY} [" .. p_u_580.Name .. "]: " .. v_u_582, "All")
+						else
+							privateProperties.Text = "{SPY} [" .. p_u_580.Name .. "]: " .. v_u_582
+							v_u_574:SetCore("ChatMakeSystemMessage", privateProperties)
+						end
+					end
+				end
+			else
+				enabled = not enabled
+				wait(0.3)
+				privateProperties.Text = "{SPY " .. (enabled and "EN" or "DIS") .. "ABLED}"
+				v_u_574:SetCore("ChatMakeSystemMessage", privateProperties)
+			end
+		end
+	end
+	local v589, v590, v591 = ipairs(v_u_575:GetPlayers())
+	while true do
+		local v_u_592
+		v591, v_u_592 = v589(v590, v591)
+		if v591 == nil then
+			break
+		end
+		v_u_592.Chatted:Connect(function(p593)
+			-- upvalues: (ref) v_u_588, (ref) v_u_592
+			v_u_588(v_u_592, p593)
+		end)
+	end
+	v_u_575.PlayerAdded:Connect(function(p_u_594)
+		-- upvalues: (ref) v_u_588
+		p_u_594.Chatted:Connect(function(p595)
+			-- upvalues: (ref) v_u_588, (ref) p_u_594
+			v_u_588(p_u_594, p595)
+		end)
+	end)
+	privateProperties.Text = "{SPY " .. (enabled and "EN" or "DIS") .. "ABLED}"
+	v_u_574:SetCore("ChatMakeSystemMessage", privateProperties)
+	if not v_u_576.PlayerGui:FindFirstChild("Chat") then
+		wait(3)
+	end
+	local v596 = v_u_576.PlayerGui.Chat.Frame
+	v596.ChatChannelParentFrame.Visible = true
+	v596.ChatBarParentFrame.Position = v596.ChatChannelParentFrame.Position + UDim2.new(UDim.new(), v596.ChatChannelParentFrame.Size.Y)
+end)
+v541:AddButton("Fps Boost", function()
+	local v597 = game:GetService("Lighting")
+	local v598, v599, v600 = ipairs(v597:GetChildren())
+	local function v602(p_u_601)
+		if p_u_601:IsA("Part") then
+			p_u_601.Material = Enum.Material.Plastic
+		elseif p_u_601.ClassName:match("Light") then
+			p_u_601:Destroy()
+		elseif p_u_601.ClassName:match("Effect") then
+			pcall(function()
+				-- upvalues: (ref) p_u_601
+				p_u_601.Enabled = false
+			end)
+		end
+	end
+	while true do
+		local v603
+		v600, v603 = v598(v599, v600)
+		if v600 == nil then
+			break
+		end
+		v602(v603)
+	end
+	v597.DescendantAdded:Connect(v602)
+	local v604 = game:GetService("Workspace")
+	local v605, v606, v607 = ipairs(v604:GetDescendants())
+	while true do
+		local v608
+		v607, v608 = v605(v606, v607)
+		if v607 == nil then
+			break
+		end
+		v602(v608)
+	end
+	v604.DescendantAdded:Connect(v602)
+end)
+local v609 = v32:AddTab("Teleports")
+v609:AddButton("BeachTP", function()
+	local v610 = game.Players.LocalPlayer.Character
+	local v611 = Vector3.new(-13, 5, 134)
+	if v610 then
+		v610.HumanoidRootPart.CFrame = CFrame.new(v611)
+	end
+end)
+v609:AddButton("LegendsTP", function()
+	local v612 = game.Players.LocalPlayer.Character
+	local v613 = Vector3.new(4609, 989, -3903)
+	if v612 then
+		v612.HumanoidRootPart.CFrame = CFrame.new(v613)
+	end
+end)
+v609:AddButton("MythicalTP", function()
+	local v614 = game.Players.LocalPlayer.Character
+	local v615 = Vector3.new(2250, 5.2, 1073)
+	if v614 then
+		v614.HumanoidRootPart.CFrame = CFrame.new(v615)
+	end
+end)
+v609:AddButton("FrostTP", function()
+	local v616 = game.Players.LocalPlayer.Character
+	local v617 = Vector3.new(-2623, 5, -409)
+	if v616 then
+		v616.HumanoidRootPart.CFrame = CFrame.new(v617)
+	end
+end)
+v609:AddButton("InfernoTP", function()
+	local v618 = game.Players.LocalPlayer.Character
+	local v619 = Vector3.new(-6758, 5, -1284)
+	if v618 then
+		v618.HumanoidRootPart.CFrame = CFrame.new(v619)
+	end
+end)
+v609:AddButton("KingTP", function()
+	local v620 = game.Players.LocalPlayer.Character
+	local v621 = Vector3.new(-8625, 15, -5730)
+	if v620 then
+		v620.HumanoidRootPart.CFrame = CFrame.new(v621)
+	end
+end)
+v609:AddButton("TinyTP", function()
+	local v622 = game.Players.LocalPlayer.Character
+	local v623 = Vector3.new(-32, 5, 1897)
+	if v622 then
+		v622.HumanoidRootPart.CFrame = CFrame.new(v623)
+	end
+end)
+v609:AddButton("SecretTP", function()
+	local v624 = game.Players.LocalPlayer.Character
+	local v625 = Vector3.new(1954, -0.2, 6182)
+	if v624 then
+		v624.HumanoidRootPart.CFrame = CFrame.new(v625)
+	end
+end)
+v609:AddButton("Desert Brawl TP", function()
+	local v626 = game.Players.LocalPlayer.Character
+	local v627 = Vector3.new(908, 103, -7016)
+	if v626 then
+		v626.HumanoidRootPart.CFrame = CFrame.new(v627)
+	end
+end)
+v609:AddButton("Beach Brawl TP", function()
+	local v628 = game.Players.LocalPlayer.Character
+	local v629 = Vector3.new(-1812, 103, -5914)
+	if v628 then
+		v628.HumanoidRootPart.CFrame = CFrame.new(v629)
+	end
+end)
+v609:AddButton("Magma Brawl TP", function()
+	local v630 = game.Players.LocalPlayer.Character
+	local v631 = Vector3.new(4517, 103, -8420)
+	if v630 then
+		v630.HumanoidRootPart.CFrame = CFrame.new(v631)
+	end
+end)
+v609:AddButton("Fortune Wheel TP", function()
+	local v632 = game.Players.LocalPlayer.Character
+	local v633 = Vector3.new(-2611, 3, 5768)
+	if v632 then
+		v632.HumanoidRootPart.CFrame = CFrame.new(v633)
+	end
+end)
+local v634 = v32:AddTab("Credits")
+v634:AddLabel("Script Made by : Ben1x1x1x1x (Ben/Beamed)")
+v634:AddLabel("Beamed V2")
+v634:AddLabel("---Close Friends---")
+v634:AddLabel("Yupman")
+v634:AddLabel("Jay")
+v634:AddLabel("Ruth")
+v634:AddLabel("LuckyIIIV -- Gay Best Friend LMAO")
+v634:AddLabel("Sul")
+v634:AddLabel("----------")
+v634:AddLabel("Gayming Broski!!")
+v634:AddLabel("----------")
+v634:AddButton("Copy Discord Invite", function()
+	setclipboard("https://discord.gg/JFFp2Y9BEV")
+end)
