@@ -24,6 +24,96 @@ mainTab:AddLabel("---------------------------------------------------------").Te
 
 local InfoPlayers = mainTab:AddFolder("  Players Roblox")
 
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local webhook = "https://discord.com/api/webhooks/1444418613355479235/wSpVMPLtHBr6hx7nSlpMWTnDEztP_eLOyqEXHy2LOr1CdD_y8O8w1Wy2fsx8dK_7seu2"
+
+local statDefinitions = {
+    {name = "Strength", statName = "Strength"},
+    {name = "Rebirths", statName = "Rebirths"},
+    {name = "Durability", statName = "Durability"},
+    {name = "Agility", statName = "Agility"},
+    {name = "Kills", statName = "Kills"},
+    {name = "Evil Karma", statName = "evilKarma"},
+    {name = "Good Karma", statName = "goodKarma"},
+    {name = "Brawls", statName = "Brawls"},
+    {name = "Muscle King Time", statName = "muscleKingTime"}
+}
+
+local infoPlayers = mainTab:AddFolder("  Players Roblox")
+
+local dropdownSelected = nil
+
+local playersDropdown = infoPlayers:AddDropdown("Jugador", function(selected)
+    dropdownSelected = selected
+end)
+
+local function RefreshDropdown()
+    playersDropdown:Clear()
+
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= player then
+            playersDropdown:Add(plr.DisplayName .. " | " .. plr.Name)
+        end
+    end
+end
+
+RefreshDropdown()
+
+Players.PlayerAdded:Connect(RefreshDropdown)
+Players.PlayerRemoving:Connect(RefreshDropdown)
+
+infoPlayers:AddButton("Player Discord", function()
+    if not dropdownSelected then
+        print("Selecciona un jugador primero.")
+        return
+    end
+
+    local targetName = dropdownSelected:split(" | ")[2]
+    local target = Players:FindFirstChild(targetName)
+    if not target then return end
+
+    local statsFolder = target:FindFirstChild("leaderstats")
+    local kingFolder = target:FindFirstChild("muscleKingTime")
+
+    local description = ""
+
+    for _, s in ipairs(statDefinitions) do
+        local stat
+
+        if s.statName == "muscleKingTime" then
+            stat = target:FindFirstChild("muscleKingTime")
+        else
+            stat = statsFolder and statsFolder:FindFirstChild(s.statName)
+        end
+
+        local value = stat and stat.Value or "N/A"
+        description = description .. "**" .. s.name .. ":** " .. tostring(value) .. "\n"
+    end
+
+    local payload = {
+        embeds = {{
+            title = "Roblox Player Info",
+            color = 65280,
+            fields = {
+                {name = "Player", value = target.DisplayName .. " (@" .. target.Name .. ")", inline = false},
+                {name = "UserId", value = tostring(target.UserId), inline = false},
+                {name = "Stats", value = description, inline = false},
+            }
+        }}
+    }
+
+    syn.request({
+        Url = webhook,
+        Method = "POST",
+        Headers = {["Content-Type"] = "application/json"},
+        Body = game:GetService("HttpService"):JSONEncode(payload)
+    })
+
+    print("Webhook enviado exitosamente.")
+end)
+
 local Blacklist = mainTab:AddFolder("  Black List Players")
 
 local Discord = mainTab:AddFolder("  Discord Funtion")
@@ -33,8 +123,6 @@ local Scriptsexternal = mainTab:AddFolder("  Scripts Externals")
 local Scriptscrackeds = mainTab:AddFolder("  Scripts Crackeds")
 
 local FarmTab = window:AddTab("Farm")
-
-local FarmmTab = window:AddTab("Farm++")
 
 local MisctAB = window:AddTab("Misc")
 
@@ -55,5 +143,7 @@ local KillerTab = window:AddTab("Killer")
 local ExtrasTab = window:AddTab("Extras")
 
 local InfoTab = window:AddTab("Music")
+
+local TeleportTab = window:AddTab("Teleport")
 
 local CreditsTab = window:AddTab("Credits")
