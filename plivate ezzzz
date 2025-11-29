@@ -1031,6 +1031,156 @@ rockFolder:AddSwitch("Auto Punch", function(state)
 end)
 
 local RockFolder = FarmTab:AddFolder("  Auto Rock V2")
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+
+local function AddAutoPunchRock(title, rockName, delay)
+    local enabled = false
+
+    RockFolder:AddSwitch(title, function(state)
+        enabled = state
+
+        if enabled then
+            task.spawn(function()
+                while enabled do
+                    local rock
+                    
+                    if tonumber(rockName) then
+                        rock = Workspace.machinesFolder:GetChildren()[tonumber(rockName)]
+                    else
+                        rock = Workspace.machinesFolder:FindFirstChild(rockName)
+                    end
+
+                    if rock and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("LeftHand") then
+                        firetouchinterest(rock.Rock, LocalPlayer.Character.LeftHand, 0)
+                        task.wait(delay)
+                        firetouchinterest(rock.Rock, LocalPlayer.Character.LeftHand, 1)
+                    end
+
+                    RunService.Heartbeat:Wait()
+                end
+            end)
+        end
+    end)
+end
+
+local function FreezePlayer(char)
+    if not char then return end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.WalkSpeed = 0
+        hum.JumpPower = 0
+        hum.JumpHeight = 0
+    end
+end
+
+local function UnfreezePlayer(char)
+    if not char then return end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.WalkSpeed = 16
+        hum.JumpPower = 50
+        hum.JumpHeight = 7.2
+    end
+end
+
+local function AddTeleportRock(title, pos, rot)
+    local enabled = false
+    local reconnect = nil
+
+    RockFolder:AddSwitch(title, function(state)
+        enabled = state
+
+        if enabled then
+
+            task.spawn(function()
+                while enabled do
+                    local char = LocalPlayer.Character
+                    if char and char:FindFirstChild("HumanoidRootPart") then
+                        char.HumanoidRootPart.CFrame =
+                            CFrame.new(pos) *
+                            CFrame.Angles(math.rad(rot.X), math.rad(rot.Y), math.rad(rot.Z))
+
+                        FreezePlayer(char)
+                    end
+                    RunService.Heartbeat:Wait()
+                end
+            end)
+
+            reconnect = LocalPlayer.CharacterAdded:Connect(function(char)
+                task.wait(1)
+                FreezePlayer(char)
+                char:WaitForChild("HumanoidRootPart").CFrame =
+                    CFrame.new(pos) *
+                    CFrame.Angles(math.rad(rot.X), math.rad(rot.Y), math.rad(rot.Z))
+            end)
+
+        else
+            if reconnect then reconnect:Disconnect() end
+            local char = LocalPlayer.Character
+            if char then UnfreezePlayer(char) end
+        end
+    end)
+end
+
+AddTeleportRock("Auto Punch Tiny Rock (0)", Vector3.new(14, 8, 2094), Vector3.new(0, -158, 0))
+AddAutoPunchRock("Punch Tiny Rock (0)", "Tiny Rock", 0.2)
+
+AddTeleportRock("Auto Punch Punching Rock (10)", Vector3.new(-150, 7, 405), Vector3.new(0, 177, 0))
+AddAutoPunchRock("Punch Punching Rock (10)", "Punching Rock", 0.2)
+
+AddTeleportRock("Auto Punch Large Rock (100)", Vector3.new(165, 7, -138), Vector3.new(0, 15, 0))
+AddAutoPunchRock("Punch Large Rock (100)", "Large Rock", 0.2)
+
+AddTeleportRock("Auto Punch Golden Rock (5K)", Vector3.new(336, 8, -615), Vector3.new(0, 127, 0))
+AddAutoPunchRock("Punch Golden Rock (5K)", "Golden Rock", 0.2)
+
+AddTeleportRock("Auto Punch Frozen Rock (150K)", Vector3.new(-2592, 7, -244), Vector3.new(0, -84, 0))
+AddAutoPunchRock("Punch Frozen Rock (150K)", "Frozen Rock", 0.2)
+
+AddTeleportRock("Auto Punch Mystic Rock (400K)", Vector3.new(2225, 7, 1249), Vector3.new(0, 90, 0))
+AddAutoPunchRock("Punch Mystic Rock (400K)", "Mystic Rock", 0.2)
+
+AddTeleportRock("Auto Punch Inferno Rock (750K)", Vector3.new(-7223, 7, -1259), Vector3.new(0, 95, 0))
+AddAutoPunchRock("Punch Inferno Rock (750K)", "Inferno Rock", 0.2)
+
+AddTeleportRock("Auto Punch Rock Of Legends (1M)", Vector3.new(4161, 992, -4037), Vector3.new(0, 35, 0))
+AddAutoPunchRock("Punch Rock Of Legends (1M)", "Rock Of Legends", 0.2)
+
+AddTeleportRock("Auto Punch Muscle King Rock (5M)", Vector3.new(-8976, 9, -6133), Vector3.new(0, -178, 0))
+AddAutoPunchRock("Punch Muscle King Rock (5M)", "Muscle King Mountain", 0.2)
+
+AddTeleportRock("Auto Punch Jungle Rock (10M)", Vector3.new(-7642, 7, 2816), Vector3.new(0, -152, 0))
+AddAutoPunchRock("Punch Jungle Rock (10M)", "Ancient Jungle Rock", 0.2)
+
+RockFolder:AddSwitch("Auto Punch", function(state)
+    _G.autopunch = state
+
+    if state then
+        local connection
+        connection = RunService.Heartbeat:Connect(function()
+            if not _G.autopunch then
+                connection:Disconnect()
+                return
+            end
+
+            local char = LocalPlayer.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+
+            if hum then
+                local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
+                if punchTool then hum:EquipTool(punchTool) end
+
+                LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+            end
+        end)
+    end
+end)
+
 local autoEquipToolsFolder = FarmTab:AddFolder("  Auto Equip Tools")
 local toolsCombFolder = FarmTab:AddFolder("  Auto Tools Combined")
 local rebirthsFolder = FarmTab:AddFolder("  Auto Rebirths")
