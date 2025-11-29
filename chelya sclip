@@ -24,9 +24,6 @@ mainTab:AddLabel("---------------------------------------------------------").Te
 
 local InfoPlayers = mainTab:AddFolder("  Players Roblox")
 
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
 local webhook = "https://discord.com/api/webhooks/1444418613355479235/wSpVMPLtHBr6hx7nSlpMWTnDEztP_eLOyqEXHy2LOr1CdD_y8O8w1Wy2fsx8dK_7seu2"
 
 local statDefinitions = {
@@ -41,17 +38,14 @@ local statDefinitions = {
     {name = "Muscle King Time", statName = "muscleKingTime"}
 }
 
-local infoPlayers = mainTab:AddFolder("  Players Roblox")
-
 local dropdownSelected = nil
 
-local playersDropdown = infoPlayers:AddDropdown("Jugador", function(selected)
+local playersDropdown = InfoPlayers:AddDropdown("Jugador", function(selected)
     dropdownSelected = selected
 end)
 
 local function RefreshDropdown()
     playersDropdown:Clear()
-
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= player then
             playersDropdown:Add(plr.DisplayName .. " | " .. plr.Name)
@@ -64,7 +58,8 @@ RefreshDropdown()
 Players.PlayerAdded:Connect(RefreshDropdown)
 Players.PlayerRemoving:Connect(RefreshDropdown)
 
-infoPlayers:AddButton("Player Discord", function()
+InfoPlayers:AddButton("Player Discord", function()
+
     if not dropdownSelected then
         print("Selecciona un jugador primero.")
         return
@@ -75,7 +70,6 @@ infoPlayers:AddButton("Player Discord", function()
     if not target then return end
 
     local statsFolder = target:FindFirstChild("leaderstats")
-    local kingFolder = target:FindFirstChild("muscleKingTime")
 
     local description = ""
 
@@ -104,12 +98,18 @@ infoPlayers:AddButton("Player Discord", function()
         }}
     }
 
-    syn.request({
-        Url = webhook,
-        Method = "POST",
-        Headers = {["Content-Type"] = "application/json"},
-        Body = game:GetService("HttpService"):JSONEncode(payload)
-    })
+    local request = syn and syn.request or http_request or request or (fluxus and fluxus.request)
+
+    if request then
+        request({
+            Url = webhook,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = game:GetService("HttpService"):JSONEncode(payload)
+        })
+    else
+        warn("Tu ejecutor no soporta request HTTP.")
+    end
 
     print("Webhook enviado exitosamente.")
 end)
