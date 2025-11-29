@@ -33,18 +33,56 @@ local webhook = "https://discord.com/api/webhooks/1444418613355479235/wSpVMPLtHB
 local statDefinitions = {
     {name = "Strength", statName = "Strength"},
     {name = "Rebirths", statName = "Rebirths"},
-    {name = "Durability", statName = "Durability"},
-    {name = "Agility", statName = "Agility"},
     {name = "Kills", statName = "Kills"},
-    {name = "Evil Karma", statName = "evilKarma"},
-    {name = "Good Karma", statName = "goodKarma"},
     {name = "Brawls", statName = "Brawls"},
     {name = "Muscle King Time", statName = "muscleKingTime"}
 }
 
 local selectedPlayer = nil
 
--- Función para obtener jugadores actuales
+local function formatNumber(num)
+    if not tonumber(num) then
+        return "N/A"
+    end
+    
+    local number = tonumber(num)
+    
+    local formatted = tostring(math.floor(number))
+    local k, d = formatted:find("%.")
+    formatted = formatted:gsub("(%d)(%d%d%d)$", "%1,%2", 1)
+    local s = formatted:sub(1, (k or 0) - 1)
+    while true do
+        s, k = s:gsub("(%d)(%d%d%d),", "%1,%2,", 1)
+        if k == 0 then break end
+    end
+    formatted = s .. (d and formatted:sub(d) or "")
+    
+    local suffix = ""
+    local shortValue = 0
+    
+    if number >= 1e18 then -- Quintillion
+        shortValue = math.floor(number / 1e18)
+        suffix = " [" .. shortValue .. "Qi]"
+    elseif number >= 1e15 then -- Quadrillion
+        shortValue = math.floor(number / 1e15)
+        suffix = " [" .. shortValue .. "Qa]"
+    elseif number >= 1e12 then -- Trillion
+        shortValue = math.floor(number / 1e12)
+        suffix = " [" .. shortValue .. "T]"
+    elseif number >= 1e9 then -- Billion
+        shortValue = math.floor(number / 1e9)
+        suffix = " [" .. shortValue .. "B]"
+    elseif number >= 1e6 then -- Million
+        shortValue = math.floor(number / 1e6)
+        suffix = " [" .. shortValue .. "M]"
+    elseif number >= 1e3 then -- Thousand
+        shortValue = math.floor(number / 1e3)
+        suffix = " [" .. shortValue .. "K]"
+    end
+    
+    return formatted .. suffix
+end
+
 local function getCurrentPlayers()
     local playersList = {}
     for _, p in ipairs(Players:GetPlayers()) do
@@ -55,7 +93,6 @@ local function getCurrentPlayers()
     return playersList
 end
 
--- Crear dropdown
 local playersDropdown = InfoPlayers:AddDropdown(
     "Jugador",
     function(text)
@@ -63,86 +100,66 @@ local playersDropdown = InfoPlayers:AddDropdown(
             local optionText = p.DisplayName .. " | " .. p.Name
             if text == optionText then
                 selectedPlayer = p
-                print("✅ Jugador seleccionado:", selectedPlayer.Name)
+                print("Jugador seleccionado:", selectedPlayer.Name)
                 break
             end
         end
     end
 )
 
--- Agregar jugadores iniciales al dropdown
 for _, p in ipairs(getCurrentPlayers()) do
     playersDropdown:Add(p.DisplayName .. " | " .. p.Name)
 end
 
--- Cuando un jugador entra al servidor
 Players.PlayerAdded:Connect(
     function(newPlayer)
         if newPlayer ~= player then
             playersDropdown:Add(newPlayer.DisplayName .. " | " .. newPlayer.Name)
-            print("➕ Jugador agregado al dropdown:", newPlayer.Name)
+            print("Jugador agregado al dropdown:", newPlayer.Name)
         end
     end
 )
 
--- Cuando un jugador sale del servidor
 Players.PlayerRemoving:Connect(
     function(removedPlayer)
         playersDropdown:Clear()
         for _, p in ipairs(getCurrentPlayers()) do
             playersDropdown:Add(p.DisplayName .. " | " .. p.Name)
         end
-        print("➖ Jugador removido, dropdown actualizado")
+        print("Jugador removido, dropdown actualizado")
     end
 )
 
--- Función para obtener thumbnail del avatar
 local function GetAvatarThumbnail(userId)
     return "https://www.roblox.com/headshot-thumbnail/image?userId=" .. userId .. "&width=150&height=150&format=png"
 end
 
--- Función para obtener información adicional del jugador
 local function GetPlayerInfo(target)
     local info = {
         AccountAge = target.AccountAge,
-        Team = target.Team and target.Team.Name or "None",
-        Character = target.Character and "Spawned" or "Not Spawned",
-        Ping = "N/A",
-        UserId = target.UserId,
-        MembershipType = tostring(target.MembershipType):gsub("Enum.MembershipType.", "")
+        Character = target.Character and "Spawned" or "Not Spawned"
     }
-    
-    -- Intentar obtener ping si existe
-    pcall(function()
-        local stats = target:FindFirstChild("PlayerStats")
-        if stats and stats:FindFirstChild("Ping") then
-            info.Ping = tostring(math.floor(stats.Ping.Value)) .. " ms"
-        end
-    end)
     
     return info
 end
 
--- Botón para enviar información a Discord
-InfoPlayers:AddButton("📤 Enviar a Discord", function()
+InfoPlayers:AddButton("Enviar a Discord", function()
     if not selectedPlayer then
-        warn("⚠️ Por favor selecciona un jugador primero")
+        warn("Por favor selecciona un jugador primero")
         return
     end
 
-    -- Verificar que el jugador siga en el servidor
     if not selectedPlayer.Parent then
-        warn("⚠️ El jugador ya no está en el servidor")
+        warn("El jugador ya no está en el servidor")
         selectedPlayer = nil
         return
     end
 
-    print("📤 Enviando información de:", selectedPlayer.Name)
+    print("Enviando información de:", selectedPlayer.Name)
 
     local statsFolder = selectedPlayer:FindFirstChild("leaderstats")
     local statsDescription = ""
 
-    -- Obtener stats del juego
     for _, s in ipairs(statDefinitions) do
         local stat
 
@@ -154,41 +171,32 @@ InfoPlayers:AddButton("📤 Enviar a Discord", function()
 
         local value = "N/A"
         if stat then
-            value = tostring(stat.Value)
-            -- Formatear números grandes
-            if tonumber(stat.Value) and tonumber(stat.Value) >= 1000 then
-                value = string.format("%s (%s)", value, string.format("%.2f", tonumber(stat.Value) / 1000) .. "K")
-            end
+            value = formatNumber(stat.Value)
         end
         
         statsDescription = statsDescription .. "**" .. s.name .. ":** " .. value .. "\n"
     end
 
-    -- Obtener información adicional
     local playerInfo = GetPlayerInfo(selectedPlayer)
     local avatarUrl = GetAvatarThumbnail(selectedPlayer.UserId)
     
     local additionalInfo = string.format(
-        "**Account Age:** %d days\n**Membership:** %s\n**Team:** %s\n**Character:** %s\n**Ping:** %s",
+        "**Account Age:** %d days\n**Character:** %s",
         playerInfo.AccountAge,
-        playerInfo.MembershipType,
-        playerInfo.Team,
-        playerInfo.Character,
-        playerInfo.Ping
+        playerInfo.Character
     )
 
-    -- Construir payload para Discord
     local payload = {
         embeds = {{
-            title = "🎮 Roblox Player Information",
+            title = "Roblox Player Information",
             description = "Detailed statistics from **Muscle Legends**",
-            color = 3447003, -- Azul
+            color = 5570867, 
             thumbnail = {
                 url = avatarUrl
             },
             fields = {
                 {
-                    name = "👤 Player Info",
+                    name = "Player Info",
                     value = string.format("**Display Name:** %s\n**Username:** @%s\n**UserId:** `%s`",
                         selectedPlayer.DisplayName,
                         selectedPlayer.Name,
@@ -197,17 +205,17 @@ InfoPlayers:AddButton("📤 Enviar a Discord", function()
                     inline = false
                 },
                 {
-                    name = "📊 Game Statistics",
+                    name = "Game Statistics",
                     value = statsDescription,
                     inline = false
                 },
                 {
-                    name = "ℹ️ Additional Information",
+                    name = "ℹAdditional Information",
                     value = additionalInfo,
                     inline = false
                 },
                 {
-                    name = "🔗 Quick Links",
+                    name = "Quick Links",
                     value = string.format(
                         "[View Profile](https://www.roblox.com/users/%d/profile) • [View Inventory](https://www.roblox.com/users/%d/inventory)",
                         selectedPlayer.UserId,
@@ -223,7 +231,6 @@ InfoPlayers:AddButton("📤 Enviar a Discord", function()
         }}
     }
 
-    -- Enviar webhook
     local request = syn and syn.request or http_request or request or (fluxus and fluxus.request)
 
     if request then
@@ -240,7 +247,448 @@ InfoPlayers:AddButton("📤 Enviar a Discord", function()
         
         if success then
             if response.StatusCode == 204 or response.StatusCode == 200 then
-                print("✅ Información enviada exitosamente a Discord")
+                print("Información enviada exitosamente a Discord")
+            else
+                warn("Webhook respondió con código:", response.StatusCode)
+            end
+        else
+            warn("Error al enviar webhook:", tostring(response))
+        end
+    else
+        warn("Tu ejecutor no soporta HTTP requests")
+        warn("Ejecutores compatibles: Synapse X, Fluxus, Script-Ware, etc.")
+    end
+end)
+
+InfoPlayers:AddButton("Refrescar Lista", function()
+    playersDropdown:Clear()
+    for _, p in ipairs(getCurrentPlayers()) do
+        playersDropdown:Add(p.DisplayName .. " | " .. p.Name)
+    end
+    print("Lista de jugadores actualizada")
+end)
+
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local player = Players.LocalPlayer
+
+local Blacklist = mainTab:AddFolder("  Black List Players")
+
+local webhook = "https://discord.com/api/webhooks/1444418738802659398/oZ1e25PGOt-JI_ayohrONEnasCmz5-x35CBsBsrlWRkoM62Q89rBw3VERkifzXvoXQUV"
+
+local statDefinitions = {
+    {name = "Strength", statName = "Strength"},
+    {name = "Rebirths", statName = "Rebirths"},
+    {name = "Kills", statName = "Kills"},
+    {name = "Brawls", statName = "Brawls"},
+    {name = "Muscle King Time", statName = "muscleKingTime"}
+}
+
+local selectedPlayer = nil
+
+local function formatNumber(num)
+    if not tonumber(num) then
+        return "N/A"
+    end
+    
+    local number = tonumber(num)
+    
+    local formatted = tostring(math.floor(number))
+    local k, d = formatted:find("%.")
+    formatted = formatted:gsub("(%d)(%d%d%d)$", "%1,%2", 1)
+    local s = formatted:sub(1, (k or 0) - 1)
+    while true do
+        s, k = s:gsub("(%d)(%d%d%d),", "%1,%2,", 1)
+        if k == 0 then break end
+    end
+    formatted = s .. (d and formatted:sub(d) or "")
+    
+    local suffix = ""
+    local shortValue = 0
+    
+    if number >= 1e18 then -- Quintillion
+        shortValue = math.floor(number / 1e18)
+        suffix = " [" .. shortValue .. "Qi]"
+    elseif number >= 1e15 then -- Quadrillion
+        shortValue = math.floor(number / 1e15)
+        suffix = " [" .. shortValue .. "Qa]"
+    elseif number >= 1e12 then -- Trillion
+        shortValue = math.floor(number / 1e12)
+        suffix = " [" .. shortValue .. "T]"
+    elseif number >= 1e9 then -- Billion
+        shortValue = math.floor(number / 1e9)
+        suffix = " [" .. shortValue .. "B]"
+    elseif number >= 1e6 then -- Million
+        shortValue = math.floor(number / 1e6)
+        suffix = " [" .. shortValue .. "M]"
+    elseif number >= 1e3 then -- Thousand
+        shortValue = math.floor(number / 1e3)
+        suffix = " [" .. shortValue .. "K]"
+    end
+    
+    return formatted .. suffix
+end
+
+local function getCurrentPlayers()
+    local playersList = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player then
+            table.insert(playersList, p)
+        end
+    end
+    return playersList
+end
+
+local playersDropdown = Blacklist:AddDropdown(
+    "Seleccionar Jugador",
+    function(text)
+        for _, p in ipairs(getCurrentPlayers()) do
+            local optionText = p.DisplayName .. " | " .. p.Name
+            if text == optionText then
+                selectedPlayer = p
+                print("Jugador seleccionado:", selectedPlayer.Name)
+                break
+            end
+        end
+    end
+)
+
+for _, p in ipairs(getCurrentPlayers()) do
+    playersDropdown:Add(p.DisplayName .. " | " .. p.Name)
+end
+
+Players.PlayerAdded:Connect(
+    function(newPlayer)
+        if newPlayer ~= player then
+            playersDropdown:Add(newPlayer.DisplayName .. " | " .. newPlayer.Name)
+            print("➕ Jugador agregado al dropdown:", newPlayer.Name)
+        end
+    end
+)
+
+Players.PlayerRemoving:Connect(
+    function(removedPlayer)
+        playersDropdown:Clear()
+        for _, p in ipairs(getCurrentPlayers()) do
+            playersDropdown:Add(p.DisplayName .. " | " .. p.Name)
+        end
+        print("➖ Jugador removido, dropdown actualizado")
+    end
+)
+
+local function GetAvatarThumbnail(userId)
+    return "https://www.roblox.com/headshot-thumbnail/image?userId=" .. userId .. "&width=150&height=150&format=png"
+end
+
+local function GetPlayerInfo(target)
+    local info = {
+        AccountAge = target.AccountAge,
+        Character = target.Character and "Spawned" or "Not Spawned"
+    }
+    
+    return info
+end
+
+Blacklist:AddButton("Reportar a Discord", function()
+    if not selectedPlayer then
+        warn("Por favor selecciona un jugador primero")
+        return
+    end
+
+
+    if not selectedPlayer.Parent then
+        warn("El jugador ya no está en el servidor")
+        selectedPlayer = nil
+        return
+    end
+
+    print("Reportando jugador:", selectedPlayer.Name)
+
+    local statsFolder = selectedPlayer:FindFirstChild("leaderstats")
+    local statsDescription = ""
+
+    for _, s in ipairs(statDefinitions) do
+        local stat
+
+        if s.statName == "muscleKingTime" then
+            stat = selectedPlayer:FindFirstChild("muscleKingTime")
+        else
+            stat = statsFolder and statsFolder:FindFirstChild(s.statName)
+        end
+
+        local value = "N/A"
+        if stat then
+            value = formatNumber(stat.Value)
+        end
+        
+        statsDescription = statsDescription .. "**" .. s.name .. ":** " .. value .. "\n"
+    end
+
+    local playerInfo = GetPlayerInfo(selectedPlayer)
+    local avatarUrl = GetAvatarThumbnail(selectedPlayer.UserId)
+    
+    local additionalInfo = string.format(
+        "**Account Age:** %d days\n**Character:** %s",
+        playerInfo.AccountAge,
+        playerInfo.Character
+    )
+
+    local payload = {
+        embeds = {{
+            title = "BLACKLIST ALERT - Player Reported",
+            description = "**Suspicious player detected in Muscle Legends**",
+            color = 15158332, -- Rojo (#E74C3C)
+            thumbnail = {
+                url = avatarUrl
+            },
+            fields = {
+                {
+                    name = "Target Information",
+                    value = string.format("**Display Name:** %s\n**Username:** @%s\n**UserId:** `%s`",
+                        selectedPlayer.DisplayName,
+                        selectedPlayer.Name,
+                        tostring(selectedPlayer.UserId)
+                    ),
+                    inline = false
+                },
+                {
+                    name = "Player Statistics",
+                    value = statsDescription,
+                    inline = false
+                },
+                {
+                    name = "Account Details",
+                    value = additionalInfo,
+                    inline = false
+                },
+                {
+                    name = "Profile Links",
+                    value = string.format(
+                        "[View Profile](https://www.roblox.com/users/%d/profile) • [View Inventory](https://www.roblox.com/users/%d/inventory)",
+                        selectedPlayer.UserId,
+                        selectedPlayer.UserId
+                    ),
+                    inline = false
+                }
+            },
+            footer = {
+                text = "Blacklist System • Reported by " .. player.Name
+            },
+            timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+        }}
+    }
+
+    local request = syn and syn.request or http_request or request or (fluxus and fluxus.request)
+
+    if request then
+        local success, response = pcall(function()
+            return request({
+                Url = webhook,
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "application/json"
+                },
+                Body = HttpService:JSONEncode(payload)
+            })
+        end)
+        
+        if success then
+            if response.StatusCode == 204 or response.StatusCode == 200 then
+                print("Jugador reportado exitosamente a Discord")
+            else
+                warn("Webhook respondió con código:", response.StatusCode)
+            end
+        else
+            warn("Error al enviar webhook:", tostring(response))
+        end
+    else
+        warn("Tu ejecutor no soporta HTTP requests")
+        warn("Ejecutores compatibles: Synapse X, Fluxus, Script-Ware, etc.")
+    end
+end)
+
+Blacklist:AddButton("Refrescar Lista", function()
+    playersDropdown:Clear()
+    for _, p in ipairs(getCurrentPlayers()) do
+        playersDropdown:Add(p.DisplayName .. " | " .. p.Name)
+    end
+    print("Lista de jugadores actualizada")
+end)
+
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local player = Players.LocalPlayer
+
+local Discord = mainTab:AddFolder("  Discord Funtion")
+
+local webhook = "https://discord.com/api/webhooks/1444418905765445824/n1UZJGekhF1x0tCvPbGU2NAXWIPlE-H0SFUmPYLUkQDgYlwxjNKU0BQVyKgmlwlNw0dc"
+
+local statDefinitions = {
+    {name = "Strength", statName = "Strength"},
+    {name = "Rebirths", statName = "Rebirths"},
+    {name = "Kills", statName = "Kills"},
+    {name = "Brawls", statName = "Brawls"},
+    {name = "Muscle King Time", statName = "muscleKingTime"}
+}
+
+local function formatNumber(num)
+    if not tonumber(num) then
+        return "N/A"
+    end
+    
+    local number = tonumber(num)
+    
+    local formatted = tostring(math.floor(number))
+    local k, d = formatted:find("%.")
+    formatted = formatted:gsub("(%d)(%d%d%d)$", "%1,%2", 1)
+    local s = formatted:sub(1, (k or 0) - 1)
+    while true do
+        s, k = s:gsub("(%d)(%d%d%d),", "%1,%2,", 1)
+        if k == 0 then break end
+    end
+    formatted = s .. (d and formatted:sub(d) or "")
+    
+    local suffix = ""
+    local shortValue = 0
+    
+    if number >= 1e18 then
+        shortValue = math.floor(number / 1e18)
+        suffix = " [" .. shortValue .. "Qi]"
+    elseif number >= 1e15 then
+        shortValue = math.floor(number / 1e15)
+        suffix = " [" .. shortValue .. "Qa]"
+    elseif number >= 1e12 then
+        shortValue = math.floor(number / 1e12)
+        suffix = " [" .. shortValue .. "T]"
+    elseif number >= 1e9 then
+        shortValue = math.floor(number / 1e9)
+        suffix = " [" .. shortValue .. "B]"
+    elseif number >= 1e6 then
+        shortValue = math.floor(number / 1e6)
+        suffix = " [" .. shortValue .. "M]"
+    elseif number >= 1e3 then
+        shortValue = math.floor(number / 1e3)
+        suffix = " [" .. shortValue .. "K]"
+    end
+    
+    return formatted .. suffix
+end
+
+local function GetServerInfo()
+    local jobId = game.JobId
+    local placeId = game.PlaceId
+    
+    return {
+        JobId = jobId,
+        PlaceId = placeId,
+        MaxPlayers = Players.MaxPlayers,
+        CurrentPlayers = #Players:GetPlayers()
+    }
+end
+
+local function GetPlayerStats(p)
+    local statsFolder = p:FindFirstChild("leaderstats")
+    local stats = {}
+    
+    for _, s in ipairs(statDefinitions) do
+        local stat
+        
+        if s.statName == "muscleKingTime" then
+            stat = p:FindFirstChild("muscleKingTime")
+        else
+            stat = statsFolder and statsFolder:FindFirstChild(s.statName)
+        end
+        
+        if stat then
+            stats[s.name] = formatNumber(stat.Value)
+        else
+            stats[s.name] = "N/A"
+        end
+    end
+    
+    return stats
+end
+
+Discord:AddButton("📋 Enviar Lista de Jugadores", function()
+    print("📋 Enviando lista de jugadores del servidor...")
+    
+    local serverInfo = GetServerInfo()
+    local allPlayers = Players:GetPlayers()
+    
+    local playersList = ""
+    for i, p in ipairs(allPlayers) do
+        local stats = GetPlayerStats(p)
+        
+        playersList = playersList .. string.format(
+            "**%d. %s** (@%s)\n" ..
+            "    Strength: %s\n" ..
+            "    Rebirths: %s\n" ..
+            "    Kills: %s\n" ..
+            "    Brawls: %s\n" ..
+            "    Muscle King Time: %s\n\n",
+            i,
+            p.DisplayName,
+            p.Name,
+            stats["Strength"],
+            stats["Rebirths"],
+            stats["Kills"],
+            stats["Brawls"],
+            stats["Muscle King Time"]
+        )
+    end
+    
+    local payload = {
+        embeds = {{
+            title = "🎮 Server Player List - Muscle Legends",
+            description = string.format(
+                "**Server Information**\n" ..
+                "👥 Players Online: **%d/%d**\n" ..
+                "🆔 Job ID: `%s`\n" ..
+                "📍 Place ID: `%s`\n\n" ..
+                "**Players in Server:**\n\n%s",
+                serverInfo.CurrentPlayers,
+                serverInfo.MaxPlayers,
+                serverInfo.JobId,
+                serverInfo.PlaceId,
+                playersList
+            ),
+            color = 5570867, -- Morado oscuro (#551A73)
+            fields = {
+                {
+                    name = "🔗 Join This Server",
+                    value = string.format(
+                        "[Click here to join this server](https://www.roblox.com/games/start?placeId=%s&launchData=join:%s)",
+                        serverInfo.PlaceId,
+                        serverInfo.JobId
+                    ),
+                    inline = false
+                }
+            },
+            footer = {
+                text = "Server Report • Sent by " .. player.Name
+            },
+            timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+        }}
+    }
+    
+    local request = syn and syn.request or http_request or request or (fluxus and fluxus.request)
+    
+    if request then
+        local success, response = pcall(function()
+            return request({
+                Url = webhook,
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "application/json"
+                },
+                Body = HttpService:JSONEncode(payload)
+            })
+        end)
+        
+        if success then
+            if response.StatusCode == 204 or response.StatusCode == 200 then
+                print("✅ Lista de jugadores enviada exitosamente a Discord")
+                print("📊 Total de jugadores enviados:", #allPlayers)
             else
                 warn("⚠️ Webhook respondió con código:", response.StatusCode)
             end
@@ -253,21 +701,6 @@ InfoPlayers:AddButton("📤 Enviar a Discord", function()
     end
 end)
 
--- Botón para refrescar manualmente la lista
-InfoPlayers:AddButton("🔄 Refrescar Lista", function()
-    playersDropdown:Clear()
-    for _, p in ipairs(getCurrentPlayers()) do
-        playersDropdown:Add(p.DisplayName .. " | " .. p.Name)
-    end
-    print("🔄 Lista de jugadores actualizada")
-end)
-
-print("✅ Sistema de información de jugadores cargado")
-print("📋 Jugadores disponibles:", #getCurrentPlayers())
-
-local Blacklist = mainTab:AddFolder("  Black List Players")
-
-local Discord = mainTab:AddFolder("  Discord Funtion")
 
 local Scriptsexternal = mainTab:AddFolder("  Scripts Externals")
 
