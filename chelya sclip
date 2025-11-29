@@ -18,13 +18,15 @@ local window = library:AddWindow(title, {
 
 local mainTab = window:AddTab("Main")
 
-mainTab:AddLabel("Espejito Espejito Quien es la mas bella e inteligente del mundo Yoooooo").TextSize = 25
+mainTab:AddLabel("Tu asistente Personal Evelyn <3").TextSize = 25
+mainTab:AddLabel("Script Private Made By Sherya").TextSize = 20
+mainTab:AddLabel("---------------------------------------------------------").TextSize = 20
 
 local InfoPlayers = mainTab:AddFolder("  Players Roblox")
 
-local Discord = mainTab:AddFolder("  Discord Funtion")
-
 local Blacklist = mainTab:AddFolder("  Black List Players")
+
+local Discord = mainTab:AddFolder("  Discord Funtion")
 
 local Scriptsexternal = mainTab:AddFolder("  Scripts Externals")
 
@@ -52,6 +54,6 @@ local KillerTab = window:AddTab("Killer")
 
 local ExtrasTab = window:AddTab("Extras")
 
-local InfoTab = window:AddTab("Info")
+local InfoTab = window:AddTab("Music")
 
 local CreditsTab = window:AddTab("Credits")
