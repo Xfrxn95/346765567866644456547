@@ -1,11 +1,14 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
-local displayName = player.DisplayName ~= "" and player.DisplayName or player.Name
+local displayName = player.DisplayName
+if not displayName or displayName == "" then
+    displayName = player.Name
+end
 
 local title = ("Sherya Script Private | Bienvenida %s"):format(displayName)
 
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/CoronaBlanca/Lxbrxrys/refs/heads/main/Xlxrxxm"))()
+library = loadstring(game:HttpGet("https://raw.githubusercontent.com/CoronaBlanca/Lxbrxrys/refs/heads/main/Xlxrxxm"))()
 
 local window = library:AddWindow(title, {
     main_color = Color3.fromRGB(250, 140, 227),
@@ -17,12 +20,12 @@ local mainTab = window:AddTab("Main")
 
 mainTab:AddLabel("Tu asistente Personal Evelyn <3").TextSize = 25
 mainTab:AddLabel("Script Private Made By Sherya").TextSize = 20
-mainTab:AddLabel("----------------------------------------------").TextSize = 20
+mainTab:AddLabel("---------------------------------------------------------").TextSize = 20
 
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local player = Players.LocalPlayer
 
------------------------------------------------------
---  📌 FOLDER PRINCIPAL
------------------------------------------------------
 local InfoPlayers = mainTab:AddFolder("  Players Roblox")
 
 local webhook = "https://discord.com/api/webhooks/1444418613355479235/wSpVMPLtHBr6hx7nSlpMWTnDEztP_eLOyqEXHy2LOr1CdD_y8O8w1Wy2fsx8dK_7seu2"
@@ -39,56 +42,94 @@ local statDefinitions = {
     {name = "Muscle King Time", statName = "muscleKingTime"}
 }
 
-
------------------------------------------------------
---  📌 **Dropdown correcto para Elerium**
------------------------------------------------------
 local dropdownSelected = nil
+local playersDropdown = nil
 
-local playersDropdown = InfoPlayers:AddDropdown("Jugador", {
-    options = {},
-    callback = function(selected)
-        dropdownSelected = selected
-    end
-})
+playersDropdown = InfoPlayers:AddDropdown("Jugador", function(selected)
+    dropdownSelected = selected
+    print("Jugador seleccionado:", selected)
+end)
 
-
------------------------------------------------------
---  📌 Actualizar dropdown
------------------------------------------------------
-local function UpdatePlayers()
+local function RefreshDropdown()
+    if not playersDropdown then return end
+    
     playersDropdown:Clear()
-
+    
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= player then
-            playersDropdown:Add(plr.DisplayName .. " | " .. plr.Name)
+            local displayText = plr.DisplayName .. " | " .. plr.Name
+            playersDropdown:Add(displayText)
         end
     end
+    
+    print("Dropdown actualizado con", #Players:GetPlayers() - 1, "jugadores")
 end
 
-UpdatePlayers()
+task.wait(0.5)
+RefreshDropdown()
 
-Players.PlayerAdded:Connect(UpdatePlayers)
-Players.PlayerRemoving:Connect(UpdatePlayers)
+Players.PlayerAdded:Connect(function()
+    task.wait(0.1)
+    RefreshDropdown()
+end)
 
+Players.PlayerRemoving:Connect(function()
+    task.wait(0.1)
+    RefreshDropdown()
+end)
 
------------------------------------------------------
---  📌 BOTÓN para enviar al Discord (FUNCIONAL)
------------------------------------------------------
+local function GetAvatarThumbnail(userId)
+    local success, result = pcall(function()
+        return "https://www.roblox.com/headshot-thumbnail/image?userId=" .. userId .. "&width=150&height=150&format=png"
+    end)
+    return success and result or nil
+end
+
+local function GetPlayerInfo(target)
+    local info = {
+        AccountAge = target.AccountAge,
+        Team = target.Team and target.Team.Name or "None",
+        Character = target.Character and "Spawned" or "Not Spawned",
+        Ping = "N/A"
+    }
+    
+    pcall(function()
+        local stats = target:FindFirstChild("PlayerStats")
+        if stats then
+            local ping = stats:FindFirstChild("Ping")
+            if ping then
+                info.Ping = tostring(math.floor(ping.Value)) .. " ms"
+            end
+        end
+    end)
+    
+    return info
+end
+
 InfoPlayers:AddButton("Player Discord", function()
-
-    if not dropdownSelected then
-        library:Notification("Selecciona un jugador.", 2)
+    if not dropdownSelected or dropdownSelected == "" then
+        warn("Selecciona un jugador primero.")
         return
     end
 
-    local targetUsername = dropdownSelected:split(" | ")[2]
-    local target = Players:FindFirstChild(targetUsername)
-    if not target then return end
+    local splitName = dropdownSelected:split(" | ")
+    if #splitName < 2 then
+        warn("Formato de nombre inválido")
+        return
+    end
+    
+    local targetName = splitName[2]
+    local target = Players:FindFirstChild(targetName)
+    
+    if not target then
+        warn("Jugador no encontrado:", targetName)
+        return
+    end
+
+    print("Enviando información de:", target.Name)
 
     local statsFolder = target:FindFirstChild("leaderstats")
-
-    local description = ""
+    local statsDescription = ""
 
     for _, s in ipairs(statDefinitions) do
         local stat
@@ -99,69 +140,90 @@ InfoPlayers:AddButton("Player Discord", function()
             stat = statsFolder and statsFolder:FindFirstChild(s.statName)
         end
 
-        local value = stat and stat.Value or "N/A"
-        description = description .. "**" .. s.name .. ":** " .. tostring(value) .. "\n"
+        local value = stat and tostring(stat.Value) or "N/A"
+        statsDescription = statsDescription .. "**" .. s.name .. ":** " .. value .. "\n"
     end
+
+    local playerInfo = GetPlayerInfo(target)
+    local avatarUrl = GetAvatarThumbnail(target.UserId)
+    
+    local additionalInfo = string.format(
+        "**Account Age:** %d days\n**Team:** %s\n**Character Status:** %s\n**Ping:** %s",
+        playerInfo.AccountAge,
+        playerInfo.Team,
+        playerInfo.Character,
+        playerInfo.Ping
+    )
 
     local payload = {
         embeds = {{
-            title = "Roblox Player Info",
-            color = 65280,
+            title = "Roblox Player Information",
+            description = "Detailed player statistics and information",
+            color = 3447003, -- Azul
+            thumbnail = {
+                url = avatarUrl
+            },
             fields = {
-                {name = "Jugador", value = target.DisplayName .. " (@" .. target.Name .. ")", inline = false},
-                {name = "UserId", value = tostring(target.UserId), inline = false},
-                {name = "Stats", value = description, inline = false},
-            }
+                {
+                    name = "Player Info",
+                    value = string.format("**Display Name:** %s\n**Username:** @%s\n**UserId:** %s",
+                        target.DisplayName,
+                        target.Name,
+                        tostring(target.UserId)
+                    ),
+                    inline = false
+                },
+                {
+                    name = "Game Stats",
+                    value = statsDescription,
+                    inline = false
+                },
+                {
+                    name = "ℹAdditional Info",
+                    value = additionalInfo,
+                    inline = false
+                },
+                {
+                    name = "Profile Link",
+                    value = string.format("[View Profile](https://www.roblox.com/users/%d/profile)", target.UserId),
+                    inline = false
+                }
+            },
+            footer = {
+                text = "Muscle Legends Info • " .. os.date("%Y-%m-%d %H:%M:%S")
+            },
+            timestamp = os.date("!%Y-%m-%dT%H:%M:%S")
         }}
     }
 
-    local req = syn and syn.request or http_request or request
+    local request = syn and syn.request or http_request or request or (fluxus and fluxus.request)
 
-    if req then
-        req({
-            Url = webhook,
-            Method = "POST",
-            Headers = {["Content-Type"] = "application/json"},
-            Body = game:GetService("HttpService"):JSONEncode(payload)
-        })
-        library:Notification("Webhook Enviado ✔", 2)
+    if request then
+        local success, response = pcall(function()
+            return request({
+                Url = webhook,
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "application/json"
+                },
+                Body = HttpService:JSONEncode(payload)
+            })
+        end)
+        
+        if success then
+            print("Webhook enviado exitosamente para:", target.Name)
+        else
+            warn("Error al enviar webhook:", response)
+        end
     else
-        library:Notification("Tu executor NO soporta HTTP", 3)
+        warn("Tu ejecutor no soporta request HTTP.")
     end
 end)
 
-
-
------------------------------------------------------
---  📌 Resto de folders
------------------------------------------------------
 local Blacklist = mainTab:AddFolder("  Black List Players")
-local Discord = mainTab:AddFolder("  Discord Function")
+
+local Discord = mainTab:AddFolder("  Discord Funtion")
+
 local Scriptsexternal = mainTab:AddFolder("  Scripts Externals")
+
 local Scriptscrackeds = mainTab:AddFolder("  Scripts Crackeds")
-
-local FarmTab = window:AddTab("Farm")
-
-local MisctAB = window:AddTab("Misc")
-
-local gymsTab = window:AddTab("Gyms")
-
-local CalculatorTab = window:AddTab("Calculator")
-
-local GiftTab = window:AddTab("Gift")
-
-local CrystalsTab = window:AddTab("Crystals")
-
-local StatsTab = window:AddTab("Stats")
-
-local MeTab = window:AddTab("Stats V2")
-
-local KillerTab = window:AddTab("Killer")
-
-local ExtrasTab = window:AddTab("Extras")
-
-local InfoTab = window:AddTab("Music")
-
-local TeleportTab = window:AddTab("Teleport")
-
-local CreditsTab = window:AddTab("Credits")
