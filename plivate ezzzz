@@ -736,7 +736,7 @@ end)
 
 local FarmTab = window:AddTab("Farm")
 
-local BrawlFolder = mainTab:AddFolder("  Auto Brawls")
+local BrawlFolder = FarmTab:AddFolder("  Auto Brawls")
 
 local godModeToggle = false
 
@@ -938,7 +938,104 @@ BrawlFolder:AddSwitch("Auto Join Brawls", function(bool)
     end
 end)
 
-local opThingsFolder = mainTab:AddFolder("  OP Things/Farms")
+local rockFolder = FarmTab:AddFolder("  Auto Rocks")
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+
+local function AddAutoPunchRock(title, rockName, delay)
+    local enabled = false
+
+    rockFolder:AddSwitch(title, function(state)
+        enabled = state
+
+        if enabled then
+            task.spawn(function()
+                while enabled do
+                    local rock
+                    
+                    if tonumber(rockName) then
+                        rock = Workspace.machinesFolder:GetChildren()[tonumber(rockName)]
+                    else
+                        rock = Workspace.machinesFolder:FindFirstChild(rockName)
+                    end
+
+                    if rock and rock:FindFirstChild("Rock") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("LeftHand") then
+                        firetouchinterest(rock.Rock, LocalPlayer.Character.LeftHand, 0)
+                        task.wait(delay)
+                        firetouchinterest(rock.Rock, LocalPlayer.Character.LeftHand, 1)
+                    end
+
+                    RunService.Heartbeat:Wait()
+                end
+            end)
+        end
+    end)
+end
+
+-- 0 Durability
+AddAutoPunchRock("Auto Punch Tiny Rock (0)", "Tiny Rock", 0.01)
+
+-- 10 Durability
+AddAutoPunchRock("Auto Punch Punching Rock (10)", "Punching Rock", 0.01)
+
+-- 100 Durability
+AddAutoPunchRock("Auto Punch Large Rock (100)", "Large Rock", 0.01)
+
+-- 5,000 Durability
+AddAutoPunchRock("Auto Punch Golden Rock (5K)", "Golden Rock", 0.01)
+
+-- 150,000 Durability
+AddAutoPunchRock("Auto Punch Frozen Rock (150K)", "Frozen Rock", 0.01)
+
+-- 400,000 Durability
+AddAutoPunchRock("Auto Punch Mystic Rock (400K)", "Mystic Rock", 0.01)
+
+-- 750,000 Durability
+AddAutoPunchRock("Auto Punch Inferno Rock (750K)", "Inferno Rock", 0.01)
+
+-- 1,000,000 Durability
+AddAutoPunchRock("Auto Punch Rock Of Legends (1M)", "Rock Of Legends", 0.01)
+
+-- 5,000,000 Durability
+AddAutoPunchRock("Auto Punch Muscle King Rock (5M)", "Muscle King Mountain", 0.0001)
+
+-- 10,000,000 Durability
+AddAutoPunchRock("Auto Punch Jungle Rock (10M)", "Ancient Jungle Rock", 0.0001)
+
+rockFolder:AddSwitch("Auto Punch", function(state)
+    _G.autopunch = state
+
+    if state then
+        local connection
+        connection = RunService.Heartbeat:Connect(function()
+            if not _G.autopunch then
+                connection:Disconnect()
+                return
+            end
+
+            local char = LocalPlayer.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+
+            if hum then
+                local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
+                if punchTool then hum:EquipTool(punchTool) end
+
+                LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+            end
+        end)
+    end
+end)
+
+local RockFolder = FarmTab:AddFolder("  Auto Rock V2")
+local autoEquipToolsFolder = FarmTab:AddFolder("  Auto Equip Tools")
+local toolsCombFolder = FarmTab:AddFolder("  Auto Tools Combined")
+local rebirthsFolder = FarmTab:AddFolder("  Auto Rebirths")
+
+local opThingsFolder = FarmTab:AddFolder("  OP Things/Farms")
 
 local switch = opThingsFolder:AddSwitch("Lock Position", function(Value)
     if Value then
