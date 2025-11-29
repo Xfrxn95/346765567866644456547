@@ -12,7 +12,7 @@ library = loadstring(game:HttpGet("https://raw.githubusercontent.com/CoronaBlanc
 
 local window = library:AddWindow(title, {
     main_color = Color3.fromRGB(250, 140, 227),
-    min_size = Vector2.new(600, 800),
+    min_size = Vector2.new(650, 800),
     can_resize = true,
 })
 
@@ -471,100 +471,34 @@ opThingsFolder:AddSwitch("Anti AFK", function(state)
     end
 end)
 
-local farmTab = window:AddTab("Farm")
+local discord = mainTab:AddFolder("  Discord Funtion")
 
-local rockFolder = farmTab:AddFolder("  Auto Rocks")
+local scriptsexternal = mainTab:AddFolder("  Scripts Externals")
 
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
-local LocalPlayer = Players.LocalPlayer
+local scriptscrackeds = mainTab:AddFolder("  Scripts Crackeds")
 
-local function GetRockPart(model)
-    if not model then return nil end
+local FarmTab = window:AddTab("Farm")
 
-    if model:FindFirstChild("Rock") then
-        return model.Rock
-    end
+local FarmmTab = window:AddTab("Farm++")
 
-    if model:FindFirstChild("RockPart") then
-        return model.RockPart
-    end
+local MisctAB = window:AddTab("Misc")
 
-    for _, v in ipairs(model:GetDescendants()) do
-        if v:IsA("BasePart") then
-            return v
-        end
-    end
+local gymsTab = window:AddTab("Gyms")
 
-    return nil
-end
+local CalculatorTab = window:AddTab("Calculator")
 
-local function AddAutoPunchRock(title, rockName, delay)
-    local enabled = false
+local GiftTab = window:AddTab("Gift")
 
-    rockFolder:AddSwitch(title, function(state)
-        enabled = state
+local CrystalsTab = window:AddTab("Crystals")
 
-        if enabled then
-            task.spawn(function()
-                while enabled do
-                    local rockModel
+local StatsTab = window:AddTab("Stats")
 
-                    if tonumber(rockName) then
-                        rockModel = Workspace.machinesFolder:GetChildren()[tonumber(rockName)]
-                    else
-                        rockModel = Workspace.machinesFolder:FindFirstChild(rockName)
-                    end
+local MeTab = window:AddTab("Stats V2")
 
-                    local rockPart = GetRockPart(rockModel)
+local KillerTab = window:AddTab("Killer")
 
-                    -- Golpear roca
-                    if rockPart and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("LeftHand") then
-                        firetouchinterest(rockPart, LocalPlayer.Character.LeftHand, 0)
-                        task.wait(delay)
-                        firetouchinterest(rockPart, LocalPlayer.Character.LeftHand, 1)
-                    end
+local ExtrasTab = window:AddTab("Extras")
 
-                    RunService.Heartbeat:Wait()
-                end
-            end)
-        end
-    end)
-end
+local InfoTab = window:AddTab("Info")
 
-AddAutoPunchRock("Auto Punch Jungle Rock (10M)", "Ancient Jungle Rock", 0.0001)
-AddAutoPunchRock("Auto Punch King Rock (5M)", "Muscle King Mountain", 0.0001)
-AddAutoPunchRock("Auto Punch Legends Rock (1M)", "Rock Of Legends", 0.01)
-AddAutoPunchRock("Auto Punch Inferno Rock (750K)", "Inferno Rock", 0.01)
-AddAutoPunchRock("Auto Punch Mystic Rock (400K)", "Mystic Rock", 0.01)
-AddAutoPunchRock("Auto Punch Frozen Rock (150K)", "Frozen Rock", 0.01)
-AddAutoPunchRock("Auto Punch Golden Rock (5K)", "Golden Rock", 0.01)
-AddAutoPunchRock("Auto Punch Large Rock (100)", "Large Rock", 0.01)
-AddAutoPunchRock("Auto Punch Punching Rock (10)", "Punching Rock", 0.01)
-AddAutoPunchRock("Auto Punch Tiny Rock (0)", "Tiny Rock", 0.01)
-
-rockFolder:AddSwitch("Auto Punch", function(state)
-    _G.autopunch = state
-
-    if state then
-        local connection
-        connection = RunService.Heartbeat:Connect(function()
-            if not _G.autopunch then
-                connection:Disconnect()
-                return
-            end
-
-            local char = LocalPlayer.Character
-            local hum = char and char:FindFirstChildOfClass("Humanoid")
-
-            if hum then
-                local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
-                if punchTool then hum:EquipTool(punchTool) end
-
-                LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
-                LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-            end
-        end)
-    end
-end)
+local CreditsTab = window:AddTab("Credits")
