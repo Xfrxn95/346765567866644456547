@@ -480,6 +480,26 @@ local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
 
+local function GetRockPart(model)
+    if not model then return nil end
+
+    if model:FindFirstChild("Rock") then
+        return model.Rock
+    end
+
+    if model:FindFirstChild("RockPart") then
+        return model.RockPart
+    end
+
+    for _, v in ipairs(model:GetDescendants()) do
+        if v:IsA("BasePart") then
+            return v
+        end
+    end
+
+    return nil
+end
+
 local function AddAutoPunchRock(title, rockName, delay)
     local enabled = false
 
@@ -489,19 +509,21 @@ local function AddAutoPunchRock(title, rockName, delay)
         if enabled then
             task.spawn(function()
                 while enabled do
-                    local rock
-                    
+                    local rockModel
+
                     if tonumber(rockName) then
-                        rock = Workspace.machinesFolder:GetChildren()[tonumber(rockName)]
+                        rockModel = Workspace.machinesFolder:GetChildren()[tonumber(rockName)]
                     else
-                        rock = Workspace.machinesFolder:FindFirstChild(rockName)
+                        rockModel = Workspace.machinesFolder:FindFirstChild(rockName)
                     end
 
-                    -- Tocar la roca
-                    if rock and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("LeftHand") then
-                        firetouchinterest(rock.Rock, LocalPlayer.Character.LeftHand, 0)
+                    local rockPart = GetRockPart(rockModel)
+
+                    -- Golpear roca
+                    if rockPart and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("LeftHand") then
+                        firetouchinterest(rockPart, LocalPlayer.Character.LeftHand, 0)
                         task.wait(delay)
-                        firetouchinterest(rock.Rock, LocalPlayer.Character.LeftHand, 1)
+                        firetouchinterest(rockPart, LocalPlayer.Character.LeftHand, 1)
                     end
 
                     RunService.Heartbeat:Wait()
@@ -515,7 +537,7 @@ AddAutoPunchRock("Auto Punch Jungle Rock (10M)", "Ancient Jungle Rock", 0.0001)
 AddAutoPunchRock("Auto Punch King Rock (5M)", "Muscle King Mountain", 0.0001)
 AddAutoPunchRock("Auto Punch Legends Rock (1M)", "Rock Of Legends", 0.01)
 AddAutoPunchRock("Auto Punch Inferno Rock (750K)", "Inferno Rock", 0.01)
-AddAutoPunchRock("Auto Punch Mystic Rock (400K)", 6, 0.01)
+AddAutoPunchRock("Auto Punch Mystic Rock (400K)", "Mystic Rock", 0.01)
 AddAutoPunchRock("Auto Punch Frozen Rock (150K)", "Frozen Rock", 0.01)
 AddAutoPunchRock("Auto Punch Golden Rock (5K)", "Golden Rock", 0.01)
 AddAutoPunchRock("Auto Punch Large Rock (100)", "Large Rock", 0.01)
