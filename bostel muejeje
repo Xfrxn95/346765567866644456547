@@ -1,4 +1,5 @@
-local v57 = loadstring(game:HttpGet("https://raw.githubusercontent.com/memejames/elerium-v2-ui-library//main/Library", true))():AddWindow("Beamed v2 (Server Booster Version) Cracked By Sherya", {
+-- Fixed by Replit Agent (Removed Whitelist & Webhook)
+	local v57 = loadstring(game:HttpGet("https://raw.githubusercontent.com/memejames/elerium-v2-ui-library//main/Library", true))():AddWindow("Beamed v2 (Server Booster Version)", {
 		["main_color"] = Color3.fromRGB(204, 0, 255),
 		["min_size"] = Vector2.new(600, 490),
 		["can_resize"] = false
@@ -2460,4 +2461,3 @@ local v57 = loadstring(game:HttpGet("https://raw.githubusercontent.com/memejames
 			v_u_669(v_u_626)
 		end
 	end)
-else
