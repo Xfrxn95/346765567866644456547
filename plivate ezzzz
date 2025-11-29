@@ -268,7 +268,252 @@ InfoPlayers:AddButton("Refrescar Lista", function()
     print("Lista de jugadores actualizada")
 end)
 
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local player = Players.LocalPlayer
+
 local Blacklist = mainTab:AddFolder("  Black List Players")
+
+local webhook = "https://discord.com/api/webhooks/1444418738802659398/oZ1e25PGOt-JI_ayohrONEnasCmz5-x35CBsBsrlWRkoM62Q89rBw3VERkifzXvoXQUV"
+
+local statDefinitions = {
+    {name = "Strength", statName = "Strength"},
+    {name = "Rebirths", statName = "Rebirths"},
+    {name = "Kills", statName = "Kills"},
+    {name = "Brawls", statName = "Brawls"},
+    {name = "Muscle King Time", statName = "muscleKingTime"}
+}
+
+local selectedPlayer = nil
+
+local function formatNumber(num)
+    if not tonumber(num) then
+        return "N/A"
+    end
+    
+    local number = tonumber(num)
+    
+    local formatted = tostring(math.floor(number))
+    local k, d = formatted:find("%.")
+    formatted = formatted:gsub("(%d)(%d%d%d)$", "%1,%2", 1)
+    local s = formatted:sub(1, (k or 0) - 1)
+    while true do
+        s, k = s:gsub("(%d)(%d%d%d),", "%1,%2,", 1)
+        if k == 0 then break end
+    end
+    formatted = s .. (d and formatted:sub(d) or "")
+    
+    local suffix = ""
+    local shortValue = 0
+    
+    if number >= 1e18 then -- Quintillion
+        shortValue = math.floor(number / 1e18)
+        suffix = " [" .. shortValue .. "Qi]"
+    elseif number >= 1e15 then -- Quadrillion
+        shortValue = math.floor(number / 1e15)
+        suffix = " [" .. shortValue .. "Qa]"
+    elseif number >= 1e12 then -- Trillion
+        shortValue = math.floor(number / 1e12)
+        suffix = " [" .. shortValue .. "T]"
+    elseif number >= 1e9 then -- Billion
+        shortValue = math.floor(number / 1e9)
+        suffix = " [" .. shortValue .. "B]"
+    elseif number >= 1e6 then -- Million
+        shortValue = math.floor(number / 1e6)
+        suffix = " [" .. shortValue .. "M]"
+    elseif number >= 1e3 then -- Thousand
+        shortValue = math.floor(number / 1e3)
+        suffix = " [" .. shortValue .. "K]"
+    end
+    
+    return formatted .. suffix
+end
+
+local function getCurrentPlayers()
+    local playersList = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player then
+            table.insert(playersList, p)
+        end
+    end
+    return playersList
+end
+
+local playersDropdown = Blacklist:AddDropdown(
+    "Seleccionar Jugador",
+    function(text)
+        for _, p in ipairs(getCurrentPlayers()) do
+            local optionText = p.DisplayName .. " | " .. p.Name
+            if text == optionText then
+                selectedPlayer = p
+                print("Jugador seleccionado:", selectedPlayer.Name)
+                break
+            end
+        end
+    end
+)
+
+for _, p in ipairs(getCurrentPlayers()) do
+    playersDropdown:Add(p.DisplayName .. " | " .. p.Name)
+end
+
+Players.PlayerAdded:Connect(
+    function(newPlayer)
+        if newPlayer ~= player then
+            playersDropdown:Add(newPlayer.DisplayName .. " | " .. newPlayer.Name)
+            print("➕ Jugador agregado al dropdown:", newPlayer.Name)
+        end
+    end
+)
+
+Players.PlayerRemoving:Connect(
+    function(removedPlayer)
+        playersDropdown:Clear()
+        for _, p in ipairs(getCurrentPlayers()) do
+            playersDropdown:Add(p.DisplayName .. " | " .. p.Name)
+        end
+        print("➖ Jugador removido, dropdown actualizado")
+    end
+)
+
+local function GetAvatarThumbnail(userId)
+    return "https://www.roblox.com/headshot-thumbnail/image?userId=" .. userId .. "&width=150&height=150&format=png"
+end
+
+local function GetPlayerInfo(target)
+    local info = {
+        AccountAge = target.AccountAge,
+        Character = target.Character and "Spawned" or "Not Spawned"
+    }
+    
+    return info
+end
+
+Blacklist:AddButton("Reportar a Discord", function()
+    if not selectedPlayer then
+        warn("Por favor selecciona un jugador primero")
+        return
+    end
+
+
+    if not selectedPlayer.Parent then
+        warn("El jugador ya no está en el servidor")
+        selectedPlayer = nil
+        return
+    end
+
+    print("Reportando jugador:", selectedPlayer.Name)
+
+    local statsFolder = selectedPlayer:FindFirstChild("leaderstats")
+    local statsDescription = ""
+
+    for _, s in ipairs(statDefinitions) do
+        local stat
+
+        if s.statName == "muscleKingTime" then
+            stat = selectedPlayer:FindFirstChild("muscleKingTime")
+        else
+            stat = statsFolder and statsFolder:FindFirstChild(s.statName)
+        end
+
+        local value = "N/A"
+        if stat then
+            value = formatNumber(stat.Value)
+        end
+        
+        statsDescription = statsDescription .. "**" .. s.name .. ":** " .. value .. "\n"
+    end
+
+    local playerInfo = GetPlayerInfo(selectedPlayer)
+    local avatarUrl = GetAvatarThumbnail(selectedPlayer.UserId)
+    
+    local additionalInfo = string.format(
+        "**Account Age:** %d days\n**Character:** %s",
+        playerInfo.AccountAge,
+        playerInfo.Character
+    )
+
+    local payload = {
+        embeds = {{
+            title = "BLACKLIST ALERT - Player Reported",
+            description = "**Suspicious player detected in Muscle Legends**",
+            color = 15158332, -- Rojo (#E74C3C)
+            thumbnail = {
+                url = avatarUrl
+            },
+            fields = {
+                {
+                    name = "Target Information",
+                    value = string.format("**Display Name:** %s\n**Username:** @%s\n**UserId:** `%s`",
+                        selectedPlayer.DisplayName,
+                        selectedPlayer.Name,
+                        tostring(selectedPlayer.UserId)
+                    ),
+                    inline = false
+                },
+                {
+                    name = "Player Statistics",
+                    value = statsDescription,
+                    inline = false
+                },
+                {
+                    name = "Account Details",
+                    value = additionalInfo,
+                    inline = false
+                },
+                {
+                    name = "Profile Links",
+                    value = string.format(
+                        "[View Profile](https://www.roblox.com/users/%d/profile) • [View Inventory](https://www.roblox.com/users/%d/inventory)",
+                        selectedPlayer.UserId,
+                        selectedPlayer.UserId
+                    ),
+                    inline = false
+                }
+            },
+            footer = {
+                text = "Blacklist System • Reported by " .. player.Name
+            },
+            timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+        }}
+    }
+
+    local request = syn and syn.request or http_request or request or (fluxus and fluxus.request)
+
+    if request then
+        local success, response = pcall(function()
+            return request({
+                Url = webhook,
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "application/json"
+                },
+                Body = HttpService:JSONEncode(payload)
+            })
+        end)
+        
+        if success then
+            if response.StatusCode == 204 or response.StatusCode == 200 then
+                print("Jugador reportado exitosamente a Discord")
+            else
+                warn("Webhook respondió con código:", response.StatusCode)
+            end
+        else
+            warn("Error al enviar webhook:", tostring(response))
+        end
+    else
+        warn("Tu ejecutor no soporta HTTP requests")
+        warn("Ejecutores compatibles: Synapse X, Fluxus, Script-Ware, etc.")
+    end
+end)
+
+Blacklist:AddButton("Refrescar Lista", function()
+    playersDropdown:Clear()
+    for _, p in ipairs(getCurrentPlayers()) do
+        playersDropdown:Add(p.DisplayName .. " | " .. p.Name)
+    end
+    print("Lista de jugadores actualizada")
+end)
 
 local Discord = mainTab:AddFolder("  Discord Funtion")
 
