@@ -1,14 +1,11 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
-local displayName = player.DisplayName
-if not displayName or displayName == "" then
-    displayName = player.Name
-end
+local displayName = player.DisplayName ~= "" and player.DisplayName or player.Name
 
 local title = ("Sherya Script Private | Bienvenida %s"):format(displayName)
 
-library = loadstring(game:HttpGet("https://raw.githubusercontent.com/CoronaBlanca/Lxbrxrys/refs/heads/main/Xlxrxxm"))()
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/CoronaBlanca/Lxbrxrys/refs/heads/main/Xlxrxxm"))()
 
 local window = library:AddWindow(title, {
     main_color = Color3.fromRGB(250, 140, 227),
@@ -20,8 +17,12 @@ local mainTab = window:AddTab("Main")
 
 mainTab:AddLabel("Tu asistente Personal Evelyn <3").TextSize = 25
 mainTab:AddLabel("Script Private Made By Sherya").TextSize = 20
-mainTab:AddLabel("---------------------------------------------------------").TextSize = 20
+mainTab:AddLabel("----------------------------------------------").TextSize = 20
 
+
+-----------------------------------------------------
+--  📌 FOLDER PRINCIPAL
+-----------------------------------------------------
 local InfoPlayers = mainTab:AddFolder("  Players Roblox")
 
 local webhook = "https://discord.com/api/webhooks/1444418613355479235/wSpVMPLtHBr6hx7nSlpMWTnDEztP_eLOyqEXHy2LOr1CdD_y8O8w1Wy2fsx8dK_7seu2"
@@ -38,14 +39,26 @@ local statDefinitions = {
     {name = "Muscle King Time", statName = "muscleKingTime"}
 }
 
+
+-----------------------------------------------------
+--  📌 **Dropdown correcto para Elerium**
+-----------------------------------------------------
 local dropdownSelected = nil
 
-local playersDropdown = InfoPlayers:AddDropdown("Jugador", function(selected)
-    dropdownSelected = selected
-end)
+local playersDropdown = InfoPlayers:AddDropdown("Jugador", {
+    options = {},
+    callback = function(selected)
+        dropdownSelected = selected
+    end
+})
 
-local function RefreshDropdown()
+
+-----------------------------------------------------
+--  📌 Actualizar dropdown
+-----------------------------------------------------
+local function UpdatePlayers()
     playersDropdown:Clear()
+
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= player then
             playersDropdown:Add(plr.DisplayName .. " | " .. plr.Name)
@@ -53,20 +66,24 @@ local function RefreshDropdown()
     end
 end
 
-RefreshDropdown()
+UpdatePlayers()
 
-Players.PlayerAdded:Connect(RefreshDropdown)
-Players.PlayerRemoving:Connect(RefreshDropdown)
+Players.PlayerAdded:Connect(UpdatePlayers)
+Players.PlayerRemoving:Connect(UpdatePlayers)
 
+
+-----------------------------------------------------
+--  📌 BOTÓN para enviar al Discord (FUNCIONAL)
+-----------------------------------------------------
 InfoPlayers:AddButton("Player Discord", function()
 
     if not dropdownSelected then
-        print("Selecciona un jugador primero.")
+        library:Notification("Selecciona un jugador.", 2)
         return
     end
 
-    local targetName = dropdownSelected:split(" | ")[2]
-    local target = Players:FindFirstChild(targetName)
+    local targetUsername = dropdownSelected:split(" | ")[2]
+    local target = Players:FindFirstChild(targetUsername)
     if not target then return end
 
     local statsFolder = target:FindFirstChild("leaderstats")
@@ -91,35 +108,36 @@ InfoPlayers:AddButton("Player Discord", function()
             title = "Roblox Player Info",
             color = 65280,
             fields = {
-                {name = "Player", value = target.DisplayName .. " (@" .. target.Name .. ")", inline = false},
+                {name = "Jugador", value = target.DisplayName .. " (@" .. target.Name .. ")", inline = false},
                 {name = "UserId", value = tostring(target.UserId), inline = false},
                 {name = "Stats", value = description, inline = false},
             }
         }}
     }
 
-    local request = syn and syn.request or http_request or request or (fluxus and fluxus.request)
+    local req = syn and syn.request or http_request or request
 
-    if request then
-        request({
+    if req then
+        req({
             Url = webhook,
             Method = "POST",
             Headers = {["Content-Type"] = "application/json"},
             Body = game:GetService("HttpService"):JSONEncode(payload)
         })
+        library:Notification("Webhook Enviado ✔", 2)
     else
-        warn("Tu ejecutor no soporta request HTTP.")
+        library:Notification("Tu executor NO soporta HTTP", 3)
     end
-
-    print("Webhook enviado exitosamente.")
 end)
 
+
+
+-----------------------------------------------------
+--  📌 Resto de folders
+-----------------------------------------------------
 local Blacklist = mainTab:AddFolder("  Black List Players")
-
-local Discord = mainTab:AddFolder("  Discord Funtion")
-
+local Discord = mainTab:AddFolder("  Discord Function")
 local Scriptsexternal = mainTab:AddFolder("  Scripts Externals")
-
 local Scriptscrackeds = mainTab:AddFolder("  Scripts Crackeds")
 
 local FarmTab = window:AddTab("Farm")
