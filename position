@@ -1,0 +1,56 @@
+-- // Mostrar Posición y Rotación del Jugador (Compatible con Delta, Solara, Arceus X, etc.)
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local function setup()
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+
+    -- Crear GUI
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "PosRotDisplay"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = player:WaitForChild("PlayerGui")
+
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(0, 340, 0, 100)
+    Label.Position = UDim2.new(0, 10, 0, 10)
+    Label.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    Label.BackgroundTransparency = 0.3
+    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Label.Font = Enum.Font.SourceSansBold
+    Label.TextSize = 18
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.TextYAlignment = Enum.TextYAlignment.Top
+    Label.Parent = ScreenGui
+
+    -- Actualización
+    task.spawn(function()
+        while true do
+            task.wait(0.05)
+            if hrp then
+                local pos = hrp.Position
+                local rot = hrp.Orientation
+                
+                Label.Text = 
+                    "📍 Posición:\n" ..
+                    "X: " .. math.floor(pos.X) ..
+                    " | Y: " .. math.floor(pos.Y) ..
+                    " | Z: " .. math.floor(pos.Z) ..
+                    "\n\n🔄 Rotación:\n" ..
+                    "X: " .. math.floor(rot.X) ..
+                    " | Y: " .. math.floor(rot.Y) ..
+                    " | Z: " .. math.floor(rot.Z)
+            end
+        end
+    end)
+end
+
+setup()
+
+-- Si reapareces, volver a crear el GUI
+player.CharacterAdded:Connect(function()
+    task.wait(1)
+    setup()
+end)
