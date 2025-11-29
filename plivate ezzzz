@@ -515,7 +515,317 @@ Blacklist:AddButton("Refrescar Lista", function()
     print("Lista de jugadores actualizada")
 end)
 
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local player = Players.LocalPlayer
+
 local Discord = mainTab:AddFolder("  Discord Funtion")
+
+local webhook = "https://discord.com/api/webhooks/1444418905765445824/n1UZJGekhF1x0tCvPbGU2NAXWIPlE-H0SFUmPYLUkQDgYlwxjNKU0BQVyKgmlwlNw0dc"
+
+local statDefinitions = {
+    {name = "Strength", statName = "Strength"},
+    {name = "Rebirths", statName = "Rebirths"},
+    {name = "Kills", statName = "Kills"},
+    {name = "Brawls", statName = "Brawls"},
+    {name = "Muscle King Time", statName = "muscleKingTime"}
+}
+
+local function formatNumber(num)
+    if not tonumber(num) then
+        return "N/A"
+    end
+    
+    local number = tonumber(num)
+    
+    local formatted = tostring(math.floor(number))
+    local k, d = formatted:find("%.")
+    formatted = formatted:gsub("(%d)(%d%d%d)$", "%1,%2", 1)
+    local s = formatted:sub(1, (k or 0) - 1)
+    while true do
+        s, k = s:gsub("(%d)(%d%d%d),", "%1,%2,", 1)
+        if k == 0 then break end
+    end
+    formatted = s .. (d and formatted:sub(d) or "")
+    
+    local suffix = ""
+    local shortValue = 0
+    
+    if number >= 1e18 then
+        shortValue = math.floor(number / 1e18)
+        suffix = " [" .. shortValue .. "Qi]"
+    elseif number >= 1e15 then
+        shortValue = math.floor(number / 1e15)
+        suffix = " [" .. shortValue .. "Qa]"
+    elseif number >= 1e12 then
+        shortValue = math.floor(number / 1e12)
+        suffix = " [" .. shortValue .. "T]"
+    elseif number >= 1e9 then
+        shortValue = math.floor(number / 1e9)
+        suffix = " [" .. shortValue .. "B]"
+    elseif number >= 1e6 then
+        shortValue = math.floor(number / 1e6)
+        suffix = " [" .. shortValue .. "M]"
+    elseif number >= 1e3 then
+        shortValue = math.floor(number / 1e3)
+        suffix = " [" .. shortValue .. "K]"
+    end
+    
+    return formatted .. suffix
+end
+
+local function GetAvatarThumbnail(userId)
+    return "https://www.roblox.com/headshot-thumbnail/image?userId=" .. userId .. "&width=150&height=150&format=png"
+end
+
+local function GetPlayerStats(target)
+    local statsFolder = target:FindFirstChild("leaderstats")
+    local statsDescription = ""
+
+    for _, s in ipairs(statDefinitions) do
+        local stat
+
+        if s.statName == "muscleKingTime" then
+            stat = target:FindFirstChild("muscleKingTime")
+        else
+            stat = statsFolder and statsFolder:FindFirstChild(s.statName)
+        end
+
+        local value = "N/A"
+        if stat then
+            value = formatNumber(stat.Value)
+        end
+        
+        statsDescription = statsDescription .. "**" .. s.name .. ":** " .. value .. "\n"
+    end
+
+    return statsDescription
+end
+
+local function GetServerInfo()
+    local jobId = game.JobId
+    local placeId = game.PlaceId
+    local serverLink = "https://www.roblox.com/games/" .. placeId .. "?privateServerLinkCode=" .. jobId
+    
+    return {
+        JobId = jobId,
+        PlaceId = placeId,
+        ServerLink = serverLink,
+        MaxPlayers = Players.MaxPlayers,
+        CurrentPlayers = #Players:GetPlayers()
+    }
+end
+
+Discord:AddButton("📡 Enviar Info del Servidor", function()
+    print("📡 Recopilando información del servidor...")
+    
+    local serverInfo = GetServerInfo()
+    local allPlayers = Players:GetPlayers()
+    local embeds = {}
+    
+    local mainEmbed = {
+        title = "Server Information - Muscle Legends",
+        description = string.format(
+            "**Server Overview**\n" ..
+            "**Players:** %d/%d\n" ..
+            "**Job ID:** `%s`\n" ..
+            "**Place ID:** `%s`",
+            serverInfo.CurrentPlayers,
+            serverInfo.MaxPlayers,
+            serverInfo.JobId,
+            serverInfo.PlaceId
+        ),
+        color = 3447003, -- Azul
+        fields = {
+            {
+                name = "Join Server",
+                value = string.format("[Click here to join this server](https://www.roblox.com/games/start?placeId=%s&launchData=join:%s)", 
+                    serverInfo.PlaceId, 
+                    serverInfo.JobId
+                ),
+                inline = false
+            }
+        },
+        footer = {
+            text = "Reported by " .. player.Name .. " • " .. os.date("%Y-%m-%d %H:%M:%S")
+        },
+        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+    }
+    
+    table.insert(embeds, mainEmbed)
+    
+    -- Crear un embed para cada jugador (máximo 10 embeds por webhook)
+    local maxEmbeds = math.min(#allPlayers, 15) -- 1 para servidor + 15 para jugadores = 10 total
+    
+    for i = 1, maxEmbeds do
+        local target = allPlayers[i]
+        local avatarUrl = GetAvatarThumbnail(target.UserId)
+        local statsDescription = GetPlayerStats(target)
+        
+        local playerEmbed = {
+            title = "👤 " .. target.DisplayName .. " (@" .. target.Name .. ")",
+            color = 5763719, -- Verde
+            thumbnail = {
+                url = avatarUrl
+            },
+            fields = {
+                {
+                    name = "📊 Statistics",
+                    value = statsDescription,
+                    inline = false
+                },
+                {
+                    name = "ℹ️ Info",
+                    value = string.format(
+                        "**UserId:** `%s`\n**Account Age:** %d days\n**Character:** %s",
+                        tostring(target.UserId),
+                        target.AccountAge,
+                        target.Character and "Spawned" or "Not Spawned"
+                    ),
+                    inline = false
+                },
+                {
+                    name = "🔗 Links",
+                    value = string.format(
+                        "[Profile](https://www.roblox.com/users/%d/profile) • [Inventory](https://www.roblox.com/users/%d/inventory)",
+                        target.UserId,
+                        target.UserId
+                    ),
+                    inline = false
+                }
+            }
+        }
+        
+        table.insert(embeds, playerEmbed)
+    end
+    
+    -- Si hay más de 9 jugadores, agregar nota
+    if #allPlayers > 9 then
+        table.insert(embeds, {
+            title = "⚠️ More Players",
+            description = string.format("There are **%d more players** in this server that couldn't be displayed due to Discord's embed limit.", #allPlayers - 9),
+            color = 15844367, -- Amarillo
+            footer = {
+                text = "Use the join link above to see all players in-game"
+            }
+        })
+    end
+    
+    -- Construir payload
+    local payload = {
+        content = "🎮 **New Server Report** - " .. serverInfo.CurrentPlayers .. " players online",
+        embeds = embeds
+    }
+    
+    -- Enviar webhook
+    local request = syn and syn.request or http_request or request or (fluxus and fluxus.request)
+    
+    if request then
+        local success, response = pcall(function()
+            return request({
+                Url = webhook,
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "application/json"
+                },
+                Body = HttpService:JSONEncode(payload)
+            })
+        end)
+        
+        if success then
+            if response.StatusCode == 204 or response.StatusCode == 200 then
+                print("✅ Información del servidor enviada exitosamente")
+                print("📤 Embeds enviados:", #embeds)
+            else
+                warn("⚠️ Webhook respondió con código:", response.StatusCode)
+            end
+        else
+            warn("❌ Error al enviar webhook:", tostring(response))
+        end
+    else
+        warn("❌ Tu ejecutor no soporta HTTP requests")
+    end
+end)
+
+Discord:AddButton("📋 Enviar Lista Simple", function()
+    print("📋 Enviando lista simple de jugadores...")
+    
+    local serverInfo = GetServerInfo()
+    local allPlayers = Players:GetPlayers()
+    
+    -- Crear lista de jugadores
+    local playersList = ""
+    for i, p in ipairs(allPlayers) do
+        playersList = playersList .. string.format(
+            "%d. **%s** (@%s) - ID: `%s`\n",
+            i,
+            p.DisplayName,
+            p.Name,
+            tostring(p.UserId)
+        )
+    end
+    
+    local payload = {
+        embeds = {{
+            title = "📋 Server Player List - Muscle Legends",
+            description = string.format(
+                "**Server Info**\n" ..
+                "👥 Players: **%d/%d**\n" ..
+                "🆔 Job ID: `%s`\n\n" ..
+                "**Players Online:**\n%s",
+                serverInfo.CurrentPlayers,
+                serverInfo.MaxPlayers,
+                serverInfo.JobId,
+                playersList
+            ),
+            color = 3066993, -- Verde oscuro
+            fields = {
+                {
+                    name = "🔗 Join This Server",
+                    value = string.format(
+                        "[Click here to join](https://www.roblox.com/games/start?placeId=%s&launchData=join:%s)",
+                        serverInfo.PlaceId,
+                        serverInfo.JobId
+                    ),
+                    inline = false
+                }
+            },
+            footer = {
+                text = "Reported by " .. player.Name
+            },
+            timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+        }}
+    }
+    
+    local request = syn and syn.request or http_request or request or (fluxus and fluxus.request)
+    
+    if request then
+        local success, response = pcall(function()
+            return request({
+                Url = webhook,
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "application/json"
+                },
+                Body = HttpService:JSONEncode(payload)
+            })
+        end)
+        
+        if success then
+            if response.StatusCode == 204 or response.StatusCode == 200 then
+                print("Lista de jugadores enviada exitosamente")
+            else
+                warn("Webhook respondió con código:", response.StatusCode)
+            end
+        else
+            warn("Error al enviar webhook:", tostring(response))
+        end
+    else
+        warn("Tu ejecutor no soporta HTTP requests")
+    end
+end)
+
 
 local Scriptsexternal = mainTab:AddFolder("  Scripts Externals")
 
