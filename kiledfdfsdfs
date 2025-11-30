@@ -1,0 +1,1415 @@
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local player = Players.LocalPlayer
+
+local statDefinitions = {
+    {name = "Strength", statName = "Strength"},
+    {name = "Rebirths", statName = "Rebirths"},
+    {name = "Kills", statName = "Kills"},
+    {name = "Brawls", statName = "Brawls"},
+    {name = "Muscle King Time", statName = "muscleKingTime"}
+}
+
+-- Funciones reutilizables
+local function formatNumber(num)
+    if not tonumber(num) then return "N/A" end
+    local number = tonumber(num)
+    local formatted = tostring(math.floor(number))
+    formatted = formatted:gsub("(%d)(%d%d%d)$", "%1,%2", 1)
+    return formatted
+end
+
+local function getCurrentPlayers()
+    local playersList = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player then table.insert(playersList, p) end
+    end
+    return playersList
+end
+
+local function GetAvatarThumbnail(userId)
+    return "https://www.roblox.com/headshot-thumbnail/image?userId=" .. userId .. "&width=150&height=150&format=png"
+end
+
+local function GetPlayerInfo(target)
+    return {
+        AccountAge = target.AccountAge,
+        Character = target.Character and "Spawned" or "Not Spawned"
+    }
+end
+
+local function GetPlayerStats(p)
+    local statsFolder = p:FindFirstChild("leaderstats")
+    local stats = {}
+    for _, s in ipairs(statDefinitions) do
+        local stat = (s.statName == "muscleKingTime") and p:FindFirstChild("muscleKingTime") or (statsFolder and statsFolder:FindFirstChild(s.statName))
+        stats[s.name] = stat and formatNumber(stat.Value) or "N/A"
+    end
+    return stats
+end
+
+local function GetServerInfo()
+    return {
+        JobId = game.JobId,
+        PlaceId = game.PlaceId,
+        MaxPlayers = Players.MaxPlayers,
+        CurrentPlayers = #Players:GetPlayers()
+    }
+end
+
+library = loadstring(game:HttpGet("https://raw.githubusercontent.com/CoronaBlanca/Lxbrxrys/refs/heads/main/Xlxrxxm"))()
+
+local title = ("Sherya Script Private Killer | Bienvenida %s"):format(player.DisplayName ~= "" and player.DisplayName or player.Name)
+local window = library:AddWindow(title, {
+    main_color = Color3.fromRGB(125, 1, 1),
+    min_size = Vector2.new(500, 800),
+    can_resize = true,
+})
+
+local mainTab = window:AddTab("Main")
+mainTab:AddLabel("Your personal assistant Evelyn <3").TextSize = 25
+mainTab:AddLabel("Script Private Made By Sherya").TextSize = 20
+mainTab:AddLabel("---------------------------------------------------------").TextSize = 20
+
+local InfoPlayers = mainTab:AddFolder("Players Roblox")
+local selectedPlayer = nil
+local playersDropdown = InfoPlayers:AddDropdown("Jugador", function(text)
+    for _, p in ipairs(getCurrentPlayers()) do
+        if text == (p.DisplayName .. " | " .. p.Name) then selectedPlayer = p break end
+    end
+end)
+for _, p in ipairs(getCurrentPlayers()) do playersDropdown:Add(p.DisplayName .. " | " .. p.Name) end
+
+InfoPlayers:AddButton("Enviar a Discord", function()
+    if not selectedPlayer then return warn("Selecciona un jugador primero") end
+    local stats = GetPlayerStats(selectedPlayer)
+    local avatarUrl = GetAvatarThumbnail(selectedPlayer.UserId)
+    local info = GetPlayerInfo(selectedPlayer)
+
+    local payload = {
+        embeds = {{
+            title = "Roblox Player Information",
+            description = "Detailed statistics from **Muscle Legends**",
+            color = 5570867,
+            thumbnail = {url = avatarUrl},
+            fields = {
+                {name="Player Info", value=string.format("**Display Name:** %s\n**Username:** @%s\n**UserId:** `%s`", selectedPlayer.DisplayName, selectedPlayer.Name, tostring(selectedPlayer.UserId))},
+                {name="Game Statistics", value=string.format("Strength: %s\nRebirths: %s\nKills: %s\nBrawls: %s\nMuscle King Time: %s", stats["Strength"], stats["Rebirths"], stats["Kills"], stats["Brawls"], stats["Muscle King Time"])},
+                {name="ℹAdditional Information", value=string.format("**Account Age:** %d days\n**Character:** %s", info.AccountAge, info.Character)},
+                {name="Quick Links", value=string.format("[View Profile](https://www.roblox.com/users/%d/profile) • [View Inventory](https://www.roblox.com/users/%d/inventory)", selectedPlayer.UserId, selectedPlayer.UserId)}
+            },
+            footer = {text = "Muscle Legends Info System • Requested by " .. player.Name},
+            timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+        }}
+    }
+
+    local request = syn and syn.request or http_request or request or (fluxus and fluxus.request)
+    if request then request({Url="https://discord.com/api/webhooks/1444418613355479235/wSpVMPLtHBr6hx7nSlpMWTnDEztP_eLOyqEXHy2LOr1CdD_y8O8w1Wy2fsx8dK_7seu2", Method="POST", Headers={["Content-Type"]="application/json"}, Body=HttpService:JSONEncode(payload)}) end
+end)
+
+
+local Blacklist = mainTab:AddFolder("Black List Players")
+local blacklistDropdown = Blacklist:AddDropdown("Seleccionar Jugador", function(text)
+    for _, p in ipairs(getCurrentPlayers()) do
+        if text == (p.DisplayName .. " | " .. p.Name) then selectedPlayer = p break end
+    end
+end)
+for _, p in ipairs(getCurrentPlayers()) do blacklistDropdown:Add(p.DisplayName .. " | " .. p.Name) end
+
+Blacklist:AddButton("Reportar a Discord", function()
+    if not selectedPlayer then return warn("Selecciona un jugador primero") end
+    local stats = GetPlayerStats(selectedPlayer)
+    local avatarUrl = GetAvatarThumbnail(selectedPlayer.UserId)
+    local info = GetPlayerInfo(selectedPlayer)
+
+    local payload = {
+        embeds = {{
+            title = "BLACKLIST ALERT - Player Reported",
+            description = "**Suspicious player detected in Muscle Legends**",
+            color = 15158332,
+            thumbnail = {url = avatarUrl},
+            fields = {
+                {name="Target Information", value=string.format("**Display Name:** %s\n**Username:** @%s\n**UserId:** `%s`", selectedPlayer.DisplayName, selectedPlayer.Name, tostring(selectedPlayer.UserId))},
+                {name="Player Statistics", value=string.format("Strength: %s\nRebirths: %s\nKills: %s\nBrawls: %s\nMuscle King Time: %s", stats["Strength"], stats["Rebirths"], stats["Kills"], stats["Brawls"], stats["Muscle King Time"])},
+                {name="Account Details", value=string.format("**Account Age:** %d days\n**Character:** %s", info.AccountAge, info.Character)},
+                {name="Profile Links", value=string.format("[View Profile](https://www.roblox.com/users/%d/profile) • [View Inventory](https://www.roblox.com/users/%d/inventory)", selectedPlayer.UserId, selectedPlayer.UserId)}
+            },
+            footer = {text = "Blacklist System • Reported by " .. player.Name},
+            timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+        }}
+    }
+
+    local request = syn and syn.request or http_request or request or (fluxus and fluxus.request)
+    if request then request({Url="https://discord.com/api/webhooks/1444418738802659398/oZ1e25PGOt-JI_ayohrONEnasCmz5-x35CBsBsrlWRkoM62Q89rBw3VERkifzXvoXQUV", Method="POST", Headers={["Content-Type"]="application/json"}, Body=HttpService:JSONEncode(payload)}) end
+end)
+
+local Discord = mainTab:AddFolder("Discord Function")
+Discord:AddButton("Enviar Lista de Jugadores", function()
+    local serverInfo = GetServerInfo()
+    local allPlayers = Players:GetPlayers()
+    local playersList = ""
+    for i, p in ipairs(allPlayers) do
+        local stats = GetPlayerStats(p)
+        playersList = playersList .. string.format(
+            "**%d. %s** (@%s)\n" ..
+            "Strength: %s\n" ..
+            "Rebirths: %s\n" ..
+            "Kills: %s\n" ..
+            "Brawls: %s\n" ..
+            "Muscle King Time: %s\n\n",
+            i,
+            p.DisplayName,
+            p.Name,
+            stats["Strength"],
+            stats["Rebirths"],
+            stats["Kills"],
+            stats["Brawls"],
+            stats["Muscle King Time"]
+        )
+    end
+
+    local payload = {
+        embeds = {{
+            title = "Server Player List - Muscle Legends",
+            description = string.format(
+                "**Server Information**\n" ..
+                "Players Online: **%d/%d**\n" ..
+                "Job ID: `%s`\n" ..
+                "Place ID: `%s`\n\n" ..
+                "**Players in Server:**\n\n%s",
+                serverInfo.CurrentPlayers,
+                serverInfo.MaxPlayers,
+                serverInfo.JobId,
+                serverInfo.PlaceId,
+                playersList
+            ),
+            color = 5570867,
+            fields = {{
+                name = "Join This Server",
+                value = string.format(
+                    "[Click here to join this server](https://www.roblox.com/games/start?placeId=%s&launchData=join:%s)",
+                    serverInfo.PlaceId,
+                    serverInfo.JobId
+                ),
+                inline = false
+            }},
+            footer = {text = "Server Report • Sent by " .. player.Name},
+            timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+        }}
+    }
+
+    local request = syn and syn.request or http_request or request or (fluxus and fluxus.request)
+    if request then
+        local success, response = pcall(function()
+            return request({
+                Url = "https://discord.com/api/webhooks/1444418905765445824/n1UZJGekhF1x0tCvPbGU2NAXWIPlE-H0SFUmPYLUkQDgYlwxjNKU0BQVyKgmlwlNw0dc",
+                Method = "POST",
+                Headers = {["Content-Type"] = "application/json"},
+                Body = HttpService:JSONEncode(payload)
+            })
+        end)
+
+        if success then
+            if response.StatusCode == 204 or response.StatusCode == 200 then
+                print("Lista de jugadores enviada exitosamente a Discord")
+                print("Total de jugadores enviados:", #allPlayers)
+            else
+                warn("Webhook respondió con código:", response.StatusCode)
+            end
+        else
+            warn("Error al enviar webhook:", tostring(response))
+        end
+    else
+        warn("Tu ejecutor no soporta HTTP requests")
+        warn("Ejecutores compatibles: Synapse X, Fluxus, Script-Ware, etc.")
+    end
+end)
+
+local estadisticas = window:AddTab("Stats")
+
+local SelectPlayerName = ""
+
+local PlayerDrop = estadisticas:AddDropdown("Select Player", function(Value)
+    SelectPlayerName = Value:match("| (.+)")
+    previousValues = {}
+end)
+
+local Playerslist = {}
+for _, Plr in pairs(game:GetService("Players"):GetPlayers()) do
+    local displayName = Plr.DisplayName .. " | " .. Plr.Name
+    table.insert(Playerslist, displayName)
+end
+for _, AddPlr in ipairs(Playerslist) do
+    PlayerDrop:Add(AddPlr)
+end
+
+local function FormatNumberWithCommas(number)
+    local formatted = tostring(number):reverse():gsub("(%d%d%d)", "%1,"):reverse()
+    return formatted:gsub("^,", "")
+end
+
+local function FormatAbbreviated(number)
+    local abbreviations = {"", "K", "M", "B", "T", "Qa", "Qi"}
+    local abbreviationIndex = 1
+    while number >= 1000 do
+        number = number / 1000
+        abbreviationIndex = abbreviationIndex + 1
+    end
+    return string.format("%.2f", number) .. abbreviations[abbreviationIndex]
+end
+
+local function FormatDisplay(value)
+    local normal = FormatNumberWithCommas(value)
+    local abbreviated = FormatAbbreviated(value)
+    return "[ " .. normal .. " | " .. abbreviated .. " ]"
+end
+
+local previousValues = {}
+
+local Update = estadisticas:AddLabel("")
+local Update1 = estadisticas:AddLabel("")
+local Update2 = estadisticas:AddLabel("")
+local Update3 = estadisticas:AddLabel("")
+local Update4 = estadisticas:AddLabel("")
+local Update5 = estadisticas:AddLabel("")
+local Update6 = estadisticas:AddLabel("")
+local Update9 = estadisticas:AddLabel("")
+local Update10 = estadisticas:AddLabel("")
+local Update11 = estadisticas:AddLabel("")
+local Update12 = estadisticas:AddLabel("")
+local Update13 = estadisticas:AddLabel("")
+
+task.spawn(function()
+    while task.wait(0) do
+        if SelectPlayerName ~= "" then
+            local player = game.Players:FindFirstChild(SelectPlayerName)
+            if player then
+                if player:FindFirstChild("Gems") then
+                    Update1.Text = "Gems: " .. FormatDisplay(player.Gems.Value)
+                end
+                if player:FindFirstChild("Agility") then
+                    Update3.Text = "Agility: " .. FormatDisplay(player.Agility.Value)
+                end
+                if player:FindFirstChild("Durability") then
+                    Update4.Text = "Durability: " .. FormatDisplay(player.Durability.Value)
+                end
+                if player:FindFirstChild("muscleKingTime") then
+                    Update6.Text = "Muscle King Time: " .. FormatDisplay(player.muscleKingTime.Value)
+                end
+                if player:FindFirstChild("customSize") then
+                    Update10.Text = "Custom Size: " .. FormatDisplay(player.customSize.Value)
+                end
+                if player:FindFirstChild("customSpeed") then
+                    Update11.Text = "Custom Speed: " .. FormatDisplay(player.customSpeed.Value)
+                end
+                if player:FindFirstChild("evilKarma") then
+                    Update12.Text = "Evil Karma: " .. FormatDisplay(player.evilKarma.Value)
+                end
+                if player:FindFirstChild("goodKarma") then
+                    Update13.Text = "Good Karma: " .. FormatDisplay(player.goodKarma.Value)
+                end
+
+                local leaderstats = player:FindFirstChild("leaderstats")
+                if leaderstats then
+                    if leaderstats:FindFirstChild("Strength") then
+                        Update.Text = "Strength: " .. FormatDisplay(leaderstats.Strength.Value)
+                    end
+                    if leaderstats:FindFirstChild("Rebirths") then
+                        Update2.Text = "Rebirth: " .. FormatDisplay(leaderstats.Rebirths.Value)
+                    end
+                    if leaderstats:FindFirstChild("Kills") then
+                        Update5.Text = "Kills: " .. FormatDisplay(leaderstats.Kills.Value)
+                    end
+                end
+
+                if player:FindFirstChild("currentMap") then
+                    Update9.Text = "Current Map: " .. tostring(player.currentMap.Value)
+                else
+                    Update9.Text = "Current Map:"
+                end
+            end
+        end
+    end
+end)
+
+estadisticas:AddLabel("————————————————————————————")
+estadisticas:AddLabel("Advanced Stats:").TextSize = 24
+
+local enemyHealthLabel = estadisticas:AddLabel("Enemy Health: N/A")
+enemyHealthLabel.TextSize = 20
+enemyHealthLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local playerDamageLabel = estadisticas:AddLabel("Your Damage: N/A")
+playerDamageLabel.TextSize = 20
+playerDamageLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local hitsToKillLabel = estadisticas:AddLabel("Hits to Kill: N/A")
+hitsToKillLabel.TextSize = 20
+hitsToKillLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local function calculateEnemyHealth(targetPlayer)
+    if not targetPlayer then return 0 end
+
+    local baseDura = 0
+    local durabilityStat =
+        targetPlayer:FindFirstChild("Durability") or
+        (targetPlayer:FindFirstChild("leaderstats") and targetPlayer.leaderstats:FindFirstChild("Durability"))
+
+    if durabilityStat then
+        baseDura = durabilityStat.Value
+    end
+
+    local totalMultiplier = 1
+
+    local ultFolder = targetPlayer:FindFirstChild("ultimatesFolder")
+    if ultFolder then
+        local infernalHealth = ultFolder:FindFirstChild("Infernal Health")
+        if infernalHealth then
+            totalMultiplier = totalMultiplier + 0.15 * (infernalHealth.Value or 0)
+        end
+    end
+
+    local backpack = targetPlayer:FindFirstChild("Backpack")
+    if backpack then
+        local equippedPets = backpack:FindFirstChild("EquippedPets") or backpack:FindFirstChild("equippedPets")
+        if equippedPets then
+            for _, pet in ipairs(equippedPets:GetChildren()) do
+                if string.lower(tostring(pet)):match("mighty") and string.lower(tostring(pet)):match("monster") then
+                    totalMultiplier = totalMultiplier + 0.5
+                    break
+                end
+            end
+        end
+    end
+
+    return baseDura * totalMultiplier
+end
+
+local function calculateLocalPlayerDamage()
+    local LocalPlayer = game.Players.LocalPlayer
+    if not LocalPlayer then return 0 end
+
+    local strengthStat = nil
+    local leaderstats = LocalPlayer:FindFirstChild("leaderstats")
+    if leaderstats then
+        strengthStat = leaderstats:FindFirstChild("Strength")
+    end
+    if not strengthStat then return 0 end
+
+    local baseDamage = strengthStat.Value * 0.0667
+    local totalMultiplier = 1
+
+    local ultFolder = LocalPlayer:FindFirstChild("ultimatesFolder")
+    if ultFolder then
+        local demonDamage = ultFolder:FindFirstChild("Demon Damage")
+        if demonDamage then
+            totalMultiplier = totalMultiplier + math.min(0.1 * (demonDamage.Value or 0), 0.5)
+        end
+    end
+
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
+    if backpack then
+        local equippedPets = backpack:FindFirstChild("EquippedPets") or backpack:FindFirstChild("equippedPets")
+        if equippedPets then
+            for _, pet in ipairs(equippedPets:GetChildren()) do
+                if string.lower(tostring(pet)):match("wild") and string.lower(tostring(pet)):match("wizard") then
+                    totalMultiplier = totalMultiplier + 0.5
+                    break
+                end
+            end
+        end
+    end
+
+    return baseDamage * totalMultiplier
+end
+
+local function calculateHitsToKill(health, damage)
+    if damage <= 0 then return "∞" end
+    local hits = math.ceil(health / damage)
+    if hits > 50 then
+        return "∞"
+    elseif hits < 1 then
+        return 1
+    else
+        return hits
+    end
+end
+
+local function updateAdvancedStats(targetPlayer)
+    if not targetPlayer then
+        enemyHealthLabel.Text = "Enemy Health: N/A"
+        playerDamageLabel.Text = "Your Damage: N/A"
+        hitsToKillLabel.Text = "Hits to Kill: N/A"
+        return
+    end
+
+    local enemyHealth = calculateEnemyHealth(targetPlayer)
+    local playerDamage = calculateLocalPlayerDamage()
+    local hitsToKill = calculateHitsToKill(enemyHealth, playerDamage)
+
+    enemyHealthLabel.Text = "Enemy Health: " .. FormatDisplay(enemyHealth)
+    playerDamageLabel.Text = "Your Damage: " .. FormatDisplay(playerDamage)
+    hitsToKillLabel.Text = "Hits to Kill: " .. tostring(hitsToKill)
+end
+
+task.spawn(function()
+    while task.wait(0.3) do
+        local selectedPlayer = game.Players:FindFirstChild(SelectPlayerName)
+        updateAdvancedStats(selectedPlayer)
+    end
+end)
+
+local Killer = window:AddTab("Killer")
+
+local titleLabel = Killer:AddLabel("Kill Aura")
+titleLabel.TextSize = 24
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local dropdown =
+    Killer:AddDropdown(
+    "Select Pet",
+    function(text)
+        local petsFolder = game.Players.LocalPlayer.petsFolder
+        for _, folder in pairs(petsFolder:GetChildren()) do
+            if folder:IsA("Folder") then
+                for _, pet in pairs(folder:GetChildren()) do
+                    game:GetService("ReplicatedStorage").rEvents.equipPetEvent:FireServer("unequipPet", pet)
+                end
+            end
+        end
+        task.wait(0.2)
+
+        local petName = text
+        local petsToEquip = {}
+
+        for _, pet in pairs(game.Players.LocalPlayer.petsFolder.Unique:GetChildren()) do
+            if pet.Name == petName then
+                table.insert(petsToEquip, pet)
+            end
+        end
+
+        for i = 1, math.min(8, #petsToEquip) do
+            game:GetService("ReplicatedStorage").rEvents.equipPetEvent:FireServer("equipPet", petsToEquip[i])
+            task.wait(0.1)
+        end
+    end
+)
+dropdown:Add("Wild Wizard")
+dropdown:Add("Mighty Monster")
+
+local button = Killer:AddButton("Remove Punch Anim", function()
+    local blockedAnimations = {
+        ["rbxassetid://3638729053"] = true,
+        ["rbxassetid://3638767427"] = true,
+    }
+
+    local function setupAnimationBlocking()
+        local char = game.Players.LocalPlayer.Character
+        if not char or not char:FindFirstChild("Humanoid") then return end
+
+        local humanoid = char:FindFirstChild("Humanoid")
+
+        for _, track in pairs(humanoid:GetPlayingAnimationTracks()) do
+            if track.Animation then
+                local animId = track.Animation.AnimationId
+                local animName = track.Name:lower()
+
+                if blockedAnimations[animId] or
+                    animName:match("punch") or
+                    animName:match("attack") or
+                    animName:match("right") then
+                    track:Stop()
+                end
+            end
+        end
+
+        if not _G.AnimBlockConnection then
+            local connection = humanoid.AnimationPlayed:Connect(function(track)
+                if track.Animation then
+                    local animId = track.Animation.AnimationId
+                    local animName = track.Name:lower()
+
+                    if blockedAnimations[animId] or
+                        animName:match("punch") or
+                        animName:match("attack") or
+                        animName:match("right") then
+                        track:Stop()
+                    end
+                end
+            end)
+
+            _G.AnimBlockConnection = connection
+        end
+    end
+
+    setupAnimationBlocking()
+
+    local function overrideToolActivation()
+        local function processTool(tool)
+            if tool and (tool.Name == "Punch" or tool.Name:match("Attack") or tool.Name:match("Right")) then
+                if not tool:GetAttribute("ActivatedOverride") then
+                    tool:SetAttribute("ActivatedOverride", true)
+
+                    local connection = tool.Activated:Connect(function()
+                        task.wait(0.05)
+
+                        local char = game.Players.LocalPlayer.Character
+                        if char and char:FindFirstChild("Humanoid") then
+                            for _, track in pairs(char.Humanoid:GetPlayingAnimationTracks()) do
+                                if track.Animation then
+                                    local animId = track.Animation.AnimationId
+                                    local animName = track.Name:lower()
+
+                                    if blockedAnimations[animId] or
+                                        animName:match("punch") or
+                                        animName:match("attack") or
+                                        animName:match("right") then
+                                        track:Stop()
+                                    end
+                                end
+                            end
+                        end
+                    end)
+
+                    if not _G.ToolConnections then
+                        _G.ToolConnections = {}
+                    end
+                    _G.ToolConnections[tool] = connection
+                end
+            end
+        end
+
+        for _, tool in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+            processTool(tool)
+        end
+
+        local char = game.Players.LocalPlayer.Character
+        if char then
+            for _, tool in pairs(char:GetChildren()) do
+                if tool:IsA("Tool") then
+                    processTool(tool)
+                end
+            end
+        end
+
+        if not _G.BackpackAddedConnection then
+            _G.BackpackAddedConnection = game.Players.LocalPlayer.Backpack.ChildAdded:Connect(function(child)
+                if child:IsA("Tool") then
+                    task.wait(0.1)
+                    processTool(child)
+                end
+            end)
+        end
+
+        if not _G.CharacterToolAddedConnection and char then
+            _G.CharacterToolAddedConnection = char.ChildAdded:Connect(function(child)
+                if child:IsA("Tool") then
+                    task.wait(0.1)
+                    processTool(child)
+                end
+            end)
+        end
+    end
+
+    overrideToolActivation()
+
+    -- OPTIMIZADO: Cambié de Heartbeat (60+ veces/seg) a un loop con wait
+    if not _G.AnimMonitorConnection then
+        _G.AnimMonitorConnection = true
+        task.spawn(function()
+            while _G.AnimMonitorConnection do
+                local char = game.Players.LocalPlayer.Character
+                if char and char:FindFirstChild("Humanoid") then
+                    for _, track in pairs(char.Humanoid:GetPlayingAnimationTracks()) do
+                        if track.Animation then
+                            local animId = track.Animation.AnimationId
+                            local animName = track.Name:lower()
+
+                            if blockedAnimations[animId] or
+                                animName:match("punch") or
+                                animName:match("attack") or
+                                animName:match("right") then
+                                track:Stop()
+                            end
+                        end
+                    end
+                end
+                task.wait(0.5) -- Chequea cada medio segundo en vez de cada frame
+            end
+        end)
+    end
+
+    if not _G.CharacterAddedConnection then
+        _G.CharacterAddedConnection = game.Players.LocalPlayer.CharacterAdded:Connect(function(newChar)
+            task.wait(1)
+            setupAnimationBlocking()
+            overrideToolActivation()
+
+            if _G.CharacterToolAddedConnection then
+                _G.CharacterToolAddedConnection:Disconnect()
+            end
+
+            _G.CharacterToolAddedConnection = newChar.ChildAdded:Connect(function(child)
+                if child:IsA("Tool") then
+                    task.wait(0.1)
+                    processTool(child)
+                end
+            end)
+        end)
+    end
+end)
+
+function RecoveryPunch()
+    if _G.AnimBlockConnection then
+        _G.AnimBlockConnection:Disconnect()
+        _G.AnimBlockConnection = nil
+    end
+    if _G.AnimMonitorConnection then
+        _G.AnimMonitorConnection = nil -- Ya no es una conexión, es un boolean
+    end
+    if _G.ToolConnections then
+        for _, conn in pairs(_G.ToolConnections) do
+            if conn then conn:Disconnect() end
+        end
+        _G.ToolConnections = nil
+    end
+    if _G.BackpackAddedConnection then
+        _G.BackpackAddedConnection:Disconnect()
+        _G.BackpackAddedConnection = nil
+    end
+    if _G.CharacterToolAddedConnection then
+        _G.CharacterToolAddedConnection:Disconnect()
+        _G.CharacterToolAddedConnection = nil
+    end
+    if _G.CharacterAddedConnection then
+        _G.CharacterAddedConnection:Disconnect()
+        _G.CharacterAddedConnection = nil
+    end
+end
+
+Killer:AddButton("Recover Punch Anim", function()
+    RecoveryPunch()
+end)
+
+Killer:AddLabel("Auto Kill:").TextSize = 22
+
+_G.whitelistedPlayers = _G.whitelistedPlayers or {}
+_G.blacklistedPlayers = _G.blacklistedPlayers or {}
+
+local function isWhitelisted(player)
+    for _, name in ipairs(_G.whitelistedPlayers) do
+        if name:lower() == player.Name:lower() then
+            return true
+        end
+    end
+    return false
+end
+
+local function isBlacklisted(player)
+    for _, name in ipairs(_G.blacklistedPlayers) do
+        if name:lower() == player.Name:lower() then
+            return true
+        end
+    end
+    return false
+end
+
+local function getPlayerDisplayText(player)
+    return player.DisplayName .. " | " .. player.Name
+end
+
+local whitelistDropdown =
+    Killer:AddDropdown(
+    "Add to Whitelist",
+    function(selectedText)
+        local playerName = selectedText:match("| (.+)$")
+        if playerName then
+            playerName = playerName:gsub("^%s*(.-)%s*$", "%1")
+            for _, name in ipairs(_G.whitelistedPlayers) do
+                if name:lower() == playerName:lower() then
+                    return
+                end
+            end
+            table.insert(_G.whitelistedPlayers, playerName)
+        end
+    end
+)
+
+-- OPTIMIZADO: Kill Everyone ahora usa wait() en vez de Heartbeat
+local switch =
+    Killer:AddSwitch(
+    "Kill Everyone",
+    function(bool)
+        _G.killAll = bool
+        if bool then
+            if not _G.killAllConnection then
+                _G.killAllConnection = true
+                task.spawn(function()
+                    while _G.killAll do
+                        for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+                            if player ~= game.Players.LocalPlayer and not isWhitelisted(player) then
+                                killPlayer(player)
+                            end
+                        end
+                        task.wait(0.3) -- Reducido de cada frame a 3 veces por segundo
+                    end
+                    _G.killAllConnection = nil
+                end)
+            end
+        else
+            _G.killAll = false
+        end
+    end
+)
+switch:Set(false)
+
+local switch =
+    Killer:AddSwitch(
+    "Whitelist Friends",
+    function(bool)
+        _G.whitelistFriends = bool
+
+        if bool then
+            for _, player in pairs(game.Players:GetPlayers()) do
+                if player ~= game.Players.LocalPlayer and player:IsFriendsWith(game.Players.LocalPlayer.UserId) then
+                    local playerName = player.Name
+                    local alreadyWhitelisted = false
+                    for _, name in ipairs(_G.whitelistedPlayers) do
+                        if name:lower() == playerName:lower() then
+                            alreadyWhitelisted = true
+                            break
+                        end
+                    end
+                    if not alreadyWhitelisted then
+                        table.insert(_G.whitelistedPlayers, playerName)
+                    end
+                end
+            end
+
+            game.Players.PlayerAdded:Connect(
+                function(player)
+                    if _G.whitelistFriends and player:IsFriendsWith(game.Players.LocalPlayer.UserId) then
+                        local playerName = player.Name
+                        local alreadyWhitelisted = false
+                        for _, name in ipairs(_G.whitelistedPlayers) do
+                            if name:lower() == playerName:lower() then
+                                alreadyWhitelisted = true
+                                break
+                            end
+                        end
+                        if not alreadyWhitelisted then
+                            table.insert(_G.whitelistedPlayers, playerName)
+                        end
+                    end
+                end
+            )
+        end
+    end
+)
+
+switch:Set(false)
+
+Killer:AddLabel("------Karma------")
+
+Killer:AddSwitch("Auto Good Karma", function(bool)
+    autoGoodKarma = bool
+    task.spawn(function()
+        while autoGoodKarma do
+            local playerChar = LocalPlayer.Character
+            local rightHand = playerChar and playerChar:FindFirstChild("RightHand")
+            local leftHand = playerChar and playerChar:FindFirstChild("LeftHand")
+            if playerChar and rightHand and leftHand then
+                for _, target in ipairs(Players:GetPlayers()) do
+                    if target ~= LocalPlayer then
+                        local evilKarma = target:FindFirstChild("evilKarma")
+                        local goodKarma = target:FindFirstChild("goodKarma")
+                        if evilKarma and goodKarma and evilKarma:IsA("IntValue") and goodKarma:IsA("IntValue") and evilKarma.Value > goodKarma.Value then
+                            local rootPart = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+                            if rootPart then
+                                firetouchinterest(rightHand, rootPart, 1)
+                                firetouchinterest(leftHand, rootPart, 1)
+                                firetouchinterest(rightHand, rootPart, 0)
+                                firetouchinterest(leftHand, rootPart, 0)
+                            end
+                        end
+                    end
+                end
+            end
+            task.wait(0.1) -- Aumentado de 0.01 a 0.1 para reducir carga
+        end
+    end)
+end)
+
+Killer:AddSwitch("Auto Bad Karma", function(bool)
+    autoBadKarma = bool
+    task.spawn(function()
+        while autoBadKarma do
+            local playerChar = LocalPlayer.Character
+            local rightHand = playerChar and playerChar:FindFirstChild("RightHand")
+            local leftHand = playerChar and playerChar:FindFirstChild("LeftHand")
+            if playerChar and rightHand and leftHand then
+                for _, target in ipairs(Players:GetPlayers()) do
+                    if target ~= LocalPlayer then
+                        local evilKarma = target:FindFirstChild("evilKarma")
+                        local goodKarma = target:FindFirstChild("goodKarma")
+                        if evilKarma and goodKarma and evilKarma:IsA("IntValue") and goodKarma:IsA("IntValue") and goodKarma.Value > evilKarma.Value then
+                            local rootPart = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+                            if rootPart then
+                                firetouchinterest(rightHand, rootPart, 1)
+                                firetouchinterest(leftHand, rootPart, 1)
+                                firetouchinterest(rightHand, rootPart, 0)
+                                firetouchinterest(leftHand, rootPart, 0)
+                            end
+                        end
+                    end
+                end
+            end
+            task.wait(0.1) -- Aumentado de 0.01 a 0.1 para reducir carga
+        end
+    end)
+end)
+
+local friendWhitelistActive = false
+
+Killer:AddLabel("---Egg Obligatorio And nan---")
+
+Killer:AddButton("Size nan", function()
+    local args = {"changeSize", 0/0}
+    game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("changeSpeedSizeRemote"):InvokeServer(unpack(args))
+end)
+
+Killer:AddSwitch("Punch Boost Scripts", function(Value)
+    _G.PunchBoostActive = Value
+    
+    if Value then
+        local urls = {
+            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/Punch1 ",
+            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/puch2",
+            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/punch3",
+            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/punch4",
+            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/punch5",
+            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/punch6"
+        }
+        
+        task.spawn(function()
+            for i, url in ipairs(urls) do
+                if not _G.PunchBoostActive then break end
+                
+                local success, result = pcall(function()
+                    loadstring(game:HttpGet(url, true))()
+                    print("Punch Boost Script " .. i .. " cargado exitosamente")
+                end)
+                
+                if not success then
+                    warn("Error cargando script " .. i .. ": " .. tostring(result))
+                end
+                
+                task.wait(0.5)
+            end
+            
+            if _G.PunchBoostActive then
+                print("Todos los Punch Boost Scripts han sido cargados")
+            end
+        end)
+        
+    else
+        print("Punch Boost Scripts desactivados")
+    end
+end, "Activa scripts especiales de punch boost desde URLs externas")
+
+local blacklistDropdown =
+    Killer:AddDropdown(
+    "Add to Killlist",
+    function(selectedText)
+        local playerName = selectedText:match("| (.+)$")
+        if playerName then
+            playerName = playerName:gsub("^%s*(.-)%s*$", "%1")
+            for _, name in ipairs(_G.blacklistedPlayers) do
+                if name:lower() == playerName:lower() then
+                    return
+                end
+            end
+            table.insert(_G.blacklistedPlayers, playerName)
+        end
+    end
+)
+
+for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
+    if plr ~= game.Players.LocalPlayer then
+        local displayText = getPlayerDisplayText(plr)
+        whitelistDropdown:Add(displayText)
+        blacklistDropdown:Add(displayText)
+    end
+end
+
+game:GetService("Players").PlayerAdded:Connect(
+    function(plr)
+        if plr ~= game.Players.LocalPlayer then
+            local displayText = getPlayerDisplayText(plr)
+            whitelistDropdown:Add(displayText)
+            blacklistDropdown:Add(displayText)
+        end
+    end
+)
+
+-- OPTIMIZADO: Kill List ahora usa wait() en vez de Heartbeat
+local blacklistKillSwitch =
+    Killer:AddSwitch(
+    "Kill List",
+    function(bool)
+        _G.killBlacklistedOnly = bool
+        if bool then
+            if not _G.blacklistKillConnection then
+                _G.blacklistKillConnection = true
+                task.spawn(function()
+                    while _G.killBlacklistedOnly do
+                        for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+                            if player ~= game.Players.LocalPlayer and isBlacklisted(player) then
+                                killPlayer(player)
+                            end
+                        end
+                        task.wait(0.3) -- Reducido de cada frame a 3 veces por segundo
+                    end
+                    _G.blacklistKillConnection = nil
+                end)
+            end
+        else
+            _G.killBlacklistedOnly = false
+        end
+    end
+)
+
+local spyTargetDropdown = Killer:AddDropdown("Select View Target", function(text)
+    for _, plr in ipairs(Players:GetPlayers()) do
+        local optionText = plr.DisplayName .. " | " .. plr.Name
+        if text == optionText and plr ~= player then
+            targetPlayerName = plr.Name
+            break
+        end
+    end
+end)
+
+for _, plr in ipairs(Players:GetPlayers()) do
+    if plr ~= player then
+        spyTargetDropdown:Add(plr.DisplayName .. " | " .. plr.Name)
+    end
+end
+
+Players.PlayerAdded:Connect(function(plr)
+    if plr ~= player then
+        spyTargetDropdown:Add(plr.DisplayName .. " | " .. plr.Name)
+    end
+end)
+
+Players.PlayerRemoving:Connect(function(plr)
+    if plr ~= player then
+        spyTargetDropdown:Clear()
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= player then
+                spyTargetDropdown:Add(p.DisplayName .. " | " .. p.Name)
+            end
+        end
+    end
+end)
+
+Killer:AddSwitch("View Player", function(bool)
+    spying = bool
+    if not spying then
+        local cam = workspace.CurrentCamera
+        cam.CameraSubject = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") or LocalPlayer
+        return
+    end
+    task.spawn(function()
+        while spying do
+            local target = Players:FindFirstChild(targetPlayerName)
+            if target and target ~= LocalPlayer then
+                local humanoid = target.Character and target.Character:FindFirstChild("Humanoid")
+                if humanoid then
+                    workspace.CurrentCamera.CameraSubject = humanoid
+                end
+            end
+            task.wait(0.1)
+        end
+    end)
+end)
+
+Killer:AddLabel("Kill Aura:").TextSize = 22
+
+local ringPart = nil
+local ringColor = Color3.fromRGB(50, 163, 255)
+local ringTransparency = 0.6
+_G.showDeathRing = false
+_G.deathRingRange = 20
+
+local function updateRingSize()
+    if not ringPart then
+        return
+    end
+    local diameter = (_G.deathRingRange or 20) * 2
+    ringPart.Size = Vector3.new(0.2, diameter, diameter)
+end
+
+Killer:AddTextBox(
+    "Range 1-140",
+    function(text)
+        local range = tonumber(text)
+        if range then
+            _G.deathRingRange = math.clamp(range, 1, 140)
+            updateRingSize()
+        end
+    end
+)
+
+local function toggleRingVisual()
+    if _G.showDeathRing then
+        ringPart = Instance.new("Part")
+        ringPart.Shape = Enum.PartType.Cylinder
+        ringPart.Material = Enum.Material.Neon
+        ringPart.Color = ringColor
+        ringPart.Transparency = ringTransparency
+        ringPart.Anchored = true
+        ringPart.CanCollide = false
+        ringPart.CastShadow = false
+        updateRingSize()
+        ringPart.Parent = workspace
+    elseif ringPart then
+        ringPart:Destroy()
+        ringPart = nil
+    end
+end
+
+local function updateRingPosition()
+    if not ringPart then
+        return
+    end
+    local character = checkCharacter()
+    local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+    if rootPart then
+        ringPart.CFrame = rootPart.CFrame * CFrame.Angles(0, 0, math.rad(90))
+    end
+end
+
+-- OPTIMIZADO: Death Ring ahora usa wait() en vez de Heartbeat
+local deathRingSwitch =
+    Killer:AddSwitch(
+    "Death Ring",
+    function(bool)
+        _G.deathRingEnabled = bool
+
+        if bool then
+            if not _G.deathRingConnection then
+                _G.deathRingConnection = true
+                task.spawn(function()
+                    while _G.deathRingEnabled do
+                        updateRingPosition()
+
+                        local character = checkCharacter()
+                        local myPosition =
+                            character and character:FindFirstChild("HumanoidRootPart") and
+                            character.HumanoidRootPart.Position
+                        if myPosition then
+                            for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+                                if
+                                    player ~= game.Players.LocalPlayer and not isWhitelisted(player) and
+                                        isPlayerAlive(player)
+                                 then
+                                    local distance = (myPosition - player.Character.HumanoidRootPart.Position).Magnitude
+                                    if distance <= (_G.deathRingRange or 20) then
+                                        killPlayer(player)
+                                    end
+                                end
+                            end
+                        end
+                        task.wait(0.2) -- Reducido de cada frame a 5 veces por segundo
+                    end
+                    _G.deathRingConnection = nil
+                end)
+            end
+        else
+            _G.deathRingEnabled = false
+        end
+    end
+)
+
+local visualRingSwitch =
+    Killer:AddSwitch(
+    "Show Ring",
+    function(bool)
+        _G.showDeathRing = bool
+        toggleRingVisual()
+    end
+)
+deathRingSwitch:Set(false)
+visualRingSwitch:Set(false)
+
+Killer:AddSwitch("Auto Punch", function(state)
+	_G.fastHitActive = state
+	if state then
+		task.spawn(function()
+			while _G.fastHitActive do
+				local punch = LocalPlayer.Backpack:FindFirstChild("Punch")
+				if punch then
+					punch.Parent = LocalPlayer.Character
+					if punch:FindFirstChild("attackTime") then
+						punch.attackTime.Value = 0
+					end
+				end
+				task.wait(0.1)
+			end
+		end)
+		task.spawn(function()
+			while _G.fastHitActive do
+				local punch = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Punch")
+				if punch then
+					punch:Activate()
+				end
+				task.wait(0.1)
+			end
+		end)
+	else
+		local punch = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Punch")
+		if punch then
+			punch.Parent = LocalPlayer.Backpack
+		end
+	end
+end)
+
+Killer:AddSwitch("Fast Punch", function(state)
+	_G.autoPunchActive = state
+	if state then
+		task.spawn(function()
+			while _G.autoPunchActive do
+				local punch = LocalPlayer.Backpack:FindFirstChild("Punch")
+				if punch then
+					punch.Parent = LocalPlayer.Character
+					if punch:FindFirstChild("attackTime") then
+						punch.attackTime.Value = 0
+					end
+				end
+				task.wait(0.05) -- Aumentado ligeramente para reducir carga
+			end
+		end)
+		task.spawn(function()
+			while _G.autoPunchActive do
+				local punch = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Punch")
+				if punch then
+					punch:Activate()
+				end
+				task.wait(0.05) -- Aumentado ligeramente para reducir carga
+			end
+		end)
+	else
+		local punch = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Punch")
+		if punch then
+			punch.Parent = LocalPlayer.Backpack
+		end
+	end
+end)
+
+local whitelistLabel = Killer:AddLabel("Whitelist: None")
+whitelistLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+whitelistLabel.TextSize = 17
+
+Killer:AddButton(
+    "Clear Whitelist",
+    function()
+        _G.whitelistedPlayers = {}
+    end
+)
+
+local blacklistLabel = Killer:AddLabel("Killlist: None")
+blacklistLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+blacklistLabel.TextSize = 17
+
+Killer:AddButton(
+    "Clear Blacklist",
+    function()
+        _G.blacklistedPlayers = {}
+    end
+)
+
+local function updateWhitelistLabel()
+    if #_G.whitelistedPlayers == 0 then
+        whitelistLabel.Text = "Whitelist: None"
+    else
+        whitelistLabel.Text = "Whitelist: " .. table.concat(_G.whitelistedPlayers, ", ")
+    end
+end
+
+local function updateBlacklistLabel()
+    if #_G.blacklistedPlayers == 0 then
+        blacklistLabel.Text = "Killlist: None"
+    else
+        blacklistLabel.Text = "Killlist: " .. table.concat(_G.blacklistedPlayers, ", ")
+    end
+end
+
+-- OPTIMIZADO: Actualización de labels reducida de 5 a 2 veces por segundo
+task.spawn(
+    function()
+        while true do
+            updateWhitelistLabel()
+            updateBlacklistLabel()
+            task.wait(0.5) -- Cambiado de 0.2 a 0.5 segundos
+        end
+    end
+)
+
+local extraTab = window:AddTab("Extras")
+
+extraTab:AddLabel("Good Mode System").TextSize = 24
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local following = false
+local followTarget = nil
+
+local function followPlayer(targetPlayer)
+    local myChar = LocalPlayer.Character
+    local targetChar = targetPlayer.Character
+
+    if not (myChar and targetChar) then return end
+    local myHRP = myChar:FindFirstChild("HumanoidRootPart")
+    local targetHRP = targetChar:FindFirstChild("HumanoidRootPart")
+
+    if myHRP and targetHRP then
+        local followPos = targetHRP.Position - (targetHRP.CFrame.LookVector * 3)
+        myHRP.CFrame = CFrame.new(followPos, targetHRP.Position)
+    end
+end
+
+local followDropdown = extraTab:AddDropdown("Teleport player", function(selectedDisplayName)
+    if selectedDisplayName and selectedDisplayName ~= "" then
+        local target = nil
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr.DisplayName == selectedDisplayName then
+                target = plr
+                break
+            end
+        end
+
+        if target then
+            followTarget = target.Name
+            following = true
+            print("Started following:", target.Name)
+
+            -- TP inmediato
+            followPlayer(target)
+        end
+    end
+end)
+
+for _, player in ipairs(Players:GetPlayers()) do
+    if player ~= LocalPlayer then
+        followDropdown:Add(player.DisplayName)
+    end
+end
+
+Players.PlayerAdded:Connect(function(player)
+    if player ~= LocalPlayer then
+        followDropdown:Add(player.DisplayName)
+    end
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+    followDropdown:Clear()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer then
+            followDropdown:Add(plr.DisplayName)
+        end
+    end
+
+    if followTarget == player.Name then
+        followTarget = nil
+        following = false
+    end
+end)
+
+extraTab:AddButton("Do not follow", function()
+    following = false
+    followTarget = nil
+    print("Stopped following")
+end)
+
+task.spawn(function()
+    while task.wait(0.01) do
+        if following and followTarget then
+            local target = Players:FindFirstChild(followTarget)
+            if target then
+                followPlayer(target)
+            else
+                following = false
+                followTarget = nil
+            end
+        end
+    end
+end)
+
+LocalPlayer.CharacterAdded:Connect(function()
+    task.wait(1)
+    if following and followTarget then
+        local target = Players:FindFirstChild(followTarget)
+        if target then
+            followPlayer(target)
+        end
+    end
+end)
+
+local godDamageActive = false
+
+extraTab:AddSwitch("Auto Ground Slam", function(state)
+    godDamageActive = state
+    if state then
+        task.spawn(function()
+            while godDamageActive do
+                local player = LocalPlayer
+                local groundSlam = player.Backpack:FindFirstChild("Ground Slam") or (player.Character and player.Character:FindFirstChild("Ground Slam"))
+
+                if groundSlam then
+                    if groundSlam.Parent == player.Backpack then
+                        groundSlam.Parent = player.Character
+                    end
+                    if groundSlam:FindFirstChild("attackTime") then
+                        groundSlam.attackTime.Value = 0
+                    end
+                    player.muscleEvent:FireServer("slam")
+                    groundSlam:Activate()
+                end
+
+                task.wait(0.1)
+            end
+        end)
+    end
+end)
+
+extraTab:AddButton("Empty", function()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    humanoidRootPart.CFrame = CFrame.new(-241.12, -369.25, -396.96)
+    
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Teletransporte",
+        Text = "Teleported to Coordenadas (-241, -369, -396)",
+        Duration = 3
+    })
+end)
+
+local creditsTab = window:AddTab("Credits")
+
+creditsTab:AddLabel("╭──────────────────────────╮")
+creditsTab:AddLabel("   Sherya Private Killer")
+creditsTab:AddLabel("╰──────────────────────────╯")
+creditsTab:AddLabel("")
+creditsTab:AddLabel("Script Made By")
+creditsTab:AddLabel("")
+creditsTab:AddLabel("Sherya (Isabella)")
+creditsTab:AddLabel("")
+creditsTab:AddLabel("Instagram : sheryaluck")
+creditsTab:AddLabel("Tik tok : xvisherys")
+creditsTab:AddLabel("Discord : isabella_hrz")
+creditsTab:AddLabel("Roblox : MissSherya")
+
+creditsTab:AddLabel("Your personal assistant Evelyn <3")
