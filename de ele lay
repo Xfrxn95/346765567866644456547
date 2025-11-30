@@ -1,0 +1,64 @@
+local DrRayLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/AZYsGithub/DrRay-UI-Library/main/DrRay.lua"))()
+
+local window = DrRayLibrary:Load("Sherya Private", "Default")
+
+local tab1 = DrRayLibrary.newTab("Strength", "ImageIdHere")
+local tab2 = DrRayLibrary.newTab("Rebirths", "ImageIdHere")
+local tab2 = DrRayLibrary.newTab("Misc", "ImageIdHere")
+local tab2 = DrRayLibrary.newTab("Jungle Gym", "ImageIdHere")
+
+tab1.newLabel("Farm Packs OP")
+tab1.newLabel("Made By Sherya")
+tab1.newButton("Equip the samurai", "Equipar samurais", function()
+    print('Hello!')
+end)
+tab1.newToggle("Strength OP", "Fuerza super rapido", true, function(toggleState)
+    if toggleState then
+        print("On")
+    else
+        print("Off")
+    end
+end)
+
+tab1.newToggle("Strength OP V2", "Fuerza super rapido mayor rendimiento", true, function(toggleState)
+    if toggleState then
+        print("On")
+    else
+        print("Off")
+    end
+end)
+
+tab1.newToggle("Activate OP system", "Bajo rendimiento dispositivo movil", true, function(toggleState)
+    if toggleState then
+        print("On")
+    else
+        print("Off")
+    end
+end)
+
+tab1.newToggle("Stats On Discord", "Webook de discord Made By Sherya", true, function(toggleState)
+    if toggleState then
+        print("On")
+    else
+        print("Off")
+    end
+end)
+
+-- Create the second tab with a different image ID
+local tab2 = DrRayLibrary.newTab("Tab 2", "ImageIdLogoHere")
+
+-- Add elements to the second tab
+tab2.newLabel("Hello, this is Tab 2.")
+tab2.newButton("Button", "Prints Hello!", function()
+    print('Hello!')
+end)
+tab2.newToggle("Toggle", "Toggle! (prints the state)", true, function(toggleState)
+    if toggleState then
+        print("On")
+    else
+        print("Off")
+    end
+end)
+tab2.newDropdown("Dropdown", "Select one of these options!", {"water", "dog", "air", "bb", "airplane", "wohhho", "yeay", "delete"}, function(selectedOption)
+    print(selectedOption)
+end)
