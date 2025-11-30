@@ -62,12 +62,12 @@ library = loadstring(game:HttpGet("https://raw.githubusercontent.com/CoronaBlanc
 local title = ("Sherya Script Private Killer | Bienvenida %s"):format(player.DisplayName ~= "" and player.DisplayName or player.Name)
 local window = library:AddWindow(title, {
     main_color = Color3.fromRGB(125, 1, 1),
-    min_size = Vector2.new(500, 800),
+    min_size = Vector2.new(750, 800),
     can_resize = true,
 })
 
 local mainTab = window:AddTab("Main")
-mainTab:AddLabel("Your personal assistant Evelyn <3").TextSize = 25
+mainTab:AddLabel("Tu asistente Personal Evelyn <3").TextSize = 25
 mainTab:AddLabel("Script Private Made By Sherya").TextSize = 20
 mainTab:AddLabel("---------------------------------------------------------").TextSize = 20
 
@@ -614,11 +614,11 @@ local button = Killer:AddButton("Remove Punch Anim", function()
 
     overrideToolActivation()
 
-    -- OPTIMIZADO: Cambié de Heartbeat (60+ veces/seg) a un loop con wait
-    if not _G.AnimMonitorConnection then
-        _G.AnimMonitorConnection = true
+    -- OPTIMIZADO: Usa un loop separado con mayor intervalo
+    if not _G.AnimMonitorRunning then
+        _G.AnimMonitorRunning = true
         task.spawn(function()
-            while _G.AnimMonitorConnection do
+            while _G.AnimMonitorRunning do
                 local char = game.Players.LocalPlayer.Character
                 if char and char:FindFirstChild("Humanoid") then
                     for _, track in pairs(char.Humanoid:GetPlayingAnimationTracks()) do
@@ -635,7 +635,7 @@ local button = Killer:AddButton("Remove Punch Anim", function()
                         end
                     end
                 end
-                task.wait(0.5) -- Chequea cada medio segundo en vez de cada frame
+                task.wait(0.3)
             end
         end)
     end
@@ -665,9 +665,7 @@ function RecoveryPunch()
         _G.AnimBlockConnection:Disconnect()
         _G.AnimBlockConnection = nil
     end
-    if _G.AnimMonitorConnection then
-        _G.AnimMonitorConnection = nil -- Ya no es una conexión, es un boolean
-    end
+    _G.AnimMonitorRunning = false
     if _G.ToolConnections then
         for _, conn in pairs(_G.ToolConnections) do
             if conn then conn:Disconnect() end
@@ -736,7 +734,7 @@ local whitelistDropdown =
     end
 )
 
--- OPTIMIZADO: Kill Everyone ahora usa wait() en vez de Heartbeat
+-- OPTIMIZADO: Reducido de 60+ fps a ~5 fps
 local switch =
     Killer:AddSwitch(
     "Kill Everyone",
@@ -744,21 +742,26 @@ local switch =
         _G.killAll = bool
         if bool then
             if not _G.killAllConnection then
-                _G.killAllConnection = true
-                task.spawn(function()
-                    while _G.killAll do
-                        for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
-                            if player ~= game.Players.LocalPlayer and not isWhitelisted(player) then
-                                killPlayer(player)
+                _G.killAllConnection =
+                    game:GetService("RunService").Heartbeat:Connect(
+                    function()
+                        if tick() % 0.2 < 0.016 then -- Solo ejecuta cada 0.2 segundos
+                            if _G.killAll then
+                                for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+                                    if player ~= game.Players.LocalPlayer and not isWhitelisted(player) then
+                                        killPlayer(player)
+                                    end
+                                end
                             end
                         end
-                        task.wait(0.3) -- Reducido de cada frame a 3 veces por segundo
                     end
-                    _G.killAllConnection = nil
-                end)
+                )
             end
         else
-            _G.killAll = false
+            if _G.killAllConnection then
+                _G.killAllConnection:Disconnect()
+                _G.killAllConnection = nil
+            end
         end
     end
 )
@@ -836,7 +839,7 @@ Killer:AddSwitch("Auto Good Karma", function(bool)
                     end
                 end
             end
-            task.wait(0.1) -- Aumentado de 0.01 a 0.1 para reducir carga
+            task.wait(0.05) -- Optimizado de 0.01 a 0.05
         end
     end)
 end)
@@ -865,7 +868,7 @@ Killer:AddSwitch("Auto Bad Karma", function(bool)
                     end
                 end
             end
-            task.wait(0.1) -- Aumentado de 0.01 a 0.1 para reducir carga
+            task.wait(0.05) -- Optimizado de 0.01 a 0.05
         end
     end)
 end)
@@ -873,6 +876,7 @@ end)
 local friendWhitelistActive = false
 
 Killer:AddLabel("---Egg Obligatorio And nan---")
+
 
 Killer:AddButton("Size nan", function()
     local args = {"changeSize", 0/0}
@@ -953,7 +957,7 @@ game:GetService("Players").PlayerAdded:Connect(
     end
 )
 
--- OPTIMIZADO: Kill List ahora usa wait() en vez de Heartbeat
+-- OPTIMIZADO: Reducido de 60+ fps a ~5 fps
 local blacklistKillSwitch =
     Killer:AddSwitch(
     "Kill List",
@@ -961,21 +965,26 @@ local blacklistKillSwitch =
         _G.killBlacklistedOnly = bool
         if bool then
             if not _G.blacklistKillConnection then
-                _G.blacklistKillConnection = true
-                task.spawn(function()
-                    while _G.killBlacklistedOnly do
-                        for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
-                            if player ~= game.Players.LocalPlayer and isBlacklisted(player) then
-                                killPlayer(player)
+                _G.blacklistKillConnection =
+                    game:GetService("RunService").Heartbeat:Connect(
+                    function()
+                        if tick() % 0.2 < 0.016 then -- Solo ejecuta cada 0.2 segundos
+                            if _G.killBlacklistedOnly then
+                                for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+                                    if player ~= game.Players.LocalPlayer and isBlacklisted(player) then
+                                        killPlayer(player)
+                                    end
+                                end
                             end
                         end
-                        task.wait(0.3) -- Reducido de cada frame a 3 veces por segundo
                     end
-                    _G.blacklistKillConnection = nil
-                end)
+                )
             end
         else
-            _G.killBlacklistedOnly = false
+            if _G.blacklistKillConnection then
+                _G.blacklistKillConnection:Disconnect()
+                _G.blacklistKillConnection = nil
+            end
         end
     end
 )
@@ -1090,7 +1099,7 @@ local function updateRingPosition()
     end
 end
 
--- OPTIMIZADO: Death Ring ahora usa wait() en vez de Heartbeat
+-- OPTIMIZADO: Reducido de 60+ fps a ~10 fps
 local deathRingSwitch =
     Killer:AddSwitch(
     "Death Ring",
@@ -1099,16 +1108,20 @@ local deathRingSwitch =
 
         if bool then
             if not _G.deathRingConnection then
-                _G.deathRingConnection = true
-                task.spawn(function()
-                    while _G.deathRingEnabled do
-                        updateRingPosition()
+                _G.deathRingConnection =
+                    game:GetService("RunService").Heartbeat:Connect(
+                    function()
+                        if tick() % 0.1 < 0.016 then -- Solo ejecuta cada 0.1 segundos
+                            updateRingPosition()
 
-                        local character = checkCharacter()
-                        local myPosition =
-                            character and character:FindFirstChild("HumanoidRootPart") and
-                            character.HumanoidRootPart.Position
-                        if myPosition then
+                            local character = checkCharacter()
+                            local myPosition =
+                                character and character:FindFirstChild("HumanoidRootPart") and
+                                character.HumanoidRootPart.Position
+                            if not myPosition then
+                                return
+                            end
+
                             for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
                                 if
                                     player ~= game.Players.LocalPlayer and not isWhitelisted(player) and
@@ -1121,13 +1134,14 @@ local deathRingSwitch =
                                 end
                             end
                         end
-                        task.wait(0.2) -- Reducido de cada frame a 5 veces por segundo
                     end
-                    _G.deathRingConnection = nil
-                end)
+                )
             end
         else
-            _G.deathRingEnabled = false
+            if _G.deathRingConnection then
+                _G.deathRingConnection:Disconnect()
+                _G.deathRingConnection = nil
+            end
         end
     end
 )
@@ -1187,7 +1201,7 @@ Killer:AddSwitch("Fast Punch", function(state)
 						punch.attackTime.Value = 0
 					end
 				end
-				task.wait(0.05) -- Aumentado ligeramente para reducir carga
+				task.wait()
 			end
 		end)
 		task.spawn(function()
@@ -1196,7 +1210,7 @@ Killer:AddSwitch("Fast Punch", function(state)
 				if punch then
 					punch:Activate()
 				end
-				task.wait(0.05) -- Aumentado ligeramente para reducir carga
+				task.wait()
 			end
 		end)
 	else
@@ -1245,13 +1259,13 @@ local function updateBlacklistLabel()
     end
 end
 
--- OPTIMIZADO: Actualización de labels reducida de 5 a 2 veces por segundo
+-- OPTIMIZADO: Actualización de labels menos frecuente
 task.spawn(
     function()
         while true do
             updateWhitelistLabel()
             updateBlacklistLabel()
-            task.wait(0.5) -- Cambiado de 0.2 a 0.5 segundos
+            task.wait(0.5) -- Aumentado de 0.2 a 0.5
         end
     end
 )
