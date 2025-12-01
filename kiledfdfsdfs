@@ -67,9 +67,18 @@ local window = library:AddWindow(title, {
 })
 
 local mainTab = window:AddTab("Main")
-mainTab:AddLabel("Tu asistente Personal Evelyn <3").TextSize = 25
-mainTab:AddLabel("Script Private Made By Sherya").TextSize = 20
-mainTab:AddLabel("---------------------------------------------------------").TextSize = 20
+
+local EvelynLabel = mainTab:AddLabel("Your personal assistant Evelyn <3")
+EvelynLabel.TextColor3 = Color3.fromRGB(125, 1, 1)
+EvelynLabel.TextSize = 25
+
+local MadeLabel = mainTab:AddLabel("Script Private Made By Sherya")
+MadeLabel.TextColor3 = Color3.fromRGB(125, 1, 1)
+MadeLabel.TextSize = 20
+
+local LineasLabel = mainTab:AddLabel("---------------------------------------------------------")
+LineasLabel.TextColor3 = Color3.fromRGB(125, 1, 1)
+LineasLabel.TextSize = 20
 
 local InfoPlayers = mainTab:AddFolder("Players Roblox")
 local selectedPlayer = nil
@@ -225,25 +234,30 @@ Discord:AddButton("Enviar Lista de Jugadores", function()
     end
 end)
 
+local Scriptsexternal = mainTab:AddFolder("  Scripts Externals")
+
+Scriptsexternal:AddButton("Infinite Yield", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+end)
+
+Scriptsexternal:AddButton("GhostX Hub", function()
+    loadstring(game:HttpGet("https://scriptblox.com/raw/Universal-Script-GhostX-Hub-7158"))()
+end)
+
+Scriptsexternal:AddButton("Permanent Shiftlock", function()
+	loadstring(game:HttpGet("https://pastebin.com/raw/CjNsnSDy"))()
+end)
+
+Scriptsexternal:AddButton("All Emotes", function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"))()
+end)
+
 local KillingTab = window:AddTab("Killing")
 local SpecsTab = window:AddTab("Specs")
 
 SpecsTab:AddLabel("Player Stats:").TextSize = 24
 
 local playerToInspect = nil
-
-local emojiMap = {
-    ["Time"] = utf8.char(0x1F55B),
-    ["Stats"] = utf8.char(0x1F4CA),
-    ["Strength"] = utf8.char(0x1F4AA),
-    ["Rebirths"] = utf8.char(0x1F504),
-    ["Durability"] = utf8.char(0x1F6E1),
-    ["Kills"] = utf8.char(0x1F480),
-    ["Agility"] = utf8.char(0x1F3C3),
-    ["Evil Karma"] = utf8.char(0x1F608),
-    ["Good Karma"] = utf8.char(0x1F607),
-    ["Brawls"] = utf8.char(0x1F94A)
-}
 
 local statDefinitions = {
     { name = "Strength", statName = "Strength" },
@@ -540,36 +554,46 @@ local function killPlayer(target)
     end
 end
 
-KillingTab:AddLabel("Misc:").TextSize = 22
+KillingTab:AddLabel("Equip pets").TextSize = 22
 
+local function EquipPetsByName(petName)
+    local player = game.Players.LocalPlayer
+    local petsFolder = player.petsFolder
+    local equipEvent = game:GetService("ReplicatedStorage").rEvents.equipPetEvent
 
-local dropdown = KillingTab:AddDropdown("Select Pet", function(text)
-    local petsFolder = game.Players.LocalPlayer.petsFolder
     for _, folder in pairs(petsFolder:GetChildren()) do
         if folder:IsA("Folder") then
             for _, pet in pairs(folder:GetChildren()) do
-                game:GetService("ReplicatedStorage").rEvents.equipPetEvent:FireServer("unequipPet", pet)
+                equipEvent:FireServer("unequipPet", pet)
             end
         end
     end
+
     task.wait(0.2)
 
-    local petName = text
     local petsToEquip = {}
 
-    for _, pet in pairs(game.Players.LocalPlayer.petsFolder.Unique:GetChildren()) do
+    for _, pet in pairs(petsFolder.Unique:GetChildren()) do
         if pet.Name == petName then
             table.insert(petsToEquip, pet)
         end
     end
 
     for i = 1, math.min(8, #petsToEquip) do
-        game:GetService("ReplicatedStorage").rEvents.equipPetEvent:FireServer("equipPet", petsToEquip[i])
+        equipEvent:FireServer("equipPet", petsToEquip[i])
         task.wait(0.1)
     end
+end
+
+KillingTab:AddButton("Wild Wizard", function()
+    EquipPetsByName("Wild Wizard")
 end)
-dropdown:Add("Wild Wizard")
-dropdown:Add("Mighty Monster")
+
+KillingTab:AddButton("Mighty Monster", function()
+    EquipPetsByName("Mighty Monster")
+end)
+
+KillingTab:AddLabel("Remove Animation Punch").TextSize = 22
 
 local switch = KillingTab:AddSwitch("Remove Attack Animations", function(bool)
     if bool then
@@ -743,64 +767,46 @@ end)
 
 switch:Set(false)
 
+KillingTab:AddLabel("Puch Dead").TextSize = 22
 
-local player = game:GetService("Players").LocalPlayer
-
-local comboActive = false
-local eggLoop, characterAddedConn
-
-local function ensureEggEquipped()
-    if not comboActive or not player.Character then return end
+KillingTab:AddSwitch("Punch Whit Egg", function(Value)
+    _G.PunchBoostActive = Value
     
-    local eggsInHand = 0
-    for _, item in ipairs(player.Character:GetChildren()) do
-        if item.Name == "Protein Egg" then
-            eggsInHand += 1
-            if eggsInHand > 1 then
-                item.Parent = player.Backpack
-            end
-        end
-    end
-    
-    if eggsInHand == 0 then
-        local egg = player.Backpack:FindFirstChild("Protein Egg")
-        if egg then
-            egg.Parent = player.Character
-        end
-    end
-end
-
-local comboSwitch = KillingTab:AddSwitch("NaN (Egg+NaN+Punch Combo)", function(bool)
-    comboActive = bool
-    
-    if bool then
-        changeSpeedSizeRemote:InvokeServer("changeSize", 0/0)
+    if Value then
+        local urls = {
+            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/Punch1 ",
+            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/puch2",
+            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/punch3",
+            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/punch4",
+            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/punch5",
+            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/punch6"
+        }
         
-        eggLoop = task.spawn(function()
-            while comboActive do
-                ensureEggEquipped()
-                task.wait(0.2)
+        task.spawn(function()
+            for i, url in ipairs(urls) do
+                if not _G.PunchBoostActive then break end
+                
+                local success, result = pcall(function()
+                    loadstring(game:HttpGet(url, true))()
+                    print("Punch Boost Script " .. i .. " cargado exitosamente")
+                end)
+                
+                if not success then
+                    warn("Error cargando script " .. i .. ": " .. tostring(result))
+                end
+                
+                task.wait(0.5)
+            end
+            
+            if _G.PunchBoostActive then
+                print("Todos los Punch Boost Scripts han sido cargados")
             end
         end)
-        
-        characterAddedConn = player.CharacterAdded:Connect(function(newChar)
-            task.wait(0.5)
-            ensureEggEquipped()
-        end)
-        
-        ensureEggEquipped()
         
     else
-        if eggLoop then task.cancel(eggLoop) end
-        if characterAddedConn then characterAddedConn:Disconnect() end
+        print("Punch Boost Scripts desactivados")
     end
-end)
-
-comboSwitch:Set(false)
-
-KillingTab:AddButton("Disable Eggs",function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/244ihssp/IlIIS/refs/heads/main/1"))()
-end)
+end, "Activa scripts especiales de punch boost desde URLs externas")
 
 KillingTab:AddLabel("Auto Kill:").TextSize = 22
 
@@ -903,7 +909,7 @@ end)
 
 switch:Set(false)
 
-KillingTab:AddLabel("")
+KillingTab:AddLabel("Player Killer").TextSize = 22
 
 local blacklistDropdown = KillingTab:AddDropdown("Add to Killlist", function(selectedText)
     local playerName = selectedText:match("| (.+)$")
@@ -1286,6 +1292,8 @@ extraTab:AddSwitch("Auto Ground Slam", function(state)
         end)
     end
 end)
+
+extraTab:AddLabel("More OP options coming soon").TextSize = 24
 
 extraTab:AddButton("Empty", function()
     local player = game.Players.LocalPlayer
