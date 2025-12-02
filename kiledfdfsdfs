@@ -556,41 +556,56 @@ end
 
 KillingTab:AddLabel("Equip pets").TextSize = 22
 
-local function EquipPetsByName(petName)
-    local player = game.Players.LocalPlayer
-    local petsFolder = player.petsFolder
-    local equipEvent = game:GetService("ReplicatedStorage").rEvents.equipPetEvent
-
+KillingTab:AddButton("Equip Wild Wizard", function()
+    local petsFolder = game.Players.LocalPlayer.petsFolder
     for _, folder in pairs(petsFolder:GetChildren()) do
         if folder:IsA("Folder") then
             for _, pet in pairs(folder:GetChildren()) do
-                equipEvent:FireServer("unequipPet", pet)
+                game:GetService("ReplicatedStorage").rEvents.equipPetEvent:FireServer("unequipPet", pet)
             end
         end
     end
-
+    
     task.wait(0.2)
-
+    
+    local petName = "Wild Wizard"
     local petsToEquip = {}
-
-    for _, pet in pairs(petsFolder.Unique:GetChildren()) do
+    for _, pet in pairs(game.Players.LocalPlayer.petsFolder.Unique:GetChildren()) do
         if pet.Name == petName then
             table.insert(petsToEquip, pet)
         end
     end
-
+    
     for i = 1, math.min(8, #petsToEquip) do
-        equipEvent:FireServer("equipPet", petsToEquip[i])
+        game:GetService("ReplicatedStorage").rEvents.equipPetEvent:FireServer("equipPet", petsToEquip[i])
         task.wait(0.1)
     end
-end
-
-KillingTab:AddButton("Wild Wizard", function()
-    EquipPetsByName("Wild Wizard")
 end)
 
-KillingTab:AddButton("Mighty Monster", function()
-    EquipPetsByName("Mighty Monster")
+KillingTab:AddButton("Equip Mighty Monster", function()
+    local petsFolder = game.Players.LocalPlayer.petsFolder
+    for _, folder in pairs(petsFolder:GetChildren()) do
+        if folder:IsA("Folder") then
+            for _, pet in pairs(folder:GetChildren()) do
+                game:GetService("ReplicatedStorage").rEvents.equipPetEvent:FireServer("unequipPet", pet)
+            end
+        end
+    end
+    
+    task.wait(0.2)
+    
+    local petName = "Mighty Monster"
+    local petsToEquip = {}
+    for _, pet in pairs(game.Players.LocalPlayer.petsFolder.Unique:GetChildren()) do
+        if pet.Name == petName then
+            table.insert(petsToEquip, pet)
+        end
+    end
+    
+    for i = 1, math.min(8, #petsToEquip) do
+        game:GetService("ReplicatedStorage").rEvents.equipPetEvent:FireServer("equipPet", petsToEquip[i])
+        task.wait(0.1)
+    end
 end)
 
 KillingTab:AddLabel("Remove Animation Punch").TextSize = 22
