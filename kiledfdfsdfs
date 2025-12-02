@@ -259,6 +259,19 @@ SpecsTab:AddLabel("Player Stats:").TextSize = 24
 
 local playerToInspect = nil
 
+local emojiMap = {
+    ["Time"] = utf8.char(0x1F55B),
+    ["Stats"] = utf8.char(0x1F4CA),
+    ["Strength"] = utf8.char(0x1F4AA),
+    ["Rebirths"] = utf8.char(0x1F504),
+    ["Durability"] = utf8.char(0x1F6E1),
+    ["Kills"] = utf8.char(0x1F480),
+    ["Agility"] = utf8.char(0x1F3C3),
+    ["Evil Karma"] = utf8.char(0x1F608),
+    ["Good Karma"] = utf8.char(0x1F607),
+    ["Brawls"] = utf8.char(0x1F94A)
+}
+
 local statDefinitions = {
     { name = "Strength", statName = "Strength" },
     { name = "Rebirths", statName = "Rebirths" },
