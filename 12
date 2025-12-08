@@ -1,0 +1,112 @@
+-- Cargar la library completa
+local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Xfrxn95/346765567866644456547/refs/heads/main/21"))().new({
+    Logo = "rbxassetid://0",
+    Title = "Example UI",
+    Description = "Demo completa de la library",
+    Keybind = Enum.KeyCode.LeftControl
+})
+
+-------------------------------------------------------
+-- TAB PRINCIPAL
+-------------------------------------------------------
+local Main = UI:NewTab({
+    Title = "Main",
+    Icon = "rbxassetid://109333634069157",
+    Description = "Funciones principales"
+})
+
+local Section = Main:NewSection({
+    Title = "Opciones",
+    Icon = "rbxassetid://109333634069157",
+    Position = "Left"
+})
+
+-------------------------------------------------------
+-- TOGGLE
+-------------------------------------------------------
+Section:NewToggle({
+    Title = "Auto Farm",
+    Default = false,
+    Callback = function(state)
+        print("Toggle:", state)
+    end
+})
+
+-------------------------------------------------------
+-- BUTTON
+-------------------------------------------------------
+Section:NewButton({
+    Title = "Click Aquí",
+    Callback = function()
+        print("Botón presionado")
+    end
+})
+
+-------------------------------------------------------
+-- TEXTBOX
+-------------------------------------------------------
+Section:NewTextbox({
+    Title = "Inserta texto",
+    Default = "",
+    Callback = function(text)
+        print("Textbox:", text)
+    end
+})
+
+-------------------------------------------------------
+-- DROPDOWN
+-------------------------------------------------------
+Section:NewDropdown({
+    Title = "Selecciona algo",
+    Default = "",
+    Data = {"Uno", "Dos", "Tres"},
+    Callback = function(value)
+        print("Dropdown:", value)
+    end
+})
+
+-------------------------------------------------------
+-- SLIDER
+-------------------------------------------------------
+Section:NewSlider({
+    Title = "Velocidad",
+    Min = 16,
+    Max = 100,
+    Default = 16,
+    Callback = function(val)
+        print("Slider:", val)
+    end
+})
+
+-------------------------------------------------------
+-- KEYBIND
+-------------------------------------------------------
+Section:NewKeybind({
+    Title = "Tecla de activación",
+    Default = Enum.KeyCode.F,
+    Callback = function()
+        print("Keybind presionado")
+    end
+})
+
+-------------------------------------------------------
+-- LABEL
+-------------------------------------------------------
+Section:NewLabel("Este es un label (texto fijo)")
+
+-------------------------------------------------------
+-- PARAGRAPH
+-------------------------------------------------------
+Section:NewParagraph({
+    Title = "Información",
+    Content = "Este es un bloque de texto más grande."
+})
+
+-------------------------------------------------------
+-- NOTIFICATION
+-------------------------------------------------------
+UI:Notification({
+    Title = "UI Cargada",
+    Description = "Tu example está funcionando.",
+    Duration = 5
+})
