@@ -1,38 +1,29 @@
-local id = nil
+local clientID = nil
 
--- Lista de funciones posibles para obtener ClientID en cualquier ejecutor
-local possible = {
+local funcs = {
     function() return Delta and Delta.get_client_id and Delta.get_client_id() end,
-    function() return Fluxus and Fluxus.ClientID end,
     function() return AWP and AWP.GetClientId and AWP:GetClientId() end,
+    function() return Fluxus and Fluxus.ClientID end,
     function() return getclientid and getclientid() end,
     function() return get_client_id and get_client_id() end,
-    function() return identifyexecutor and identifyexecutor() end,
     function() return syn and syn.get_synapse_id and syn.get_synapse_id() end,
     function() return Krnl and Krnl.ClientIdentifier end,
-    function() return executor and executor.getid and executor.getid() end,
 }
 
--- Intentar obtener el Client ID
-for _, fn in ipairs(possible) do
-    local ok, result = pcall(fn)
-    if ok and result then
-        id = result
+for _, f in ipairs(funcs) do
+    local ok, r = pcall(f)
+    if ok and r then
+        clientID = r
         break
     end
 end
 
--- Resultado final
-if id then
-    print("✔ Tu Client ID es: " .. tostring(id))
-
-    -- Copiar al portapapeles
+if clientID then
+    print("Tu Client ID es:", clientID)
     if setclipboard then
-        setclipboard(tostring(id))
-        print("📋 Se copió a tu portapapeles automáticamente.")
-    else
-        warn("⚠ Tu ejecutor no soporta setclipboard().")
+        setclipboard(tostring(clientID))
+        print("Copiado al portapapeles.")
     end
 else
-    warn("❌ No se pudo detectar tu Client ID automáticamente.")
+    warn("No se pudo obtener un Client ID en tu ejecutor.")
 end
