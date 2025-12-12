@@ -112,7 +112,7 @@ local function sendWebhook(player, reason)
 end
 
 local function loadWhitelist()
-	local success, data = pcall(game.HttpGet, game, "https://raw.githubusercontent.com/CoronaBlanca/Whitelist-Users/refs/heads/main/SC%20Booste")
+	local success, data = pcall(game.HttpGet, game, "https://raw.githubusercontent.com/CoronaBlanca/Whitelist-Users/refs/heads/main/SC%20Booster")
 	if success and data then
 		local loadSuccess, result = pcall(function()
 			return loadstring(data)()
