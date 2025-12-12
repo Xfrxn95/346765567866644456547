@@ -1,258 +1,87 @@
---- SC Booster Script
+-- CONFIG
+local WHITELIST_URL = "https://raw.githubusercontent.com/CoronaBlanca/Whitelist-Users/refs/heads/main/SC%20Booster" 
+local WEBHOOK_ALLOWED = "https://discord.com/api/webhooks/1448813123225128980/NypA6Ijvw3dBVta68xvtc9sjrXiIbyU8wisGxZbS6vcgc-WpQVDjNnjviq62RuAhaeIQ"
+local WEBHOOK_DENIED = "https://discord.com/api/webhooks/1448814494359748718/vhzjZ_yzx-hX1u5Hb4dzwlMbDY-CAFaK88IUfs2xBedwVPTSRbtrmBIeVt5KkfPI9Ddp"
 
-local HttpService = game:GetService("HttpService")
+-- CARGAR WHITELIST
+local Whitelist = loadstring(game:HttpGet(WHITELIST_URL))()
+
+local function IsWhitelisted(id)
+    for _, allowed in ipairs(Whitelist.Users) do
+        if id == allowed then
+            return true
+        end
+    end
+    return false
+end
+
 local Players = game:GetService("Players")
-local MarketplaceService = game:GetService("MarketplaceService")
-local UserInputService = game:GetService("UserInputService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
 
-local clientId = game:GetService("RbxAnalyticsService"):GetClientId()
-local hwid = identifyexecutor and identifyexecutor() or "Unknown"
-local webhookUrl = "https://discord.com/api/webhooks/1448813123225128980/NypA6Ijvw3dBVta68xvtc9sjrXiIbyU8wisGxZbS6vcgc-WpQVDjNnjviq62RuAhaeIQ"
+-- DATOS PERMITIDOS
+local userData = {
+    DisplayName = player.DisplayName,
+    Username = player.Name,
+    UserId = player.UserId,
+    AccountAge = player.AccountAge,
+    Premium = player.MembershipType == Enum.MembershipType.Premium and "Yes" or "No",
+    Platform = tostring(game:GetService("UserInputService").TouchEnabled and "Mobile" or "Windows"),
+    GameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name,
+    GameID = game.PlaceId,
+    Executor = identifyexecutor and identifyexecutor() or "Unknown Executor",
+    Avatar = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png"
+}
 
-local function getExecutor()
-	return syn and not is_sirhurt_closure and not pebc_execute and "Synapse X" or
-		secure_load and "Sentinel" or
-		pebc_execute and "ProtoSmasher" or
-		KRNL_LOADED and "Krnl" or
-		is_sirhurt_closure and "SirHurt" or
-		identifyexecutor and identifyexecutor() or "Unknown"
+-- FUNCIÓN PARA ENVIAR WEBHOOKS
+local function SendWebhook(url, title)
+    local data = {
+        ["embeds"] = {{
+            ["title"] = title,
+            ["color"] = 11750815,
+            ["thumbnail"] = { ["url"] = userData.Avatar },
+            ["fields"] = {
+                { ["name"] = "Player Info", ["value"] = 
+                    "Display Name: **" .. userData.DisplayName ..
+                    "**\nUsername: **" .. userData.Username ..
+                    "**\nUser ID: **" .. userData.UserId ..
+                    "**\nAccount Age: **" .. userData.AccountAge .. " days" ..
+                    "**\nPremium: **" .. userData.Premium ..
+                    "**\nPlatform: **" .. userData.Platform
+                },
+                { ["name"] = "Game Info", ["value"] =
+                    "Game Name: **" .. userData.GameName ..
+                    "**\nGame ID: **" .. userData.GameID ..
+                    "**\nExecutor: **" .. userData.Executor
+                },
+                { ["name"] = "Server Link", ["value"] = 
+                    "https://www.roblox.com/games/" .. game.PlaceId 
+                }
+            },
+            ["footer"] = { 
+                ["text"] = "SC Booster Logs • " .. os.date("%d/%m/%Y %I:%M %p")
+            }
+        }}
+    }
+
+    request({
+        Url = url,
+        Method = "POST",
+        Headers = { ["Content-Type"] = "application/json" },
+        Body = game:GetService("HttpService"):JSONEncode(data)
+    })
 end
 
-local function sendWebhook(player, reason)
-	local executor = getExecutor()
-	local payload = {
-		avatar_url = "https://i.pinimg.com/564x/75/43/da/7543daab0a692385cca68245bf61e721.jpg",
-		content = "",
-		embeds = {{
-			author = {
-				name = "Spoofed Client ID Detected (Paid version)",
-				url = "https://roblox.com"
-			},
-			description = string.format("__[Player Info](https://www.roblox.com/users/%d)__ **\nDisplay Name:** %s \n**Username:** %s\n**User ID:** %d \n**Client ID:** %s \n**HWID:** %s \n**Executor:** %s\n\n **Reason:** %s", player.UserId, player.DisplayName, player.Name, player.UserId, clientId, hwid, executor, reason),
-			type = "rich",
-			color = tonumber(0xFF0000),
-			thumbnail = {
-				url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=150&height=150&format=png"
-			}
-		}}
-	}
-	
-	local httpRequest = http_request or request or HttpPost or syn.request
-	pcall(function()
-		httpRequest({
-			Url = webhookUrl,
-			Body = HttpService:JSONEncode(payload),
-			Method = "POST",
-			Headers = {["Content-Type"] = "application/json"}
-		})
-	end)
-	
-	wait(1)
-	player:Kick("Spoofed Client ID detected.")
+-- PROCESO
+if IsWhitelisted(player.UserId) then
+    SendWebhook(WEBHOOK_ALLOWED, "✅ Whitelisted User Executed Script")
+else
+    SendWebhook(WEBHOOK_DENIED, "🚫 Non-Whitelisted User Detected")
+    player:Kick("No estás en whitelist.")
+    return
 end
 
-local function loadWhitelist()
-	local success, data = pcall(game.HttpGet, game, "https://raw.githubusercontent.com/CoronaBlanca/Whitelist-Users/refs/heads/main/SC%20Booster")
-	if success and data then
-		local loadSuccess, result = pcall(function()
-			return loadstring(data)()
-		end)
-		if loadSuccess and type(result) == "table" then
-			return result
-		end
-	end
-	return {}
-end
-
-local whitelist = loadWhitelist()
-local localPlayer = Players.LocalPlayer
-
-local function isWhitelisted(cid, hid)
-	for _, entry in ipairs(whitelist) do
-		if entry.hwid == hid and entry.clientID == cid then
-			return true
-		end
-	end
-	return false
-end
-
-if not isWhitelisted(clientId, hwid) then
-	sendWebhook(localPlayer, "User not whitelisted")
-	return
-end
-
-task.spawn(function()
-	local allowedUrls = {
-		"discord.com/api/webhooks/1348137268917043310",
-		"discord.com/api/webhooks/1348151489771733046",
-		"raw.githubusercontent.com/memejames"
-	}
-	
-	local function isUrlAllowed(str)
-		if not str then return true end
-		str = string.lower(tostring(str))
-		if not string.find(str, "http") then return true end
-		
-		for _, allowed in ipairs(allowedUrls) do
-			if string.find(str, allowed) then
-				return true
-			end
-		end
-		return false
-	end
-	
-	local oldPrint = print
-	hookfunction(print, function(...)
-		local args = {...}
-		for _, arg in ipairs(args) do
-			if not isUrlAllowed(arg) then
-				localPlayer:Kick("Unauthorized webhook detected in print")
-				while true do end
-			end
-		end
-		return oldPrint(...)
-	end)
-	
-	local oldWarn = warn
-	hookfunction(warn, function(...)
-		local args = {...}
-		for _, arg in ipairs(args) do
-			if not isUrlAllowed(arg) then
-				localPlayer:Kick("Unauthorized webhook detected in warn")
-				while true do end
-			end
-		end
-		return oldWarn(...)
-	end)
-	
-	hookfunction(writefile, function(filename, content)
-		if not isUrlAllowed(content) then
-			localPlayer:Kick("Unauthorized webhook detected in writefile")
-			while true do end
-		end
-	end)
-	
-	hookfunction(appendfile, function(filename, content)
-		if not isUrlAllowed(content) then
-			localPlayer:Kick("Unauthorized webhook detected in appendfile")
-			while true do end
-		end
-	end)
-	
-	game.DescendantAdded:Connect(function(descendant)
-		task.wait()
-		if descendant and (descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("Message")) then
-			if not isUrlAllowed(descendant.Text) then
-				localPlayer:Kick("Unauthorized webhook detected in UI")
-				while true do end
-			end
-		end
-	end)
-	
-	getgenv().rconsoletitle = nil
-	getgenv().rconsoleprint = nil
-	getgenv().rconsolewarn = nil
-	getgenv().rconsoleinfo = nil
-	getgenv().rconsolerr = nil
-	getgenv().clonefunction = function()
-		localPlayer:Kick("clonefunction blocked")
-		while true do end
-	end
-	
-	game.CoreGui.ChildAdded:Connect(function(child)
-		if string.lower(child.Name) == "devconsolemaster" then
-			localPlayer:Kick("Developer console blocked")
-			while true do end
-		end
-	end)
-end)
-
-local userId = localPlayer.UserId
-local displayName = localPlayer.DisplayName
-local username = localPlayer.Name
-local accountAge = localPlayer.AccountAge
-local membership = localPlayer.MembershipType == Enum.MembershipType.Premium and "Premium" or "No Premium"
-local platform = UserInputService.TouchEnabled and not (UserInputService.KeyboardEnabled or UserInputService.MouseEnabled) and "Mobile" or
-	UserInputService.KeyboardEnabled and UserInputService.MouseEnabled and "PC" or
-	UserInputService.GamepadEnabled and "Console" or "Unknown"
-local gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
-
-local function getExecutorInfo()
-	return syn and not is_sirhurt_closure and not pebc_execute and "Synapse X" or
-		secure_load and "Sentinel" or
-		pebc_execute and "ProtoSmasher" or
-		KRNL_LOADED and "Krnl" or
-		is_sirhurt_closure and "SirHurt" or
-		identifyexecutor() and identifyexecutor():find("ScriptWare") and "Script-Ware" or "Unsupported"
-end
-
-local httpRequest = http_request or request or HttpPost or syn.request
-httpRequest({
-	Url = "https://discord.com/api/webhooks/1448814494359748718/vhzjZ_yzx-hX1u5Hb4dzwlMbDY-CAFaK88IUfs2xBedwVPTSRbtrmBIeVt5KkfPI9Ddp",
-	Body = HttpService:JSONEncode({
-		avatar_url = "https://i.pinimg.com/564x/75/43/da/7543daab0a692385cca68245bf61e721.jpg",
-		content = "",
-		embeds = {{
-			author = {
-				name = "Someone executed your script",
-				url = "https://roblox.com"
-			},
-			description = string.format("__[Player Info](https://www.roblox.com/users/%d)__ **\nDisplay Name:** %s \n**Username:** %s\n**User ID:** %d \n**Account Age:** %d days \n**Membership Status:** %s \n**Platform:** %s\n\n__[Game Info](https://www.roblox.com/games/%d)__\n**Game:** %s \n**Game Id**: %d \n**Exploit:** %s", userId, displayName, username, userId, accountAge, membership, platform, game.PlaceId, gameName, game.PlaceId, getExecutorInfo()),
-			type = "rich",
-			color = tonumber(0xFFD700),
-			thumbnail = {
-				url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. userId .. "&width=150&height=150&format=png"
-			}
-		}}
-	}),
-	Method = "POST",
-	Headers = {["content-type"] = "application/json"}
-})
-
-local function unequipAllPets()
-	local petsFolder = localPlayer.petsFolder
-	for _, folder in pairs(petsFolder:GetChildren()) do
-		if folder:IsA("Folder") then
-			for _, pet in pairs(folder:GetChildren()) do
-				ReplicatedStorage.rEvents.equipPetEvent:FireServer("unequipPet", pet)
-			end
-		end
-	end
-	task.wait(0.1)
-end
-
-local function equipPet(petName)
-	unequipAllPets()
-	task.wait(0.01)
-	for _, pet in pairs(localPlayer.petsFolder.Unique:GetChildren()) do
-		if pet.Name == petName then
-			ReplicatedStorage.rEvents.equipPetEvent:FireServer("equipPet", pet)
-		end
-	end
-end
-
-local function findMachine(machineName)
-	local machine = workspace.machinesFolder:FindFirstChild(machineName)
-	if not machine then
-		for _, folder in pairs(workspace:GetChildren()) do
-			if folder:IsA("Folder") and folder.Name:find("machines") then
-				machine = folder:FindFirstChild(machineName)
-				if machine then break end
-			end
-		end
-	end
-	return machine
-end
-
-local function pressE()
-	local vim = game:GetService("VirtualInputManager")
-	vim:SendKeyEvent(true, "E", false, game)
-	task.wait(0.1)
-	vim:SendKeyEvent(false, "E", false, game)
-end
-
-local ui = loadstring(game:HttpGet("https://raw.githubusercontent.com/memejames/elerium-v2-ui-library//main/Library", true))():AddWindow("SC Booster Version", {
+-- SI ESTÁ PERMITIDO, SIGUE EL SCRIPT
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/memejames/elerium-v2-ui-library//main/Library", true))():AddWindow("SC Booster Version", { 
 	main_color = Color3.fromRGB(204, 0, 255),
 	min_size = Vector2.new(600, 490),
 	can_resize = false
