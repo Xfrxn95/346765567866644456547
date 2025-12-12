@@ -11,9 +11,27 @@ local LocalPlayer = Players.LocalPlayer
 local MarketplaceService = game:GetService("MarketplaceService")
 local UserInputService = game:GetService("UserInputService")
 
+-- Obtener información del ejecutor con mejor detección
 local function getExecutorName()
-    if syn and not is_sirhurt_closure and not pebc_execute then
+    -- Intentar obtener nombre del executor
+    if identifyexecutor then
+        local executor = identifyexecutor()
+        if executor then
+            return executor
+        end
+    end
+    
+    -- Detección por características específicas
+    if getexecutorname then
+        return getexecutorname()
+    elseif syn and not is_sirhurt_closure and not pebc_execute then
         return "Synapse X"
+    elseif DELTA_LOADED or (getgenv and getgenv().delta) then
+        return "Delta"
+    elseif SOLARA_LOADED or (getgenv and getgenv().solara) then
+        return "Solara"
+    elseif WAVE_LOADED then
+        return "Wave"
     elseif secure_load then
         return "Sentinel"
     elseif pebc_execute then
@@ -22,13 +40,16 @@ local function getExecutorName()
         return "Krnl"
     elseif is_sirhurt_closure then
         return "SirHurt"
-    elseif identifyexecutor then
-        return identifyexecutor()
+    elseif ELECTRON_LOADED then
+        return "Electron"
+    elseif isfluxus then
+        return "Fluxus"
     else
-        return "Unknown"
+        return "Unknown Executor"
     end
 end
 
+-- Obtener información del sistema
 local function getSystemInfo()
     local clientId = game:GetService("RbxAnalyticsService"):GetClientId()
     local hwid = (gethwid and gethwid()) or clientId
@@ -48,6 +69,7 @@ local function getSystemInfo()
     }
 end
 
+-- Enviar notificación de acceso no autorizado
 local function notifyUnauthorized(info, reason)
     pcall(function()
         local payload = HttpService:JSONEncode({
@@ -86,6 +108,7 @@ local function notifyUnauthorized(info, reason)
     end)
 end
 
+-- Enviar log de ejecución exitosa
 local function logExecution(info)
     pcall(function()
         local gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
@@ -131,12 +154,14 @@ local function logExecution(info)
     end)
 end
 
+-- Kick seguro con freeze
 local function secureKick(reason)
     LocalPlayer:Kick("⚠️ " .. reason)
     task.wait(1)
     while true do end
 end
 
+-- Protección contra output leaks
 local function protectOutput()
     task.spawn(function()
         local blockedPatterns = {"http", "discord", "webhook", "//"}
@@ -184,6 +209,7 @@ local function protectOutput()
             end)
         end
         
+        -- Proteger contra UI elements con URLs
         game.DescendantAdded:Connect(function(obj)
             if (obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("Message")) then
                 pcall(function()
@@ -192,6 +218,7 @@ local function protectOutput()
             end
         end)
         
+        -- Deshabilitar funciones de consola
         if getgenv then
             getgenv().rconsoletitle = nil
             getgenv().rconsoleprint = nil
@@ -201,12 +228,14 @@ local function protectOutput()
             getgenv().clonefunction = function() while true do end end
         end
         
+        -- Bloquear developer console
         game:GetService("CoreGui").ChildAdded:Connect(function(child)
             if string.lower(child.Name) == "devconsolemaster" then
                 while true do end
             end
         end)
         
+        -- Proteger rconsole via metamethod
         hookmetamethod(game, "__namecall", newcclosure(function(...)
             local method = getnamecallmethod()
             local blocked = {"rconsoleprint", "rconsoleinfo", "rconsolewarn", "rconsoleerr"}
@@ -220,6 +249,7 @@ local function protectOutput()
     end)
 end
 
+-- Verificación de whitelist
 local function checkWhitelist()
     local info = getSystemInfo()
     
@@ -234,6 +264,7 @@ local function checkWhitelist()
         return false
     end
     
+    -- Verificar si el usuario está en la whitelist
     for _, entry in ipairs(whitelist) do
         if entry.hwid == info.hwid and entry.clientID == info.clientId then
             return true, info
@@ -245,6 +276,7 @@ local function checkWhitelist()
     return false
 end
 
+-- Verificación continua en background
 local function startContinuousCheck()
     task.spawn(function()
         while task.wait(CONFIG.CHECK_INTERVAL) do
@@ -256,9 +288,11 @@ local function startContinuousCheck()
     end)
 end
 
+-- Inicializar sistema de protección
 local function initialize()
-    print("Verificando licencia...")
+    print("🔒 Verificando licencia...")
     
+    -- Activar protecciones primero
     protectOutput()
     
     -- Verificar whitelist
@@ -267,21 +301,26 @@ local function initialize()
         return false
     end
     
-    print("Licencia verificada. Acceso concedido.")
+    print("✅ Licencia verificada. Acceso concedido.")
     
+    -- Log de ejecución exitosa
     logExecution(info)
     
+    -- Iniciar verificación continua
     startContinuousCheck()
     
     return true
 end
 
+-- Ejecutar sistema de protección
 if not initialize() then
     return
 end
 
-print("Script cargado exitosamente")
+-- TU CÓDIGO PRINCIPAL AQUÍ
+print("🚀 Script cargado exitosamente")
 
+-- Ejemplo: Funciones del script original
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 
@@ -327,8 +366,9 @@ local function pressE()
     VIM:SendKeyEvent(false, "E", false, game)
 end
 
+-- Cargar UI
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/memejames/elerium-v2-ui-library//main/Library", true))()
-local Window = Library:AddWindow("SC Script Booster Version", {
+local Window = Library:AddWindow("Beamed v2 (Paid)", {
     main_color = Color3.fromRGB(15, 15, 15),
     min_size = Vector2.new(430, 530),
     can_resize = false
