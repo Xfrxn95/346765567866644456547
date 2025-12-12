@@ -1,401 +1,210 @@
--- Sistema de Protección Anti-Piratería con Debug
-print("=== INICIANDO SISTEMA DE PROTECCIÓN ===")
+print("=== PROTECCIÓN AVANZADA ACTIVADA ===")
 
--- Configuración
+-- CONFIGURACIÓN ------------------------------
 local CONFIG = {
     WEBHOOK_UNAUTHORIZED = "https://discord.com/api/webhooks/1448814494359748718/vhzjZ_yzx-hX1u5Hb4dzwlMbDY-CAFaK88IUfs2xBedwVPTSRbtrmBIeVt5KkfPI9Ddp",
-    WEBHOOK_AUTHORIZED = "https://discord.com/api/webhooks/1448813123225128980/NypA6Ijvw3dBVta68xvtc9sjrXiIbyU8wisGxZbS6vcgc-WpQVDjNnjviq62RuAhaeIQ",
-    WHITELIST_URL = "https://raw.githubusercontent.com/CoronaBlanca/Whitelist-Users/refs/heads/main/SC%20Booster",
-    CHECK_INTERVAL = 300,
+    WEBHOOK_AUTHORIZED   = "https://discord.com/api/webhooks/1448813123225128980/NypA6Ijvw3dBVta68xvtc9sjrXiIbyU8wisGxZbS6vcgc-WpQVDjNnjviq62RuAhaeIQ",
+    WHITELIST_URL        = "https://raw.githubusercontent.com/CoronaBlanca/Whitelist-Users/main/SC%20Booster",
+    CHECK_INTERVAL       = 300,
 }
 
--- Servicios
+-- SERVICIOS ----------------------------------
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local MarketplaceService = game:GetService("MarketplaceService")
 local UserInputService = game:GetService("UserInputService")
 
-print("✅ Servicios cargados")
-
--- Obtener información del ejecutor con mejor detección
-local function getExecutorName()
-    if identifyexecutor then
-        local executor = identifyexecutor()
-        if executor then
-            return executor
-        end
-    end
-    
-    if getexecutorname then
-        return getexecutorname()
-    elseif DELTA_LOADED or (getgenv and getgenv().delta) then
-        return "Delta"
-    elseif SOLARA_LOADED or (getgenv and getgenv().solara) then
-        return "Solara"
-    elseif WAVE_LOADED then
-        return "Wave"
-    elseif syn and not is_sirhurt_closure and not pebc_execute then
-        return "Synapse X"
-    elseif ELECTRON_LOADED then
-        return "Electron"
-    elseif isfluxus then
-        return "Fluxus"
-    elseif KRNL_LOADED then
-        return "Krnl"
-    elseif is_sirhurt_closure then
-        return "SirHurt"
-    else
-        return "Unknown Executor"
-    end
+------------------------------------------------
+-- MEJOR DETECTOR DE REQUEST UNIVERSAL
+------------------------------------------------
+local function getRequest()
+    return (syn and syn.request)
+        or (http and http.request)
+        or http_request
+        or request
+        or (typeof(HttpPost) == "function" and HttpPost)
+        or nil
 end
 
--- Obtener información del sistema
+------------------------------------------------
+-- MEJOR DETECTOR DE EXECUTORS
+------------------------------------------------
+local function getExecutor()
+    pcall(function()
+        if identifyexecutor then
+            return identifyexecutor()
+        end
+    end)
+
+    if DELTA_LOADED then return "Delta" end
+    if (getgenv().solara or SOLARA_LOADED) then return "Solara" end
+    if WAVE_LOADED then return "Wave" end
+    if iskrnlclosure then return "KRNL" end
+    if syn then return "Synapse X" end
+
+    return "Unknown"
+end
+
+------------------------------------------------
+-- OBTENER DATOS DEL USUARIO DE FORMA SEGURA
+------------------------------------------------
 local function getSystemInfo()
     local clientId = game:GetService("RbxAnalyticsService"):GetClientId()
     local hwid = (gethwid and gethwid()) or clientId
-    
+
     local info = {
-        executor = getExecutorName(),
-        clientId = clientId,
-        hwid = hwid,
-        userId = LocalPlayer.UserId,
-        username = LocalPlayer.Name,
-        displayName = LocalPlayer.DisplayName,
-        accountAge = LocalPlayer.AccountAge,
-        premium = LocalPlayer.MembershipType == Enum.MembershipType.Premium,
-        platform = UserInputService.TouchEnabled and not (UserInputService.KeyboardEnabled or UserInputService.MouseEnabled) and "Mobile" 
-                   or (UserInputService.KeyboardEnabled and UserInputService.MouseEnabled and "PC" 
-                   or (UserInputService.GamepadEnabled and "Console" or "Unknown"))
+        username   = LocalPlayer.Name,
+        display    = LocalPlayer.DisplayName,
+        userId     = LocalPlayer.UserId,
+        accAge     = LocalPlayer.AccountAge,
+        premium    = LocalPlayer.MembershipType == Enum.MembershipType.Premium,
+        executor   = getExecutor(),
+        clientId   = clientId,
+        hwid       = hwid,
+        platform   = UserInputService.TouchEnabled and "Mobile"
+                     or (UserInputService.KeyboardEnabled and "PC")
+                     or "Unknown",
     }
-    
-    print("=== TUS DATOS ===")
-    print("HWID:", info.hwid)
-    print("Client ID:", info.clientId)
-    print("User ID:", info.userId)
-    print("Username:", info.username)
-    print("Executor:", info.executor)
-    print("================")
-    
+
     return info
 end
 
--- Enviar webhook
-local function sendWebhook(webhookUrl, embedData)
-    local success, result = pcall(function()
-        local payload = HttpService:JSONEncode(embedData)
-        
-        local requestFunc = http_request or request or HttpPost or syn and syn.request
-        
-        if not requestFunc then
-            warn("❌ Tu executor no soporta HTTP requests")
-            return false
-        end
-        
-        requestFunc({
-            Url = webhookUrl,
+------------------------------------------------
+-- ENVIAR WEBHOOK FIABLE
+------------------------------------------------
+local function sendWebhook(url, embedData)
+    local request = getRequest()
+    if not request then
+        warn("❌ No se pudo enviar webhook (requests no soportados por tu executor)")
+        return false
+    end
+
+    local payload = HttpService:JSONEncode(embedData)
+
+    pcall(function()
+        request({
+            Url = url,
             Method = "POST",
             Headers = {["Content-Type"] = "application/json"},
-            Body = payload
+            Body = payload,
         })
-        
-        return true
     end)
-    
-    return success
-end
 
--- Enviar notificación de acceso no autorizado
-local function notifyUnauthorized(info, reason)
-    print("🚨 Enviando notificación de acceso NO AUTORIZADO...")
-    
-    local embedData = {
-        avatar_url = "https://i.pinimg.com/564x/75/43/da/7543daab0a692385cca68245bf61e721.jpg",
-        embeds = {{
-            author = {
-                name = "❌ Acceso No Autorizado",
-                url = "https://roblox.com"
-            },
-            description = string.format(
-                "__[Player Info](https://www.roblox.com/users/%d)__\n" ..
-                "**Display Name:** %s\n" ..
-                "**Username:** %s\n" ..
-                "**User ID:** %d\n" ..
-                "**Client ID:** `%s`\n" ..
-                "**HWID:** `%s`\n" ..
-                "**Executor:** %s\n\n" ..
-                "**Razón:** %s",
-                info.userId, info.displayName, info.username, 
-                info.userId, info.clientId, info.hwid, info.executor, reason
-            ),
-            color = 16711680,
-            thumbnail = {
-                url = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%d&width=150&height=150&format=png", info.userId)
-            },
-            timestamp = os.date("!%Y-%m-%dT%H:%M:%S")
-        }}
-    }
-    
-    local success = sendWebhook(CONFIG.WEBHOOK_UNAUTHORIZED, embedData)
-    
-    if success then
-        print("✅ Notificación de NO AUTORIZADO enviada")
-    else
-        warn("❌ Error al enviar notificación")
-    end
-end
-
--- Enviar log de ejecución exitosa
-local function logExecution(info)
-    print("📊 Enviando log de ejecución AUTORIZADA...")
-    
-    local gameName = "Unknown Game"
-    pcall(function()
-        gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
-    end)
-    
-    local embedData = {
-        avatar_url = "https://i.pinimg.com/564x/75/43/da/7543daab0a692385cca68245bf61e721.jpg",
-        embeds = {{
-            author = {
-                name = "✅ Script Ejecutado Exitosamente",
-                url = "https://roblox.com"
-            },
-            description = string.format(
-                "__[Player Info](https://www.roblox.com/users/%d)__\n" ..
-                "**Display Name:** %s\n" ..
-                "**Username:** %s\n" ..
-                "**User ID:** %d\n" ..
-                "**Account Age:** %d days\n" ..
-                "**Membership:** %s\n" ..
-                "**Platform:** %s\n\n" ..
-                "__[Game Info](https://www.roblox.com/games/%d)__\n" ..
-                "**Game:** %s\n" ..
-                "**Game ID:** %d\n" ..
-                "**Executor:** %s",
-                info.userId, info.displayName, info.username, 
-                info.userId, info.accountAge, 
-                info.premium and "Premium" or "No Premium",
-                info.platform, game.PlaceId, gameName, 
-                game.PlaceId, info.executor
-            ),
-            color = 65280,
-            thumbnail = {
-                url = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%d&width=150&height=150&format=png", info.userId)
-            },
-            timestamp = os.date("!%Y-%m-%dT%H:%M:%S")
-        }}
-    }
-    
-    local success = sendWebhook(CONFIG.WEBHOOK_AUTHORIZED, embedData)
-    
-    if success then
-        print("✅ Log de AUTORIZADO enviado")
-    else
-        warn("❌ Error al enviar log")
-    end
-end
-
--- Kick seguro
-local function secureKick(reason)
-    warn("⛔ KICKEANDO: " .. reason)
-    task.wait(2)
-    LocalPlayer:Kick("⚠️ " .. reason)
-    task.wait(1)
-    while true do end
-end
-
--- Verificación de whitelist
-local function checkWhitelist()
-    print("🔍 Descargando whitelist desde GitHub...")
-    
-    local info = getSystemInfo()
-    
-    local success, whitelist = pcall(function()
-        local response = game:HttpGet(CONFIG.WHITELIST_URL)
-        print("📄 Whitelist descargada, procesando...")
-        return loadstring(response)()
-    end)
-    
-    if not success then
-        warn("❌ Error al descargar whitelist:", whitelist)
-        notifyUnauthorized(info, "Error al cargar whitelist desde GitHub")
-        secureKick("Error de verificación. Contacta al desarrollador.")
-        return false
-    end
-    
-    if type(whitelist) ~= "table" then
-        warn("❌ Whitelist no es una tabla válida")
-        notifyUnauthorized(info, "Whitelist corrupta o mal formateada")
-        secureKick("Error de verificación. Contacta al desarrollador.")
-        return false
-    end
-    
-    print("📋 Verificando " .. #whitelist .. " entradas en whitelist...")
-    
-    -- Verificar si el usuario está en la whitelist
-    for i, entry in ipairs(whitelist) do
-        print(string.format("Checking entry %d: HWID match=%s, ClientID match=%s", 
-            i, 
-            tostring(entry.hwid == info.hwid),
-            tostring(entry.clientID == info.clientId)
-        ))
-        
-        if entry.hwid == info.hwid and entry.clientID == info.clientId then
-            print("✅ ENCONTRADO EN WHITELIST - Acceso concedido")
-            return true, info
-        end
-    end
-    
-    print("❌ NO encontrado en whitelist")
-    notifyUnauthorized(info, "HWID/Client ID no encontrado en whitelist")
-    secureKick("Acceso denegado. No tienes licencia válida.")
-    return false
-end
-
--- Protección contra output leaks (simplificada para debug)
-local function protectOutput()
-    print("🛡️ Activando protecciones anti-leak...")
-    task.spawn(function()
-        local blockedPatterns = {"discord.com/api/webhooks"}
-        
-        local function checkAndBlock(str)
-            if not str then return end
-            local lower = string.lower(tostring(str))
-            for _, pattern in ipairs(blockedPatterns) do
-                if string.find(lower, pattern, 1, true) then
-                    warn("🚨 Intento de leak detectado y bloqueado")
-                    while true do end
-                end
-            end
-        end
-        
-        if hookfunction then
-            hookfunction(print, function(...)
-                local args = {...}
-                for _, arg in ipairs(args) do
-                    checkAndBlock(arg)
-                end
-            end)
-        end
-    end)
-    print("✅ Protecciones activadas")
-end
-
--- Verificación continua
-local function startContinuousCheck()
-    task.spawn(function()
-        print("⏰ Verificación continua iniciada (cada 5 minutos)")
-        while task.wait(CONFIG.CHECK_INTERVAL) do
-            print("🔄 Re-verificando whitelist...")
-            local authorized = checkWhitelist()
-            if not authorized then
-                secureKick("Licencia revocada o expirada")
-            end
-        end
-    end)
-end
-
--- Inicializar sistema de protección
-local function initialize()
-    print("🔒 INICIANDO VERIFICACIÓN DE LICENCIA...")
-    
-    -- Obtener info del sistema primero
-    local info = getSystemInfo()
-    
-    -- Verificar whitelist
-    print("📡 Conectando con servidor de licencias...")
-    local authorized, verifiedInfo = checkWhitelist()
-    
-    if not authorized then
-        print("❌ VERIFICACIÓN FALLIDA - Script bloqueado")
-        return false
-    end
-    
-    print("✅ LICENCIA VERIFICADA - Acceso concedido")
-    
-    -- Log de ejecución exitosa
-    logExecution(verifiedInfo or info)
-    
-    -- Activar protecciones
-    protectOutput()
-    
-    -- Iniciar verificación continua
-    startContinuousCheck()
-    
     return true
 end
 
--- EJECUTAR VERIFICACIÓN
-print("=" .. string.rep("=", 50))
-local authorized = initialize()
-print("=" .. string.rep("=", 50))
+------------------------------------------------
+-- NOTIFICACIÓN NO AUTORIZADA
+------------------------------------------------
+local function notifyUnauthorized(info, reason)
+    local embed = {
+        embeds = {{
+            title = "🚨 Acceso NO Autorizado",
+            color = 16711680,
+            description = string.format(
+                "**Usuario:** %s (%s)\n**UserID:** %d\n**ClientID:** `%s`\n**HWID:** `%s`\n**Executor:** %s\n\n**Razón:** %s",
+                info.display, info.username, info.userId, info.clientId, info.hwid, info.executor, reason
+            )
+        }}
+    }
 
-if not authorized then
-    warn("⛔ SCRIPT BLOQUEADO - No autorizado")
+    sendWebhook(CONFIG.WEBHOOK_UNAUTHORIZED, embed)
+end
+
+------------------------------------------------
+-- NOTIFICACIÓN AUTORIZADA
+------------------------------------------------
+local function logAuthorized(info)
+    local gameInfo = "Unknown Game"
+
+    pcall(function()
+        gameInfo = MarketplaceService:GetProductInfo(game.PlaceId).Name
+    end)
+
+    local embed = {
+        embeds = {{
+            title = "✅ Usuario Autorizado",
+            color = 65280,
+            description = string.format(
+                "**Usuario:** %s (%s)\n**UserID:** %d\n**Edad Cuenta:** %d días\n**Executor:** %s\n\n**Juego:** %s (%d)",
+                info.display, info.username, info.userId, info.accAge, info.executor,
+                gameInfo, game.PlaceId
+            )
+        }}
+    }
+
+    sendWebhook(CONFIG.WEBHOOK_AUTHORIZED, embed)
+end
+
+------------------------------------------------
+-- LEER WHITELIST (CORRECTO)
+------------------------------------------------
+local function loadWhitelist()
+    local success, response = pcall(function()
+        return game:HttpGet(CONFIG.WHITELIST_URL)
+    end)
+
+    if not success then
+        return nil
+    end
+
+    local ok, list = pcall(function()
+        return loadstring(response)()
+    end)
+
+    if not ok then
+        return nil
+    end
+
+    return list
+end
+
+------------------------------------------------
+-- VERIFICACIÓN COMPLETA DE WHITELIST
+------------------------------------------------
+local function checkWhitelist()
+    local info = getSystemInfo()
+    local whitelist = loadWhitelist()
+
+    if not whitelist then
+        notifyUnauthorized(info, "Error al cargar Whitelist")
+        LocalPlayer:Kick("Error crítico: Whitelist no disponible")
+        return false
+    end
+
+    for _, entry in ipairs(whitelist) do
+        if entry.hwid == info.hwid and entry.clientID == info.clientId then
+            logAuthorized(info)
+            return true
+        end
+    end
+
+    notifyUnauthorized(info, "No estás en la Whitelist")
+    LocalPlayer:Kick("No estás en la whitelist.")
+    return false
+end
+
+------------------------------------------------
+-- VERIFICACIÓN CONTINUA
+------------------------------------------------
+local function startContinuousCheck()
+    task.spawn(function()
+        while task.wait(CONFIG.CHECK_INTERVAL) do
+            if not checkWhitelist() then break end
+        end
+    end)
+end
+
+------------------------------------------------
+-- INICIALIZAR SISTEMA
+------------------------------------------------
+if checkWhitelist() then
+    print("🔒 LICENCIA VALIDADA")
+    startContinuousCheck()
+else
     return
 end
 
 print("🚀 CARGANDO SCRIPT PRINCIPAL...")
-
--- ====================================
--- TU CÓDIGO PRINCIPAL COMIENZA AQUÍ
--- ====================================
-
--- Funciones del script original
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local function unequipAllPets()
-    local petsFolder = LocalPlayer.petsFolder
-    for _, folder in pairs(petsFolder:GetChildren()) do
-        if folder:IsA("Folder") then
-            for _, pet in pairs(folder:GetChildren()) do
-                ReplicatedStorage.rEvents.equipPetEvent:FireServer("unequipPet", pet)
-            end
-        end
-    end
-    task.wait(0.1)
-end
-
-local function equipPet(petName)
-    unequipAllPets()
-    task.wait(0.01)
-    for _, pet in pairs(LocalPlayer.petsFolder.Unique:GetChildren()) do
-        if pet.Name == petName then
-            ReplicatedStorage.rEvents.equipPetEvent:FireServer("equipPet", pet)
-        end
-    end
-end
-
-local function findMachine(machineName)
-    local machine = workspace.machinesFolder:FindFirstChild(machineName)
-    if not machine then
-        for _, folder in pairs(workspace:GetChildren()) do
-            if folder:IsA("Folder") and folder.Name:find("machines") then
-                machine = folder:FindFirstChild(machineName)
-                if machine then break end
-            end
-        end
-    end
-    return machine
-end
-
-local function pressE()
-    local VIM = game:GetService("VirtualInputManager")
-    VIM:SendKeyEvent(true, "E", false, game)
-    task.wait(0.1)
-    VIM:SendKeyEvent(false, "E", false, game)
-end
-
--- Cargar UI
-print("🎨 Cargando interfaz...")
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/memejames/elerium-v2-ui-library//main/Library", true))()
-local Window = Library:AddWindow("Beamed v2 (Paid)", {
-    main_color = Color3.fromRGB(15, 15, 15),
-    min_size = Vector2.new(430, 530),
-    can_resize = false
-})
-
-print("✅ SCRIPT CARGADO COMPLETAMENTE")
-
--- Aquí continúa tu UI y funcionalidades...
+-- Aquí pones tu script principal abajo
