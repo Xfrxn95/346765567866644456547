@@ -1,87 +1,61 @@
--- CONFIG
-local WHITELIST_URL = "https://raw.githubusercontent.com/CoronaBlanca/Whitelist-Users/refs/heads/main/SC%20Booster" 
-local WEBHOOK_ALLOWED = "https://discord.com/api/webhooks/1448813123225128980/NypA6Ijvw3dBVta68xvtc9sjrXiIbyU8wisGxZbS6vcgc-WpQVDjNnjviq62RuAhaeIQ"
-local WEBHOOK_DENIED = "https://discord.com/api/webhooks/1448814494359748718/vhzjZ_yzx-hX1u5Hb4dzwlMbDY-CAFaK88IUfs2xBedwVPTSRbtrmBIeVt5KkfPI9Ddp"
-
--- CARGAR WHITELIST
-local Whitelist = loadstring(game:HttpGet(WHITELIST_URL))()
-
-local function IsWhitelisted(id)
-    for _, allowed in ipairs(Whitelist.Users) do
-        if id == allowed then
-            return true
-        end
-    end
-    return false
-end
+-- system v1 (compatible con Delta)
 
 local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+local LocalPlayer = Players.LocalPlayer
 
--- DATOS PERMITIDOS
-local userData = {
-    DisplayName = player.DisplayName,
-    Username = player.Name,
-    UserId = player.UserId,
-    AccountAge = player.AccountAge,
-    Premium = player.MembershipType == Enum.MembershipType.Premium and "Yes" or "No",
-    Platform = tostring(game:GetService("UserInputService").TouchEnabled and "Mobile" or "Windows"),
-    GameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name,
-    GameID = game.PlaceId,
-    Executor = identifyexecutor and identifyexecutor() or "Unknown Executor",
-    Avatar = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png"
-}
+-- WHITELIST (del segundo RAW)
+local whitelist = loadstring(game:HttpGet("https://raw.githubusercontent.com/CoronaBlanca/Whitelist-Users/refs/heads/main/SC%20Booster"))()
 
--- FUNCIÓN PARA ENVIAR WEBHOOKS
-local function SendWebhook(url, title)
-    local data = {
-        ["embeds"] = {{
-            ["title"] = title,
-            ["color"] = 11750815,
-            ["thumbnail"] = { ["url"] = userData.Avatar },
-            ["fields"] = {
-                { ["name"] = "Player Info", ["value"] = 
-                    "Display Name: **" .. userData.DisplayName ..
-                    "**\nUsername: **" .. userData.Username ..
-                    "**\nUser ID: **" .. userData.UserId ..
-                    "**\nAccount Age: **" .. userData.AccountAge .. " days" ..
-                    "**\nPremium: **" .. userData.Premium ..
-                    "**\nPlatform: **" .. userData.Platform
-                },
-                { ["name"] = "Game Info", ["value"] =
-                    "Game Name: **" .. userData.GameName ..
-                    "**\nGame ID: **" .. userData.GameID ..
-                    "**\nExecutor: **" .. userData.Executor
-                },
-                { ["name"] = "Server Link", ["value"] = 
-                    "https://www.roblox.com/games/" .. game.PlaceId 
-                }
-            },
-            ["footer"] = { 
-                ["text"] = "SC Booster Logs • " .. os.date("%d/%m/%Y %I:%M %p")
-            }
-        }}
-    }
+-- WEBHOOKS
+local WH_ALLOWED = "https://discord.com/api/webhooks/1448813123225128980/NypA6Ijvw3dBVta68xvtc9sjrXiIbyU8wisGxZbS6vcgc-WpQVDjNnjviq62RuAhaeIQ"
+local WH_DENIED  = "https://discord.com/api/webhooks/1448814494359748718/vhzjZ_yzx-hX1u5Hb4dzwlMbDY-CAFaK88IUfs2xBedwVPTSRbtrmBIeVt5KkfPI9Ddp"
 
-    request({
-        Url = url,
-        Method = "POST",
-        Headers = { ["Content-Type"] = "application/json" },
-        Body = game:GetService("HttpService"):JSONEncode(data)
-    })
+-- Datos del jugador
+local username = LocalPlayer.Name
+local display  = LocalPlayer.DisplayName
+local userid   = LocalPlayer.UserId
+local avatar   = "https://www.roblox.com/headshot-thumbnail/image?userId="..userid.."&width=420&height=420&format=png"
+
+local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+local gameId   = game.PlaceId
+
+-- Executor (Delta lo soporta)
+local executor = identifyexecutor and identifyexecutor() or "Unknown"
+
+-- Función para enviar por webhook usando GET (Delta SAFE)
+local function sendWebhook(url, msg)
+    local final = url .. "?content=" .. game.HttpService:UrlEncode(msg)
+    game:HttpGet(final)
 end
 
--- PROCESO
-if IsWhitelisted(player.UserId) then
-    SendWebhook(WEBHOOK_ALLOWED, "✅ Whitelisted User Executed Script")
+-- Mensaje formateado
+local function makeMessage(status)
+    return "**"..status.." Access**\n" ..
+           "User: **"..username.."** ("..display..")\n" ..
+           "UserID: **"..userid.."**\n" ..
+           "Game: **"..gameName.."** ("..gameId..")\n" ..
+           "Executor: **"..executor.."**\n" ..
+           "Avatar: "..avatar
+end
+
+-- Checar whitelist
+local allowed = false
+for _,id in ipairs(whitelist) do
+    if id == userid then
+        allowed = true
+        break
+    end
+end
+
+-- Enviar al webhook correspondiente
+if allowed then
+    sendWebhook(WH_ALLOWED, makeMessage("Allowed"))
 else
-    SendWebhook(WEBHOOK_DENIED, "🚫 Non-Whitelisted User Detected")
-    player:Kick("No estás en whitelist.")
-    return
+    sendWebhook(WH_DENIED, makeMessage("Denied"))
 end
 
--- SI ESTÁ PERMITIDO, SIGUE EL SCRIPT
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/memejames/elerium-v2-ui-library//main/Library", true))():AddWindow("SC Booster Version", { 
+-- CARGAR TU UI
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/memejames/elerium-v2-ui-library//main/Library"))():AddWindow("SC Booster Version", { 
 	main_color = Color3.fromRGB(204, 0, 255),
 	min_size = Vector2.new(600, 490),
 	can_resize = false
