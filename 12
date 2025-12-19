@@ -17,11 +17,11 @@ local Window = Library:CreateWindow{
 local Tabs = {
     Main = Window:CreateTab{
         Title = "Main",
-        Icon = "home"
+        Icon = "user"
     },
     Farm = Window:CreateTab{
         Title = "Farm",
-        Icon = "user"
+        Icon = "leaf"
     },
     Chests = Window:CreateTab{
         Title = "Chests",
