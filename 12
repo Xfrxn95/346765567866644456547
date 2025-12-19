@@ -1,7 +1,15 @@
-local Library = loadstring(game:HttpGet("https://github.com/ActualMasterOogway/Fluent-Renewed/releases/latest/download/Fluent.luau"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/SaveManager.luau"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"))()
+-- Load Library
+local Library = loadstring(game:HttpGet(
+    "https://github.com/ActualMasterOogway/Fluent-Renewed/releases/latest/download/Fluent.luau"
+))()
+local SaveManager = loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/SaveManager.luau"
+))()
+local InterfaceManager = loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"
+))()
 
+-- Create Window (SAFE FOR DELTA)
 local Window = Library:CreateWindow{
     Title = "Satan Crew - SC Clan",
     SubTitle = "Build a Boat Version",
@@ -10,10 +18,15 @@ local Window = Library:CreateWindow{
     Resize = true,
     MinSize = Vector2.new(470, 380),
     Acrylic = true,
-    Theme = "Bloody",
+    Theme = "Dark", -- ⚠️ IMPORTANTE
     MinimizeKey = Enum.KeyCode.RightControl
 }
 
+-- Apply Bloody AFTER window creation (Delta fix)
+task.wait(0.2)
+Library:SetTheme("Bloody")
+
+-- Tabs
 local Tabs = {
     Home = Window:CreateTab{
         Title = "Home",
@@ -41,17 +54,12 @@ local Tabs = {
     }
 }
 
+-- Notify
 Library:Notify{
     Title = "Welcome",
     Content = "Join SC Clan For More Scripts",
+    SubContent = "Satan Crew On Top",
     Duration = 5
-}
-
-Library:Notify{
-    Title = "Welcome",
-    Content = "Join SC Clan For More Scripts",
-    SubContent = "Satan Crew On Top", 
-    Duration = 5 
 }
 
 local Paragraph = Tabs.Main:CreateParagraph("Paragraph", {
