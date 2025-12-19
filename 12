@@ -1,65 +1,38 @@
--- Load Library
-local Library = loadstring(game:HttpGet(
-    "https://github.com/ActualMasterOogway/Fluent-Renewed/releases/latest/download/Fluent.luau"
-))()
-local SaveManager = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/SaveManager.luau"
-))()
-local InterfaceManager = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"
-))()
-
--- Create Window (SAFE FOR DELTA)
+local Library = loadstring(game:HttpGetAsync("https://github.com/ActualMasterOogway/Fluent-Renewed/releases/latest/download/Fluent.luau"))()
+local SaveManager = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/SaveManager.luau"))()
+local InterfaceManager = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"))()
+ 
 local Window = Library:CreateWindow{
-    Title = "Satan Crew - SC Clan",
-    SubTitle = "Build a Boat Version",
+    Title = `Fluent {Library.Version}`,
+    SubTitle = "by Actual Master Oogway",
     TabWidth = 160,
     Size = UDim2.fromOffset(830, 525),
-    Resize = true,
+    Resize = true, -- Resize this ^ Size according to a 1920x1080 screen, good for mobile users but may look weird on some devices
     MinSize = Vector2.new(470, 380),
-    Acrylic = true,
-    Theme = "Dark", -- ⚠️ IMPORTANTE
-    MinimizeKey = Enum.KeyCode.RightControl
+    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.RightControl -- Used when theres no MinimizeKeybind
 }
 
--- Apply Bloody AFTER window creation (Delta fix)
-task.wait(0.2)
-Library:SetTheme("Bloody")
-
--- Tabs
+-- Fluent Renewed provides ALL 1544 Lucide 0.469.0 https://lucide.dev/icons/ Icons and ALL 9072 Phosphor 2.1.0 https://phosphoricons.com/ Icons for the tabs, icons are optional
 local Tabs = {
-    Home = Window:CreateTab{
-        Title = "Home",
-        Icon = "phosphor-house-bold"
-    },
     Main = Window:CreateTab{
         Title = "Main",
-        Icon = "phosphor-lightning-bold"
-    },
-    Chest = Window:CreateTab{
-        Title = "Chest",
-        Icon = "phosphor-archive-bold"
-    },
-    Misc = Window:CreateTab{
-        Title = "Misc",
-        Icon = "phosphor-dots-three-bold"
-    },
-    Teleport = Window:CreateTab{
-        Title = "Teleport",
-        Icon = "phosphor-map-pin-bold"
+        Icon = "phosphor-users-bold"
     },
     Settings = Window:CreateTab{
         Title = "Settings",
-        Icon = "phosphor-gear-bold"
+        Icon = "settings"
     }
 }
 
--- Notify
+local Options = Library.Options
+
 Library:Notify{
-    Title = "Welcome",
-    Content = "Join SC Clan For More Scripts",
-    SubContent = "Satan Crew On Top",
-    Duration = 5
+    Title = "Notification",
+    Content = "This is a notification",
+    SubContent = "SubContent", -- Optional
+    Duration = 5 -- Set to nil to make the notification not disappear
 }
 
 local Paragraph = Tabs.Main:CreateParagraph("Paragraph", {
