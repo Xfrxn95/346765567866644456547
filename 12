@@ -21,23 +21,23 @@ local Tabs = {
     },
     Farm = Window:CreateTab{
         Title = "Farm",
-        Icon = "leaf"
+        Icon = "user"
     },
     Chests = Window:CreateTab{
         Title = "Chests",
-        Icon = "treasure-chest"
+        Icon = "box"
     },
     Misc = Window:CreateTab{
         Title = "Miscellaneous",
-        Icon = "dots-three"
+        Icon = "list"
     },
     Teleport = Window:CreateTab{
         Title = "Teleport",
-        Icon = "map-pin"
+        Icon = "map"
     },
     Settings = Window:CreateTab{
         Title = "Settings",
-        Icon = "gear"
+        Icon = "settings"
     }
 }
 
