@@ -1,17 +1,17 @@
-local Library = loadstring(game:HttpGetAsync("https://github.com/ActualMasterOogway/Fluent-Renewed/releases/latest/download/Fluent.luau"))()
-local SaveManager = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/SaveManager.luau"))()
-local InterfaceManager = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"))()
- 
+local Library = loadstring(game:HttpGet("https://github.com/ActualMasterOogway/Fluent-Renewed/releases/latest/download/Fluent.luau"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/SaveManager.luau"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"))()
+
 local Window = Library:CreateWindow{
-    Title = `Satan Crew - SC Clan`,
-    SubTitle = "Made By Sherya",
+    Title = "Satan Crew - SC Clan",
+    SubTitle = "Build a Boat Version",
     TabWidth = 160,
     Size = UDim2.fromOffset(830, 525),
-    Resize = true, 
+    Resize = true,
     MinSize = Vector2.new(470, 380),
-    Acrylic = true, 
+    Acrylic = true,
     Theme = "Bloody",
-    MinimizeKey = Enum.KeyCode.RightControl 
+    MinimizeKey = Enum.KeyCode.RightControl
 }
 
 local Tabs = {
@@ -25,7 +25,7 @@ local Tabs = {
     },
     Chest = Window:CreateTab{
         Title = "Chest",
-        Icon = "phosphor-treasure-chest-bold"
+        Icon = "phosphor-archive-bold"
     },
     Misc = Window:CreateTab{
         Title = "Misc",
@@ -41,13 +41,17 @@ local Tabs = {
     }
 }
 
-local Options = Library.Options
+Library:Notify{
+    Title = "Welcome",
+    Content = "Join SC Clan For More Scripts",
+    Duration = 5
+}
 
 Library:Notify{
     Title = "Welcome",
     Content = "Join SC Clan For More Scripts",
-    SubContent = "Satan Crew On Top", -- Optional
-    Duration = 5 -- Set to nil to make the notification not disappear
+    SubContent = "Satan Crew On Top", 
+    Duration = 5 
 }
 
 local Paragraph = Tabs.Main:CreateParagraph("Paragraph", {
