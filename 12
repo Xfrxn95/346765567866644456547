@@ -1,23 +1,33 @@
-local Library = loadstring(game:HttpGetAsync("https://github.com/ActualMasterOogway/Fluent-Renewed/releases/latest/download/Fluent.luau"))()
-local SaveManager = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/SaveManager.luau"))()
-local InterfaceManager = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"))()
- 
+local Library = loadstring(game:HttpGetAsync(
+    "https://github.com/ActualMasterOogway/Fluent-Renewed/releases/latest/download/Fluent.luau"
+))()
+
+local SaveManager = loadstring(game:HttpGetAsync(
+    "https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/SaveManager.luau"
+))()
+
+local InterfaceManager = loadstring(game:HttpGetAsync(
+    "https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"
+))()
+
+-- WINDOW
 local Window = Library:CreateWindow{
-    Title = `Satan Crew / SC On Top`,
-    SubTitle = "Build a boat version",
+    Title = "Satan Crew / SC On Top",
+    SubTitle = "Build a Boat version",
     TabWidth = 160,
     Size = UDim2.fromOffset(830, 525),
-    Resize = true, 
+    Resize = true,
     MinSize = Vector2.new(470, 380),
-    Acrylic = true, 
+    Acrylic = true,
     Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.RightControl -- Used when theres no MinimizeKeybind
+    MinimizeKey = Enum.KeyCode.RightControl
 }
 
+-- TABS
 local Tabs = {
     Main = Window:CreateTab{
         Title = "Main",
-        Icon = "user"
+        Icon = "user-round"
     },
     Farm = Window:CreateTab{
         Title = "Farm",
@@ -25,7 +35,7 @@ local Tabs = {
     },
     Chests = Window:CreateTab{
         Title = "Chests",
-        Icon = "box"
+        Icon = "package"
     },
     Misc = Window:CreateTab{
         Title = "Miscellaneous",
@@ -33,7 +43,7 @@ local Tabs = {
     },
     Teleport = Window:CreateTab{
         Title = "Teleport",
-        Icon = "map"
+        Icon = "map-pin"
     },
     Settings = Window:CreateTab{
         Title = "Settings",
@@ -41,32 +51,31 @@ local Tabs = {
     }
 }
 
-local Options = Library.Options
-
+-- NOTIFY
 Library:Notify{
     Title = "Welcome",
     Content = "Join SC for more scripts",
-    SubContent = "SC On Top", 
-    Duration = 5 
+    SubContent = "SC On Top",
+    Duration = 5
 }
 
-local Welcome = Tabs.Main:CreateParagraph("Paragraph", {
-    Title = "Welcome to satan crew",
-    Content = "Build A Boat For Teasure Script"
+-- PARAGRAPHS
+Tabs.Main:CreateParagraph({
+    Title = "Welcome to Satan Crew",
+    Content = "Build A Boat For Treasure Script"
 })
 
-local Credits = Tabs.Main:CreateParagraph("Paragraph", {
+Tabs.Main:CreateParagraph({
     Title = "Credits",
     Content = "Script Created By Sherya (Isabella)"
 })
 
-local Credits = Tabs.Main:CreateParagraph("Paragraph", {
+Tabs.Main:CreateParagraph({
     Title = "Instructions",
-    Content = "Enter the farm to farm"
-    Content = "Adjust whatever you want in the script."
-    Content = "And enjoy!!!!"
+    Content = "Enter the farm to farm\nAdjust whatever you want in the script.\nAnd enjoy!!!!"
 })
 
+-- DISCORD BUTTON
 Tabs.Main:CreateButton{
     Title = "Discord",
     Description = "Join our Discord server to receive updates.",
@@ -91,5 +100,3 @@ Tabs.Main:CreateButton{
         }
     end
 }
-
-
