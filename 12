@@ -1,3 +1,4 @@
+-- // Load Fluent Renewed
 local Library = loadstring(game:HttpGetAsync(
     "https://github.com/ActualMasterOogway/Fluent-Renewed/releases/latest/download/Fluent.luau"
 ))()
@@ -10,7 +11,7 @@ local InterfaceManager = loadstring(game:HttpGetAsync(
     "https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"
 ))()
 
--- WINDOW
+-- // Window
 local Window = Library:CreateWindow{
     Title = "Satan Crew / SC On Top",
     SubTitle = "Build a Boat version",
@@ -23,7 +24,7 @@ local Window = Library:CreateWindow{
     MinimizeKey = Enum.KeyCode.RightControl
 }
 
--- TABS
+-- // Tabs
 local Tabs = {
     Main = Window:CreateTab{
         Title = "Main",
@@ -33,25 +34,13 @@ local Tabs = {
         Title = "Farm",
         Icon = "leaf"
     },
-    Chests = Window:CreateTab{
-        Title = "Chests",
-        Icon = "package"
-    },
-    Misc = Window:CreateTab{
-        Title = "Miscellaneous",
-        Icon = "list"
-    },
-    Teleport = Window:CreateTab{
-        Title = "Teleport",
-        Icon = "map-pin"
-    },
     Settings = Window:CreateTab{
         Title = "Settings",
         Icon = "settings"
     }
 }
 
--- NOTIFY
+-- // Notify
 Library:Notify{
     Title = "Welcome",
     Content = "Join SC for more scripts",
@@ -59,7 +48,7 @@ Library:Notify{
     Duration = 5
 }
 
--- PARAGRAPHS
+-- // MAIN TAB CONTENT
 Tabs.Main:CreateParagraph({
     Title = "Welcome to Satan Crew",
     Content = "Build A Boat For Treasure Script"
@@ -67,36 +56,59 @@ Tabs.Main:CreateParagraph({
 
 Tabs.Main:CreateParagraph({
     Title = "Credits",
-    Content = "Script Created By Sherya (Isabella)"
+    Content = "Script created by Sherya (Isabella)"
 })
 
 Tabs.Main:CreateParagraph({
     Title = "Instructions",
-    Content = "Enter the farm to farm\nAdjust whatever you want in the script.\nAnd enjoy!!!!"
+    Content = "Enter the farm to farm\nAdjust whatever you want\nAnd enjoy!"
 })
 
--- DISCORD BUTTON
 Tabs.Main:CreateButton{
     Title = "Discord",
-    Description = "Join our Discord server to receive updates.",
+    Description = "Copy Discord invite to clipboard",
     Callback = function()
-        local discordLink = "https://discord.gg/5VZsWs3NTv"
+        local link = "https://discord.gg/5VZsWs3NTv"
 
         if setclipboard then
-            setclipboard(discordLink)
+            setclipboard(link)
         elseif toclipboard then
-            toclipboard(discordLink)
+            toclipboard(link)
         end
 
         Window:Dialog{
             Title = "Discord",
-            Content = "El link del Discord fue copiado al portapapeles",
+            Content = "Discord link copied to clipboard!",
             Buttons = {
-                {
-                    Title = "OK",
-                    Callback = function() end
-                }
+                { Title = "OK" }
             }
         }
     end
 }
+
+-- // SETTINGS TAB (Save + Interface)
+SaveManager:SetLibrary(Library)
+InterfaceManager:SetLibrary(Library)
+
+-- Do not save themes in configs
+SaveManager:IgnoreThemeSettings()
+
+-- Folders
+InterfaceManager:SetFolder("FluentScriptHub")
+SaveManager:SetFolder("FluentScriptHub/BuildABoat")
+
+-- Build UI
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+-- // Final
+Window:SelectTab(1)
+
+Library:Notify{
+    Title = "Ready",
+    Content = "UI loaded successfully",
+    Duration = 4
+}
+
+-- Auto-load config if exists
+SaveManager:LoadAutoloadConfig()
