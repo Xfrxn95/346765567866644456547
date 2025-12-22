@@ -1,182 +1,206 @@
 --// Services
-local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
-local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
-local HttpService = game:GetService("HttpService")
-local LocalPlayer = Players.LocalPlayer
-local setclip = setclipboard or toclipboard
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TeleportService = game:GetService("TeleportService")
+local StarterGui = game:GetService("StarterGui")
 
---// Stats
-local Wins, Gold, Time = 0, 0, 0
-local Farming = false
-local X2Gold = false
-local AutoRejoinConn
-local Platforms = {}
+local LocalPlayer = Players.LocalPlayer
 
 --// UI
-Rayfield:Notify({
-    Title = "Script Loaded",
-    Content = "Made by ZenoVa",
-    Duration = 6
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+local Window = Fluent:CreateWindow({
+	Title = "Eclipse Hub",
+	SubTitle = "Build A Boat For Treasure",
+	TabWidth = 160,
+	Size = UDim2.fromOffset(580, 460),
+	Acrylic = true,
+	Theme = "Dark",
+	MinimizeKey = Enum.KeyCode.LeftControl
 })
 
-local Window = Rayfield:CreateWindow({
-    Name = "ZenoVa | BABFT",
-    LoadingTitle = "Auto Teleport Script",
-    LoadingSubtitle = "by ZenoVa",
-    ConfigurationSaving = { Enabled = false }
-})
-
-local Main = Window:CreateTab("Main", 4483362458)
-local Info = Window:CreateTab("Info", 4483362458)
-local Settings = Window:CreateTab("Settings", 4483362458)
-
---// Labels
-Info:CreateSection("Farm Stats")
-local WinsLbl = Info:CreateLabel("Wins: 0")
-local GoldLbl = Info:CreateLabel("Gold: 0")
-local TimeLbl = Info:CreateLabel("Time: 00:00:00")
-
-local function UpdateStats()
-    WinsLbl:Set("Wins: " .. Wins)
-    GoldLbl:Set("Gold: " .. Gold)
-
-    local h = math.floor(Time / 3600)
-    local m = math.floor(Time % 3600 / 60)
-    local s = Time % 60
-    TimeLbl:Set(string.format("Time: %02d:%02d:%02d", h, m, s))
-end
-
-task.spawn(function()
-    while true do
-        if Farming then
-            Time += 1
-            UpdateStats()
-        end
-        task.wait(1)
-    end
-end)
-
---// Server Info
-Info:CreateSection("Server Info")
-local ServerInfo = Info:CreateParagraph({
-    Title = "Info",
-    Content = "JobId: Loading...\nPlayers: Loading..."
-})
-
-task.spawn(function()
-    while true do
-        ServerInfo:Set({
-            Title = "Info",
-            Content = string.format(
-                "JobId: %s\nPlayers: %d/%d",
-                game.JobId,
-                #Players:GetPlayers(),
-                Players.MaxPlayers
-            )
-        })
-        task.wait(2)
-    end
-end)
-
---// Teleport Points
-local Points = {
-    Vector3.new(-62,67,1363), Vector3.new(-65,58,2135),
-    Vector3.new(-52,73,2903), Vector3.new(-58,76,3672),
-    Vector3.new(-60,80,4445), Vector3.new(-55,73,5217),
-    Vector3.new(-53,64,5984), Vector3.new(-63,63,6751),
-    Vector3.new(-50,28,7527), Vector3.new(-104,37,8298),
-    Vector3.new(-57,-358,9491)
+local Tabs = {
+	Main = Window:AddTab({ Title = "Main", Icon = "home" }),
+	Player = Window:AddTab({ Title = "Player", Icon = "user" }),
+	Teleport = Window:AddTab({ Title = "Teleport", Icon = "map-pin" }),
+	Misc = Window:AddTab({ Title = "Misc", Icon = "settings" })
 }
 
-local function ClearPlatforms()
-    for _, p in ipairs(Platforms) do
-        if p then p:Destroy() end
-    end
-    table.clear(Platforms)
+--// Toggles
+local InfiniteJump = false
+local AutoFarm = false
+local WaterGodmode = false
+local AutoCommonChest = false
+local AutoUncommonChest = false
+local AutoRareChest = false
+local AutoEpicChest = false
+local AutoLegendaryChest = false
+local AutoWinterChest = false
+
+--// Infinite Jump
+Tabs.Main:AddToggle("InfJumpToggle", {
+	Title = "Infinite Jump",
+	Default = false,
+	Callback = function(state)
+		InfiniteJump = state
+		if state then
+			task.spawn(function()
+				while InfiniteJump do
+					UserInputService.JumpRequest:Connect(function()
+						if InfiniteJump and LocalPlayer.Character then
+							local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+							if hum then
+								hum:ChangeState(Enum.HumanoidStateType.Jumping)
+							end
+						end
+					end)
+					RunService.Heartbeat:Wait()
+				end
+			end)
+		end
+	end
+})
+
+--// Auto Farm
+Tabs.Main:AddToggle("AutoFarmToggle", {
+	Title = "Auto Farm",
+	Default = false,
+	Callback = function(state)
+		AutoFarm = state
+		if state then
+			task.spawn(function()
+				local Stages = workspace:WaitForChild("BoatStages"):WaitForChild("NormalStages")
+				local ClaimGold = workspace:WaitForChild("ClaimRiverResultsGold")
+
+				while AutoFarm do
+					local bv = Instance.new("BodyVelocity")
+					bv.Velocity = Vector3.zero
+
+					if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+						bv.Parent = LocalPlayer.Character.HumanoidRootPart
+					end
+
+					for i = 1, 9 do
+						if not AutoFarm then break end
+
+						if LocalPlayer.Character and Stages["CaveStage" .. i] then
+							LocalPlayer.Character.HumanoidRootPart.CFrame =
+								Stages["CaveStage" .. i].DarknessPart.CFrame
+
+							RunService.Heartbeat:Wait()
+							task.wait(i == 1 and 6 or 3)
+							ClaimGold:FireServer()
+						end
+					end
+
+					if AutoFarm and LocalPlayer.Character then
+						LocalPlayer.Character:Remove()
+						repeat RunService.Heartbeat:Wait()
+						until LocalPlayer.Character or not AutoFarm
+					end
+
+					if bv then bv:Destroy() end
+				end
+			end)
+		end
+	end
+})
+
+--// Water Godmode
+Tabs.Main:AddToggle("WaterGodmodeToggle", {
+	Title = "Water Godmode",
+	Default = false,
+	Callback = function(state)
+		WaterGodmode = state
+		if state then
+			RunService.Stepped:Connect(function()
+				if WaterGodmode and LocalPlayer.Character then
+					local wd = LocalPlayer.Character:FindFirstChild("WaterDetector")
+					if wd then wd:Destroy() end
+				end
+			end)
+		end
+	end
+})
+
+--// Auto Chests
+local function AutoChest(toggleVar, chestName)
+	RunService.Stepped:Connect(function()
+		if toggleVar() then
+			workspace.ItemBoughtFromShop:InvokeServer(chestName, 1)
+		end
+	end)
 end
 
-local function CreatePlatform(pos)
-    local p = Instance.new("Part")
-    p.Size = Vector3.new(10,1,10)
-    p.Position = pos - Vector3.new(0,3,0)
-    p.Anchored = true
-    p.CanCollide = true
-    p.BrickColor = BrickColor.new("Bright yellow")
-    p.Parent = workspace
-    table.insert(Platforms, p)
-end
+Tabs.Main:AddToggle("CommonChestToggle", {
+	Title = "Auto Common Chest",
+	Default = false,
+	Callback = function(v) AutoCommonChest = v end
+})
+AutoChest(function() return AutoCommonChest end, "Common Chest")
 
---// Autofarm
-local function StartFarm()
-    if Farming then return end
-    Farming = true
+Tabs.Main:AddToggle("UncommonChestToggle", {
+	Title = "Auto Uncommon Chest",
+	Default = false,
+	Callback = function(v) AutoUncommonChest = v end
+})
+AutoChest(function() return AutoUncommonChest end, "Uncommon Chest")
 
-    task.spawn(function()
-        while Farming do
-            local hrp = (LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait())
-                :WaitForChild("HumanoidRootPart")
+Tabs.Main:AddToggle("RareChestToggle", {
+	Title = "Auto Rare Chest",
+	Default = false,
+	Callback = function(v) AutoRareChest = v end
+})
+AutoChest(function() return AutoRareChest end, "Rare Chest")
 
-            ClearPlatforms()
+Tabs.Main:AddToggle("EpicChestToggle", {
+	Title = "Auto Epic Chest",
+	Default = false,
+	Callback = function(v) AutoEpicChest = v end
+})
+AutoChest(function() return AutoEpicChest end, "Epic Chest")
 
-            for _, pos in ipairs(Points) do
-                if not Farming then break end
-                CreatePlatform(pos)
-                hrp.CFrame = CFrame.new(pos)
-                task.wait(2)
-            end
+Tabs.Main:AddToggle("LegendaryChestToggle", {
+	Title = "Auto Legendary Chest",
+	Default = false,
+	Callback = function(v) AutoLegendaryChest = v end
+})
+AutoChest(function() return AutoLegendaryChest end, "Legendary Chest")
 
-            Wins += 1
-            Gold += X2Gold and 210 or 105
-            UpdateStats()
-            task.wait(16.5)
-        end
-    end)
-end
-
---// UI Controls
-Main:CreateToggle({
-    Name = "Start Auto Farm",
-    Callback = function(v)
-        Farming = v
-        if v then StartFarm() else ClearPlatforms() end
-    end
+Tabs.Main:AddToggle("WinterChestToggle", {
+	Title = "Auto Winter Chest",
+	Default = false,
+	Callback = function(v)
+		AutoWinterChest = v
+		if v then
+			task.spawn(function()
+				while AutoWinterChest do
+					workspace.ItemBoughtFromShop:InvokeServer(
+						"Winter Chest",
+						math.floor(LocalPlayer.Data.Gold.Value / 100)
+					)
+					RunService.Heartbeat:Wait()
+				end
+			end)
+		end
+	end
 })
 
-Info:CreateToggle({
-    Name = "Enable X2 Gold",
-    Callback = function(v) X2Gold = v end
+--// Final
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+InterfaceManager:BuildInterfaceSection(Tabs.Misc)
+SaveManager:BuildConfigSection(Tabs.Misc)
+
+Window:SelectTab(1)
+
+Fluent:Notify({
+	Title = "Eclipse Hub",
+	Content = "Loaded successfully!",
+	Duration = 5
 })
 
-Settings:CreateButton({
-    Name = "Copy JobId",
-    Callback = function()
-        if setclip then
-            setclip(game.JobId)
-            Rayfield:Notify({ Title="Copied", Content="JobId copied", Duration=3 })
-        end
-    end
-})
-
-Settings:CreateToggle({
-    Name = "Auto Rejoin",
-    Callback = function(v)
-        if AutoRejoinConn then AutoRejoinConn:Disconnect() end
-        if v then
-            AutoRejoinConn = LocalPlayer.OnTeleport:Connect(function(state)
-                if state == Enum.TeleportState.Failed then
-                    TeleportService:Teleport(game.PlaceId, LocalPlayer)
-                end
-            end)
-        end
-    end
-})
-
-Settings:CreateButton({
-    Name = "Unload",
-    Callback = function()
-        Farming = false
-        ClearPlatforms()
-        Rayfield:Destroy()
-    end
-})
+SaveManager:LoadAutoloadConfig()
