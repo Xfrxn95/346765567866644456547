@@ -1,3 +1,39 @@
+local T_NAME = "54b3b10efc668b8054b210e563c00f41c67160da77a903ea2a16c3276824be7a"
+local R_URL = "rbxthumb://type=Asset&id=134906414231445&w=420&h=420"
+local C_GUI = game:GetService("CoreGui")
+
+local CONNECTION = nil
+
+local function fixButton(instance)
+    if instance:IsA("ImageButton") and instance.Name == "ImageButton" and 
+       instance.Parent and instance.Parent.Name == "ScreenGui" and 
+       instance.Parent.Parent and instance.Parent.Parent.Name == T_NAME then
+        instance.Image = R_URL
+        instance.ImageTransparency = 0
+        instance.BackgroundTransparency = 1         
+        if CONNECTION then
+            CONNECTION:Disconnect()
+            CONNECTION = nil
+        end
+    end
+end
+
+local container = C_GUI:WaitForChild(T_NAME, 30)
+if not container then return end
+
+CONNECTION = container.DescendantAdded:Connect(fixButton)
+
+for _, descendant in ipairs(container:GetDescendants()) do
+    fixButton(descendant)
+end
+
+if CONNECTION and CONNECTION.Connected then
+    task.wait(1)
+    for _, descendant in ipairs(container:GetDescendants()) do
+        fixButton(descendant)
+    end
+end
+
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/1NFERNO-HUB/Main/refs/heads/main/Settings/UI/1NFERNO_Library.lua"))()
 
 local Window = Library:CreateWindow({
@@ -9,7 +45,7 @@ local Window = Library:CreateWindow({
 
 local HomeTab = Window:CreateTab({
     Name = "Home",
-    Icon = "rbxassetid://15269177423"
+    Icon = "home"
 })
 
 HomeTab:AddParagraph({
@@ -30,7 +66,7 @@ HomeTab:AddParagraph({
 
 HomeTab:AddParagraph({
     Title = "Contributors",
-    Content = "Rafael/nBRXYXN/nHavoc"
+    Content = "Rafael\nBRXYXN\nHavoc"
 })
 
 HomeTab:AddSeperator({
@@ -47,114 +83,30 @@ HomeTab:AddButton({
     end
 })
 
-local MainTab = Window:CreateTab({
-    Name = "Main",
-    Icon = "rbxassetid://15269177520"
-})
-
 local FarmTab = Window:CreateTab({
     Name = "Farm",
-    Icon = "rbxassetid://15269177645"
+    Icon = "leaf"
 })
 
 local MiscTab = Window:CreateTab({
     Name = "Misc",
-    Icon = "rbxassetid://15269177711"
+    Icon = "more-horizontal"
 })
 
 local BuildTab = Window:CreateTab({
     Name = "Build",
-    Icon = "rbxassetid://15269177802"
+    Icon = "hammer"
 })
 
 local TeleportTab = Window:CreateTab({
     Name = "Teleport",
-    Icon = "rbxassetid://15269177988"
-})
-
-TestTab:AddParagraph({
-    Title = "Test Paragraph",
-    Content = "Test paragraph content"
-})
-
-TestTab:AddSeperator({
-    Title = "Test Seperator"
-})
-
-TestTab:AddLine()
-
-TestTab:AddButton({
-    Title = "Test Button",
-    Content = "Test button content",
-    Callback = function()
-        print("Test Button Clicked")
-    end
-})
-
-TestTab:AddToggle({
-    Title = "Test Toggle",
-    Content = "Test toggle content",
-    Default = false,
-    Callback = function(value)
-        print("Test Toggle:", value)
-    end
-})
-
-TestTab:AddSlider({
-    Title = "Test Slider",
-    Content = "Test slider content",
-    Increment = 1,
-    Min = 0,
-    Max = 100,
-    Default = 50,
-    Callback = function(value)
-        print("Test Slider:", value)
-    end
-})
-
-TestTab:AddInput({
-    Title = "Test Input",
-    Content = "Test input content",
-    Default = "",
-    Callback = function(value)
-        print("Test Input:", value)
-    end
-})
-
-local TestSection = TestTab:AddSection("Test Section", true)
-
-TestSection:AddButton({
-    Title = "Test Section Button",
-    Content = "Test section button content",
-    Callback = function()
-        print("Test Section Button Clicked")
-    end
-})
-
-TestSection:AddToggle({
-    Title = "Test Section Toggle",
-    Content = "Test section toggle content",
-    Default = false,
-    Callback = function(value)
-        print("Test Section Toggle:", value)
-    end
-})
-
-TestSection:AddDropdown({
-    Title = "Test Dropdown",
-    Content = "Test dropdown content",
-    Multi = false,
-    Options = {"Option 1", "Option 2", "Option 3"},
-    Default = {"Option 1"},
-    Callback = function(selected)
-        print("Test Dropdown:", selected[1])
-    end
+    Icon = "arrow-right"
 })
 
 Library:SetNotification({
-    Title = "Test Hub",
+    Title = "Welcome",
     Description = "Loaded",
-    Content = "Test script loaded successfully",
+    Content = "The script loaded successfully",
     Time = 0.5,
     Delay = 3
 })
