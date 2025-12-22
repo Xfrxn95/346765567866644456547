@@ -1,0 +1,160 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/1NFERNO-HUB/Main/refs/heads/main/Settings/UI/1NFERNO_Library.lua"))()
+
+local Window = Library:CreateWindow({
+    Title = "Satan Crew Script",
+    Description = "Build a boat Version",
+    ["Tab Width"] = 120,
+    SizeUi = UDim2.fromOffset(550, 315)
+})
+
+local HomeTab = Window:CreateTab({
+    Name = "Home",
+    Icon = "rbxassetid://15269177423"
+})
+
+HomeTab:AddParagraph({
+    Title = "Welcome To Satan Crew",
+    Content = "Build A Boat For Teasure Script"
+})
+
+HomeTab:AddSeperator({
+    Title = "Credits"
+})
+
+HomeTab:AddLine()
+
+HomeTab:AddParagraph({
+    Title = "Dev",
+    Content = "Script Create Made By Sherya"
+})
+
+HomeTab:AddParagraph({
+    Title = "Contributors",
+    Content = "Rafael/nBRXYXN/nHavoc"
+})
+
+HomeTab:AddSeperator({
+    Title = "Info"
+})
+
+HomeTab:AddLine()
+
+HomeTab:AddButton({
+    Title = "Join Disccord",
+    Content = "Get updates and support",
+    Callback = function()
+        print("Test Button Clicked")
+    end
+})
+
+local MainTab = Window:CreateTab({
+    Name = "Main",
+    Icon = "rbxassetid://15269177520"
+})
+
+local FarmTab = Window:CreateTab({
+    Name = "Farm",
+    Icon = "rbxassetid://15269177645"
+})
+
+local MiscTab = Window:CreateTab({
+    Name = "Misc",
+    Icon = "rbxassetid://15269177711"
+})
+
+local BuildTab = Window:CreateTab({
+    Name = "Build",
+    Icon = "rbxassetid://15269177802"
+})
+
+local TeleportTab = Window:CreateTab({
+    Name = "Teleport",
+    Icon = "rbxassetid://15269177988"
+})
+
+TestTab:AddParagraph({
+    Title = "Test Paragraph",
+    Content = "Test paragraph content"
+})
+
+TestTab:AddSeperator({
+    Title = "Test Seperator"
+})
+
+TestTab:AddLine()
+
+TestTab:AddButton({
+    Title = "Test Button",
+    Content = "Test button content",
+    Callback = function()
+        print("Test Button Clicked")
+    end
+})
+
+TestTab:AddToggle({
+    Title = "Test Toggle",
+    Content = "Test toggle content",
+    Default = false,
+    Callback = function(value)
+        print("Test Toggle:", value)
+    end
+})
+
+TestTab:AddSlider({
+    Title = "Test Slider",
+    Content = "Test slider content",
+    Increment = 1,
+    Min = 0,
+    Max = 100,
+    Default = 50,
+    Callback = function(value)
+        print("Test Slider:", value)
+    end
+})
+
+TestTab:AddInput({
+    Title = "Test Input",
+    Content = "Test input content",
+    Default = "",
+    Callback = function(value)
+        print("Test Input:", value)
+    end
+})
+
+local TestSection = TestTab:AddSection("Test Section", true)
+
+TestSection:AddButton({
+    Title = "Test Section Button",
+    Content = "Test section button content",
+    Callback = function()
+        print("Test Section Button Clicked")
+    end
+})
+
+TestSection:AddToggle({
+    Title = "Test Section Toggle",
+    Content = "Test section toggle content",
+    Default = false,
+    Callback = function(value)
+        print("Test Section Toggle:", value)
+    end
+})
+
+TestSection:AddDropdown({
+    Title = "Test Dropdown",
+    Content = "Test dropdown content",
+    Multi = false,
+    Options = {"Option 1", "Option 2", "Option 3"},
+    Default = {"Option 1"},
+    Callback = function(selected)
+        print("Test Dropdown:", selected[1])
+    end
+})
+
+Library:SetNotification({
+    Title = "Test Hub",
+    Description = "Loaded",
+    Content = "Test script loaded successfully",
+    Time = 0.5,
+    Delay = 3
+})
