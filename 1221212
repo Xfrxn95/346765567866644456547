@@ -1,0 +1,182 @@
+--// Services
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local LocalPlayer = Players.LocalPlayer
+local setclip = setclipboard or toclipboard
+
+--// Stats
+local Wins, Gold, Time = 0, 0, 0
+local Farming = false
+local X2Gold = false
+local AutoRejoinConn
+local Platforms = {}
+
+--// UI
+Rayfield:Notify({
+    Title = "Script Loaded",
+    Content = "Made by ZenoVa",
+    Duration = 6
+})
+
+local Window = Rayfield:CreateWindow({
+    Name = "ZenoVa | BABFT",
+    LoadingTitle = "Auto Teleport Script",
+    LoadingSubtitle = "by ZenoVa",
+    ConfigurationSaving = { Enabled = false }
+})
+
+local Main = Window:CreateTab("Main", 4483362458)
+local Info = Window:CreateTab("Info", 4483362458)
+local Settings = Window:CreateTab("Settings", 4483362458)
+
+--// Labels
+Info:CreateSection("Farm Stats")
+local WinsLbl = Info:CreateLabel("Wins: 0")
+local GoldLbl = Info:CreateLabel("Gold: 0")
+local TimeLbl = Info:CreateLabel("Time: 00:00:00")
+
+local function UpdateStats()
+    WinsLbl:Set("Wins: " .. Wins)
+    GoldLbl:Set("Gold: " .. Gold)
+
+    local h = math.floor(Time / 3600)
+    local m = math.floor(Time % 3600 / 60)
+    local s = Time % 60
+    TimeLbl:Set(string.format("Time: %02d:%02d:%02d", h, m, s))
+end
+
+task.spawn(function()
+    while true do
+        if Farming then
+            Time += 1
+            UpdateStats()
+        end
+        task.wait(1)
+    end
+end)
+
+--// Server Info
+Info:CreateSection("Server Info")
+local ServerInfo = Info:CreateParagraph({
+    Title = "Info",
+    Content = "JobId: Loading...\nPlayers: Loading..."
+})
+
+task.spawn(function()
+    while true do
+        ServerInfo:Set({
+            Title = "Info",
+            Content = string.format(
+                "JobId: %s\nPlayers: %d/%d",
+                game.JobId,
+                #Players:GetPlayers(),
+                Players.MaxPlayers
+            )
+        })
+        task.wait(2)
+    end
+end)
+
+--// Teleport Points
+local Points = {
+    Vector3.new(-62,67,1363), Vector3.new(-65,58,2135),
+    Vector3.new(-52,73,2903), Vector3.new(-58,76,3672),
+    Vector3.new(-60,80,4445), Vector3.new(-55,73,5217),
+    Vector3.new(-53,64,5984), Vector3.new(-63,63,6751),
+    Vector3.new(-50,28,7527), Vector3.new(-104,37,8298),
+    Vector3.new(-57,-358,9491)
+}
+
+local function ClearPlatforms()
+    for _, p in ipairs(Platforms) do
+        if p then p:Destroy() end
+    end
+    table.clear(Platforms)
+end
+
+local function CreatePlatform(pos)
+    local p = Instance.new("Part")
+    p.Size = Vector3.new(10,1,10)
+    p.Position = pos - Vector3.new(0,3,0)
+    p.Anchored = true
+    p.CanCollide = true
+    p.BrickColor = BrickColor.new("Bright yellow")
+    p.Parent = workspace
+    table.insert(Platforms, p)
+end
+
+--// Autofarm
+local function StartFarm()
+    if Farming then return end
+    Farming = true
+
+    task.spawn(function()
+        while Farming do
+            local hrp = (LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait())
+                :WaitForChild("HumanoidRootPart")
+
+            ClearPlatforms()
+
+            for _, pos in ipairs(Points) do
+                if not Farming then break end
+                CreatePlatform(pos)
+                hrp.CFrame = CFrame.new(pos)
+                task.wait(2)
+            end
+
+            Wins += 1
+            Gold += X2Gold and 210 or 105
+            UpdateStats()
+            task.wait(16.5)
+        end
+    end)
+end
+
+--// UI Controls
+Main:CreateToggle({
+    Name = "Start Auto Farm",
+    Callback = function(v)
+        Farming = v
+        if v then StartFarm() else ClearPlatforms() end
+    end
+})
+
+Info:CreateToggle({
+    Name = "Enable X2 Gold",
+    Callback = function(v) X2Gold = v end
+})
+
+Settings:CreateButton({
+    Name = "Copy JobId",
+    Callback = function()
+        if setclip then
+            setclip(game.JobId)
+            Rayfield:Notify({ Title="Copied", Content="JobId copied", Duration=3 })
+        end
+    end
+})
+
+Settings:CreateToggle({
+    Name = "Auto Rejoin",
+    Callback = function(v)
+        if AutoRejoinConn then AutoRejoinConn:Disconnect() end
+        if v then
+            AutoRejoinConn = LocalPlayer.OnTeleport:Connect(function(state)
+                if state == Enum.TeleportState.Failed then
+                    TeleportService:Teleport(game.PlaceId, LocalPlayer)
+                end
+            end)
+        end
+    end
+})
+
+Settings:CreateButton({
+    Name = "Unload",
+    Callback = function()
+        Farming = false
+        ClearPlatforms()
+        Rayfield:Destroy()
+    end
+})
