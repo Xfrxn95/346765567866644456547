@@ -21,8 +21,6 @@ HomeTab:AddSeperator({
     Title = "Credits"
 })
 
-HomeTab:AddLine()
-
 HomeTab:AddParagraph({
     Title = "Dev",
     Content = "Script Create Made By Sherya"
@@ -30,7 +28,7 @@ HomeTab:AddParagraph({
 
 HomeTab:AddParagraph({
     Title = "Contributors",
-    Content = "Rafael\nBRXYXN\nHavoc\n"
+    Content = "Rafael\n\nBRXYXN\n\nHavoc"
 })
 
 HomeTab:AddSeperator({
@@ -50,6 +48,212 @@ HomeTab:AddButton({
 local FarmTab = Window:CreateTab({
     Name = "Farm",
     Icon = "rbxassetid://10709752035" -- lucide-activity (farm / auto)
+})
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+
+local AutoFarm = false
+
+FarmTab:AddToggle({
+    Title = "Auto Farm",
+    Content = "Automatically farm stages and claim gold",
+    Default = false,
+    Callback = function(state)
+        AutoFarm = state
+
+        if state then
+            task.spawn(function()
+                local Stages = workspace:WaitForChild("BoatStages"):WaitForChild("NormalStages")
+                local ClaimGold = workspace:WaitForChild("ClaimRiverResultsGold")
+
+                while AutoFarm do
+                    local character = LocalPlayer.Character
+                    local hrp = character and character:FindFirstChild("HumanoidRootPart")
+                    if not hrp then
+                        RunService.Heartbeat:Wait()
+                        continue
+                    end
+
+                    -- Anti-physics
+                    local bv = Instance.new("BodyVelocity")
+                    bv.Velocity = Vector3.zero
+                    bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+                    bv.Parent = hrp
+
+                    for i = 1, 9 do
+                        if not AutoFarm then break end
+
+                        local stage = Stages:FindFirstChild("CaveStage" .. i)
+                        if stage and stage:FindFirstChild("DarknessPart") then
+                            hrp.CFrame = stage.DarknessPart.CFrame
+                            RunService.Heartbeat:Wait()
+                            task.wait(i == 1 and 6 or 3)
+                            ClaimGold:FireServer()
+                        end
+                    end
+
+                    -- Reset character
+                    if AutoFarm and LocalPlayer.Character then
+                        LocalPlayer.Character:BreakJoints()
+                        repeat RunService.Heartbeat:Wait()
+                        until LocalPlayer.Character ~= character or not AutoFarm
+                    end
+
+                    if bv then
+                        bv:Destroy()
+                    end
+                end
+            end)
+        end
+    end
+})
+
+FarmTab:AddSeperator({
+    Title = "Calculator"
+})
+
+local Wins = 0
+local Gold = 0
+local Time = 0 
+local Farming = false 
+
+local StatsParagraph = FarmTab:AddParagraph({
+    Title = "Farm Stats",
+    Content =
+        "Wins: 0\n" ..
+        "Gold: 0\n" ..
+        "Time: 00:00:00\n\n" ..
+        "Gold / Hour: 0\n" ..
+        "12 Hours: 0\n" ..
+        "24 Hours: 0"
+})
+
+local function formatTime(sec)
+    local h = math.floor(sec / 3600)
+    local m = math.floor((sec % 3600) / 60)
+    local s = sec % 60
+    return string.format("%02d:%02d:%02d", h, m, s)
+end
+
+local function calculateGoldRates()
+    if Time <= 0 then
+        return 0, 0, 0
+    end
+
+    local goldPerHour = math.floor((Gold / Time) * 3600)
+    return goldPerHour, goldPerHour * 12, goldPerHour * 24
+end
+
+local function UpdateStats()
+    local gph, g12, g24 = calculateGoldRates()
+
+    StatsParagraph:Set(
+        "Wins: " .. Wins ..
+        "\nGold: " .. Gold ..
+        "\nTime: " .. formatTime(Time) ..
+        "\n\nGold / Hour: " .. gph ..
+        "\n12 Hours: " .. g12 ..
+        "\n24 Hours: " .. g24
+    )
+end
+
+task.spawn(function()
+    while true do
+        if Farming then
+            Time += 1
+            UpdateStats()
+        end
+        task.wait(1)
+    end
+end)
+
+FarmTab:AddSeperator({
+    Title = "Auto Chests"
+})
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+
+local AutoCommonChest = false
+local AutoUncommonChest = false
+local AutoRareChest = false
+local AutoEpicChest = false
+local AutoLegendaryChest = false
+local AutoWinterChest = false
+
+local function startAutoChest(toggleGetter, chestName, amountFunc)
+    task.spawn(function()
+        while toggleGetter() do
+            local amount = amountFunc and amountFunc() or 1
+            workspace.ItemBoughtFromShop:InvokeServer(chestName, amount)
+            task.wait() 
+        end
+    end)
+end
+
+FarmTab:AddToggle({
+    Title = "Auto Common Chest",
+    Content = "Automatically open Common Chests",
+    Default = false,
+    Callback = function(value)
+        AutoCommonChest = value
+        if value then
+            startAutoChest(function() return AutoCommonChest end, "Common Chest")
+        end
+    end
+})
+
+FarmTab:AddToggle({
+    Title = "Auto Uncommon Chest",
+    Content = "Automatically open Uncommon Chests",
+    Default = false,
+    Callback = function(value)
+        AutoUncommonChest = value
+        if value then
+            startAutoChest(function() return AutoUncommonChest end, "Uncommon Chest")
+        end
+    end
+})
+
+FarmTab:AddToggle({
+    Title = "Auto Rare Chest",
+    Content = "Automatically open Rare Chests",
+    Default = false,
+    Callback = function(value)
+        AutoRareChest = value
+        if value then
+            startAutoChest(function() return AutoRareChest end, "Rare Chest")
+        end
+    end
+})
+
+FarmTab:AddToggle({
+    Title = "Auto Epic Chest",
+    Content = "Automatically open Epic Chests",
+    Default = false,
+    Callback = function(value)
+        AutoEpicChest = value
+        if value then
+            startAutoChest(function() return AutoEpicChest end, "Epic Chest")
+        end
+    end
+})
+
+FarmTab:AddToggle({
+    Title = "Auto Legendary Chest",
+    Content = "Automatically open Legendary Chests",
+    Default = false,
+    Callback = function(value)
+        AutoLegendaryChest = value
+        if value then
+            startAutoChest(function() return AutoLegendaryChest end, "Legendary Chest")
+        end
+    end
 })
 
 local MiscTab = Window:CreateTab({
@@ -108,6 +312,8 @@ MiscTab:AddToggle({
         end
     end
 })
+
+MiscTab:AddLine()
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
@@ -207,7 +413,6 @@ MiscTab:AddSeperator({
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local Lighting = game:GetService("Lighting")
 
 local player = Players.LocalPlayer
 
@@ -274,21 +479,6 @@ local function disableInfiniteJump()
     end
 end
 
-local timeEnabled = false
-local selectedTime = "Day"
-
-local function applyTime()
-    if not timeEnabled then return end
-
-    if selectedTime == "Day" then
-        Lighting.ClockTime = 12
-    elseif selectedTime == "Night" then
-        Lighting.ClockTime = 0
-    elseif selectedTime == "Midnight" then
-        Lighting.ClockTime = 6
-    end
-end
-
 player.CharacterAdded:Connect(function(character)
     task.wait(0.5)
 
@@ -299,8 +489,6 @@ player.CharacterAdded:Connect(function(character)
     if infiniteJumpEnabled then
         enableInfiniteJump()
     end
-
-    applyTime()
 end)
 
 MiscTab:AddToggle({
@@ -332,33 +520,6 @@ MiscTab:AddToggle({
             disableInfiniteJump()
         end
     end
-})
-
-MiscTab:AddDropdown({
-    Title = "Change Time",
-    Content = "Select world time",
-    Multi = false,
-    Options = {"Day", "Night", "Midnight"},
-    Default = {"Day"},
-    Callback = function(selected)
-        selectedTime = selected[1]
-        applyTime()
-    end
-})
-
-MiscTab:AddToggle({
-    Title = "Time Changer",
-    Content = "Enable custom time",
-    Default = false,
-    Callback = function(value)
-        timeEnabled = value
-        applyTime()
-    end
-})
-
-local BuildTab = Window:CreateTab({
-    Name = "Build",
-    Icon = "rbxassetid://10709753808" -- lucide-hammer
 })
 
 local TeleportTab = Window:CreateTab({
