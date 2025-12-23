@@ -30,20 +30,20 @@ HomeTab:AddParagraph({
 
 HomeTab:AddParagraph({
     Title = "Contributors",
-    Content = "Rafael\nBRXYXN\nHavoc"
+    Content = "Rafael\nBRXYXN\nHavoc\n"
 })
 
 HomeTab:AddSeperator({
     Title = "Info"
 })
 
-HomeTab:AddLine()
-
 HomeTab:AddButton({
-    Title = "Join Disccord",
+    Title = "Join Discord",
     Content = "Get updates and support",
     Callback = function()
-        print("Test Button Clicked")
+        if setclipboard then
+            setclipboard("https://discord.gg/5VZsWs3NTv")
+        end
     end
 })
 
@@ -55,6 +55,305 @@ local FarmTab = Window:CreateTab({
 local MiscTab = Window:CreateTab({
     Name = "Misc",
     Icon = "rbxassetid://10709752906" -- lucide-album (misc/opciones)
+})
+
+MiscTab:AddSeperator({
+    Title = "Player"
+})
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local speedValue = 16
+local autoSpeedEnabled = false
+local autoSpeedConnection
+
+local function applySpeed(character)
+    local humanoid = character:WaitForChild("Humanoid", 5)
+    if humanoid then
+        humanoid.WalkSpeed = speedValue
+    end
+end
+
+autoSpeedConnection = player.CharacterAdded:Connect(function(character)
+    if autoSpeedEnabled then
+        applySpeed(character)
+    end
+end)
+
+MiscTab:AddSlider({
+    Title = "Walk Speed",
+    Content = "Player speed",
+    Min = 0,
+    Max = 100,
+    Increment = 1,
+    Default = 16,
+    Callback = function(value)
+        speedValue = value
+        if autoSpeedEnabled and player.Character then
+            applySpeed(player.Character)
+        end
+    end
+})
+
+MiscTab:AddToggle({
+    Title = "Auto Set Speed",
+    Content = "Keep speed after death",
+    Default = false,
+    Callback = function(value)
+        autoSpeedEnabled = value
+
+        if value and player.Character then
+            applySpeed(player.Character)
+        end
+    end
+})
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local jumpValue = 50
+local autoJumpEnabled = false
+
+local function applyJump(character)
+    local humanoid = character:WaitForChild("Humanoid", 5)
+    if humanoid then
+        humanoid.UseJumpPower = true
+        humanoid.JumpPower = jumpValue
+    end
+end
+
+player.CharacterAdded:Connect(function(character)
+    if autoJumpEnabled then
+        applyJump(character)
+    end
+end)
+
+MiscTab:AddSlider({
+    Title = "Jump Power",
+    Content = "Jump higher / faster",
+    Min = 0,
+    Max = 200,
+    Increment = 5,
+    Default = 50,
+    Callback = function(value)
+        jumpValue = value
+        if autoJumpEnabled and player.Character then
+            applyJump(player.Character)
+        end
+    end
+})
+
+MiscTab:AddToggle({
+    Title = "Auto Jump Power",
+    Content = "Keep jump power after death",
+    Default = false,
+    Callback = function(value)
+        autoJumpEnabled = value
+        if value and player.Character then
+            applyJump(player.Character)
+        end
+    end
+})
+
+MiscTab:AddSeperator({
+    Title = "Scripts Externals"
+})
+
+MiscTab:AddButton({
+    Title = "Infinite Yield",
+    Content = "Admin commands",
+    Callback = function()
+        loadstring(game:HttpGet(
+            "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"
+        ))()
+    end
+})
+
+MiscTab:AddButton({
+    Title = "GhostX Hub",
+    Content = "Universal script hub",
+    Callback = function()
+        loadstring(game:HttpGet(
+            "https://scriptblox.com/raw/Universal-Script-GhostX-Hub-7158"
+        ))()
+    end
+})
+
+MiscTab:AddButton({
+    Title = "Permanent Shiftlock",
+    Content = "Force shiftlock",
+    Callback = function()
+        loadstring(game:HttpGet(
+            "https://pastebin.com/raw/CjNsnSDy"
+        ))()
+    end
+})
+
+MiscTab:AddButton({
+    Title = "All Emotes",
+    Content = "Unlock all emotes",
+    Callback = function()
+        loadstring(game:HttpGet(
+            "https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"
+        ))()
+    end
+})
+
+MiscTab:AddSeperator({
+    Title = "Miscellaneous"
+})
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+
+local noclipEnabled = false
+local noclipConnection
+local originalCanCollide = {}
+
+local function enableNoclip(character)
+    if noclipConnection then
+        noclipConnection:Disconnect()
+    end
+
+    noclipConnection = RunService.Stepped:Connect(function()
+        if not noclipEnabled then return end
+        for _, part in ipairs(character:GetChildren()) do
+            if part:IsA("BasePart") then
+                if originalCanCollide[part] == nil then
+                    originalCanCollide[part] = part.CanCollide
+                end
+                part.CanCollide = false
+            end
+        end
+    end)
+end
+
+local function disableNoclip(character)
+    if noclipConnection then
+        noclipConnection:Disconnect()
+        noclipConnection = nil
+    end
+
+    for part, value in pairs(originalCanCollide) do
+        if part and part:IsA("BasePart") then
+            part.CanCollide = value
+        end
+    end
+
+    originalCanCollide = {}
+end
+
+local infiniteJumpEnabled = false
+local infiniteJumpConnection
+
+local function enableInfiniteJump()
+    if infiniteJumpConnection then
+        infiniteJumpConnection:Disconnect()
+    end
+
+    infiniteJumpConnection = UserInputService.JumpRequest:Connect(function()
+        if infiniteJumpEnabled then
+            local char = player.Character
+            local hum = char and char:FindFirstChild("Humanoid")
+            if hum then
+                hum:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end
+    end)
+end
+
+local function disableInfiniteJump()
+    if infiniteJumpConnection then
+        infiniteJumpConnection:Disconnect()
+        infiniteJumpConnection = nil
+    end
+end
+
+local timeEnabled = false
+local selectedTime = "Day"
+
+local function applyTime()
+    if not timeEnabled then return end
+
+    if selectedTime == "Day" then
+        Lighting.ClockTime = 12
+    elseif selectedTime == "Night" then
+        Lighting.ClockTime = 0
+    elseif selectedTime == "Midnight" then
+        Lighting.ClockTime = 6
+    end
+end
+
+player.CharacterAdded:Connect(function(character)
+    task.wait(0.5)
+
+    if noclipEnabled then
+        enableNoclip(character)
+    end
+
+    if infiniteJumpEnabled then
+        enableInfiniteJump()
+    end
+
+    applyTime()
+end)
+
+MiscTab:AddToggle({
+    Title = "No-Clip",
+    Content = "Walk through walls",
+    Default = false,
+    Callback = function(value)
+        noclipEnabled = value
+        local char = player.Character
+
+        if value and char then
+            enableNoclip(char)
+        else
+            disableNoclip(char)
+        end
+    end
+})
+
+MiscTab:AddToggle({
+    Title = "Infinite Jump",
+    Content = "Jump infinitely",
+    Default = false,
+    Callback = function(value)
+        infiniteJumpEnabled = value
+
+        if value then
+            enableInfiniteJump()
+        else
+            disableInfiniteJump()
+        end
+    end
+})
+
+MiscTab:AddDropdown({
+    Title = "Change Time",
+    Content = "Select world time",
+    Multi = false,
+    Options = {"Day", "Night", "Midnight"},
+    Default = {"Day"},
+    Callback = function(selected)
+        selectedTime = selected[1]
+        applyTime()
+    end
+})
+
+MiscTab:AddToggle({
+    Title = "Time Changer",
+    Content = "Enable custom time",
+    Default = false,
+    Callback = function(value)
+        timeEnabled = value
+        applyTime()
+    end
 })
 
 local BuildTab = Window:CreateTab({
