@@ -2,19 +2,19 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/1NFER
 
 local Window = Library:CreateWindow({
     Title = "Satan Crew Script",
-    Description = "Build a boat Version",
+    Description = "Muscle Legends Version",
     ["Tab Width"] = 120,
     SizeUi = UDim2.fromOffset(550, 315)
 })
 
 local HomeTab = Window:CreateTab({
     Name = "Home",
-    Icon = "rbxassetid://10709753570" -- lucide-home
+    Icon = "rbxassetid://10709753570" 
 })
 
 HomeTab:AddParagraph({
     Title = "Welcome To Satan Crew",
-    Content = "Build A Boat For Teasure Script"
+    Content = "Muscle Legends Script"
 })
 
 HomeTab:AddSeperator({
@@ -27,8 +27,8 @@ HomeTab:AddParagraph({
 })
 
 HomeTab:AddParagraph({
-    Title = "Contributors",
-    Content = "Rafael\n\nBRXYXN\n\nHavoc"
+    Title = "More Updates",
+    Content = "Coming Soon..."
 })
 
 HomeTab:AddSeperator({
@@ -45,486 +45,83 @@ HomeTab:AddButton({
     end
 })
 
+local MainTab = Window:CreateTab({
+    Name = "Main",
+    Icon = "rbxassetid://10709752035" 
+})
+
+local AutoBrawlsFolder = MainTab:AddSection("Auto bralws", true)
+local JungleGymFolder = MainTab:AddSection("Jungle Gym", true)
+local GymsFolder = MainTab:AddSection("Gyms", true)
+local OpThingsFolder = MainTab:AddSection("OP Things Farm", true)
+
 local FarmTab = Window:CreateTab({
     Name = "Farm",
-    Icon = "rbxassetid://10709752035" -- lucide-activity (farm / auto)
+    Icon = "rbxassetid://10709752131" 
 })
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
+local AutoRockFolder = FarmTabTab:AddSection("Auto Rocks", true)
+local AutoToolsFolder = FarmTabTab:AddSection("Auto Tools", true)
+local AutoToolsCombinedFolder = FarmTabTab:AddSection("Auto Tools Combined", true)
+local AutoRebirthFolder = FarmTabTab:AddSection("Auto Rebirth", true)
 
-local LocalPlayer = Players.LocalPlayer
-
-local AutoFarm = false
-
-FarmTab:AddToggle({
-    Title = "Auto Farm",
-    Content = "Automatically farm stages and claim gold",
-    Default = false,
-    Callback = function(state)
-        AutoFarm = state
-
-        if state then
-            task.spawn(function()
-                local Stages = workspace:WaitForChild("BoatStages"):WaitForChild("NormalStages")
-                local ClaimGold = workspace:WaitForChild("ClaimRiverResultsGold")
-
-                while AutoFarm do
-                    local character = LocalPlayer.Character
-                    local hrp = character and character:FindFirstChild("HumanoidRootPart")
-                    if not hrp then
-                        RunService.Heartbeat:Wait()
-                        continue
-                    end
-
-                    -- Anti-physics
-                    local bv = Instance.new("BodyVelocity")
-                    bv.Velocity = Vector3.zero
-                    bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
-                    bv.Parent = hrp
-
-                    for i = 1, 9 do
-                        if not AutoFarm then break end
-
-                        local stage = Stages:FindFirstChild("CaveStage" .. i)
-                        if stage and stage:FindFirstChild("DarknessPart") then
-                            hrp.CFrame = stage.DarknessPart.CFrame
-                            RunService.Heartbeat:Wait()
-                            task.wait(i == 1 and 6 or 3)
-                            ClaimGold:FireServer()
-                        end
-                    end
-
-                    -- Reset character
-                    if AutoFarm and LocalPlayer.Character then
-                        LocalPlayer.Character:BreakJoints()
-                        repeat RunService.Heartbeat:Wait()
-                        until LocalPlayer.Character ~= character or not AutoFarm
-                    end
-
-                    if bv then
-                        bv:Destroy()
-                    end
-                end
-            end)
-        end
-    end
+local FarmFastTab = Window:CreateTab({
+    Name = "Farm Fast",
+    Icon = "rbxassetid://10747779791" 
 })
 
-FarmTab:AddSeperator({
-    Title = "Calculator"
-})
+local StrengthFolder = FarmFastTab:AddSection("Strength", true)
+local RebirthFolder = FarmFastTab:AddSection("Rebirth", true)
 
-local Wins = 0
-local Gold = 0
-local Time = 0 
-local Farming = false 
-
-local StatsParagraph = FarmTab:AddParagraph({
-    Title = "Farm Stats",
-    Content =
-        "Wins: 0\n" ..
-        "Gold: 0\n" ..
-        "Time: 00:00:00\n\n" ..
-        "Gold / Hour: 0\n" ..
-        "12 Hours: 0\n" ..
-        "24 Hours: 0"
-})
-
-local function formatTime(sec)
-    local h = math.floor(sec / 3600)
-    local m = math.floor((sec % 3600) / 60)
-    local s = sec % 60
-    return string.format("%02d:%02d:%02d", h, m, s)
-end
-
-local function calculateGoldRates()
-    if Time <= 0 then
-        return 0, 0, 0
-    end
-
-    local goldPerHour = math.floor((Gold / Time) * 3600)
-    return goldPerHour, goldPerHour * 12, goldPerHour * 24
-end
-
-local function UpdateStats()
-    local gph, g12, g24 = calculateGoldRates()
-
-    StatsParagraph:Set(
-        "Wins: " .. Wins ..
-        "\nGold: " .. Gold ..
-        "\nTime: " .. formatTime(Time) ..
-        "\n\nGold / Hour: " .. gph ..
-        "\n12 Hours: " .. g12 ..
-        "\n24 Hours: " .. g24
-    )
-end
-
-task.spawn(function()
-    while true do
-        if Farming then
-            Time += 1
-            UpdateStats()
-        end
-        task.wait(1)
-    end
-end)
-
-FarmTab:AddSeperator({
-    Title = "Auto Chests"
-})
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
-local LocalPlayer = Players.LocalPlayer
-
-local AutoCommonChest = false
-local AutoUncommonChest = false
-local AutoRareChest = false
-local AutoEpicChest = false
-local AutoLegendaryChest = false
-local AutoWinterChest = false
-
-local function startAutoChest(toggleGetter, chestName, amountFunc)
-    task.spawn(function()
-        while toggleGetter() do
-            local amount = amountFunc and amountFunc() or 1
-            workspace.ItemBoughtFromShop:InvokeServer(chestName, amount)
-            task.wait() 
-        end
-    end)
-end
-
-FarmTab:AddToggle({
-    Title = "Auto Common Chest",
-    Content = "Automatically open Common Chests",
-    Default = false,
-    Callback = function(value)
-        AutoCommonChest = value
-        if value then
-            startAutoChest(function() return AutoCommonChest end, "Common Chest")
-        end
-    end
-})
-
-FarmTab:AddToggle({
-    Title = "Auto Uncommon Chest",
-    Content = "Automatically open Uncommon Chests",
-    Default = false,
-    Callback = function(value)
-        AutoUncommonChest = value
-        if value then
-            startAutoChest(function() return AutoUncommonChest end, "Uncommon Chest")
-        end
-    end
-})
-
-FarmTab:AddToggle({
-    Title = "Auto Rare Chest",
-    Content = "Automatically open Rare Chests",
-    Default = false,
-    Callback = function(value)
-        AutoRareChest = value
-        if value then
-            startAutoChest(function() return AutoRareChest end, "Rare Chest")
-        end
-    end
-})
-
-FarmTab:AddToggle({
-    Title = "Auto Epic Chest",
-    Content = "Automatically open Epic Chests",
-    Default = false,
-    Callback = function(value)
-        AutoEpicChest = value
-        if value then
-            startAutoChest(function() return AutoEpicChest end, "Epic Chest")
-        end
-    end
-})
-
-FarmTab:AddToggle({
-    Title = "Auto Legendary Chest",
-    Content = "Automatically open Legendary Chests",
-    Default = false,
-    Callback = function(value)
-        AutoLegendaryChest = value
-        if value then
-            startAutoChest(function() return AutoLegendaryChest end, "Legendary Chest")
-        end
-    end
+local GiftTab = Window:CreateTab({
+    Name = "Gift",
+    Icon = "rbxassetid://10709752906" 
 })
 
 local MiscTab = Window:CreateTab({
     Name = "Misc",
-    Icon = "rbxassetid://10709752906" -- lucide-album (misc/opciones)
+    Icon = "rbxassetid://10709754118" 
 })
 
-MiscTab:AddSeperator({
-    Title = "Player"
+local Misc1Folder = MiscTab:AddSection("Misc1", true)
+local Misc2Folder = MiscTab:AddSection("Misc2", true)
+local Misc3Folder = MiscTab:AddSection("Misc3", true)
+local Misc4Folder = MiscTab:AddSection("Misc4", true)
+
+local CrystalTab = Window:CreateTab({
+    Name = "Crystals",
+    Icon = "rbxassetid://10709753064" 
 })
 
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
-local speedValue = 16
-local autoSpeedEnabled = false
-local autoSpeedConnection
-
-local function applySpeed(character)
-    local humanoid = character:WaitForChild("Humanoid", 5)
-    if humanoid then
-        humanoid.WalkSpeed = speedValue
-    end
-end
-
-autoSpeedConnection = player.CharacterAdded:Connect(function(character)
-    if autoSpeedEnabled then
-        applySpeed(character)
-    end
-end)
-
-MiscTab:AddSlider({
-    Title = "Walk Speed",
-    Content = "Player speed",
-    Min = 0,
-    Max = 100,
-    Increment = 1,
-    Default = 16,
-    Callback = function(value)
-        speedValue = value
-        if autoSpeedEnabled and player.Character then
-            applySpeed(player.Character)
-        end
-    end
+local StatsTab = Window:CreateTab({
+    Name = "Stats",
+    Icon = "rbxassetid://10709753570" 
 })
 
-MiscTab:AddToggle({
-    Title = "Auto Set Speed",
-    Content = "Keep speed after death",
-    Default = false,
-    Callback = function(value)
-        autoSpeedEnabled = value
-
-        if value and player.Character then
-            applySpeed(player.Character)
-        end
-    end
+local CalculatorTab = Window:CreateTab({
+    Name = "Calculator",
+    Icon = "rbxassetid://10709752405" 
 })
 
-MiscTab:AddLine()
+local StrengthCalculatorFolder = MiscTab:AddSection("Strength", true)
+local DurabilityCalculatorFolder = MiscTab:AddSection("Durability", true)
+local RebirtCalculatorFolder = MiscTab:AddSection("Rebirth", true)
+local KillsCalculatorFolder = MiscTab:AddSection("Kills", true)
+local BralwsCalculatorFolder = MiscTab:AddSection("Bralws", true)
 
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
-local jumpValue = 50
-local autoJumpEnabled = false
-
-local function applyJump(character)
-    local humanoid = character:WaitForChild("Humanoid", 5)
-    if humanoid then
-        humanoid.UseJumpPower = true
-        humanoid.JumpPower = jumpValue
-    end
-end
-
-player.CharacterAdded:Connect(function(character)
-    if autoJumpEnabled then
-        applyJump(character)
-    end
-end)
-
-MiscTab:AddSlider({
-    Title = "Jump Power",
-    Content = "Jump higher / faster",
-    Min = 0,
-    Max = 200,
-    Increment = 5,
-    Default = 50,
-    Callback = function(value)
-        jumpValue = value
-        if autoJumpEnabled and player.Character then
-            applyJump(player.Character)
-        end
-    end
+local KillerTab = Window:CreateTab({
+    Name = "Killer",
+    Icon = "rbxassetid://10709753149" 
 })
 
-MiscTab:AddToggle({
-    Title = "Auto Jump Power",
-    Content = "Keep jump power after death",
-    Default = false,
-    Callback = function(value)
-        autoJumpEnabled = value
-        if value and player.Character then
-            applyJump(player.Character)
-        end
-    end
-})
-
-MiscTab:AddSeperator({
-    Title = "Scripts Externals"
-})
-
-MiscTab:AddButton({
-    Title = "Infinite Yield",
-    Content = "Admin commands",
-    Callback = function()
-        loadstring(game:HttpGet(
-            "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"
-        ))()
-    end
-})
-
-MiscTab:AddButton({
-    Title = "GhostX Hub",
-    Content = "Universal script hub",
-    Callback = function()
-        loadstring(game:HttpGet(
-            "https://scriptblox.com/raw/Universal-Script-GhostX-Hub-7158"
-        ))()
-    end
-})
-
-MiscTab:AddButton({
-    Title = "Permanent Shiftlock",
-    Content = "Force shiftlock",
-    Callback = function()
-        loadstring(game:HttpGet(
-            "https://pastebin.com/raw/CjNsnSDy"
-        ))()
-    end
-})
-
-MiscTab:AddButton({
-    Title = "All Emotes",
-    Content = "Unlock all emotes",
-    Callback = function()
-        loadstring(game:HttpGet(
-            "https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"
-        ))()
-    end
-})
-
-MiscTab:AddSeperator({
-    Title = "Miscellaneous"
-})
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-
-local player = Players.LocalPlayer
-
-local noclipEnabled = false
-local noclipConnection
-local originalCanCollide = {}
-
-local function enableNoclip(character)
-    if noclipConnection then
-        noclipConnection:Disconnect()
-    end
-
-    noclipConnection = RunService.Stepped:Connect(function()
-        if not noclipEnabled then return end
-        for _, part in ipairs(character:GetChildren()) do
-            if part:IsA("BasePart") then
-                if originalCanCollide[part] == nil then
-                    originalCanCollide[part] = part.CanCollide
-                end
-                part.CanCollide = false
-            end
-        end
-    end)
-end
-
-local function disableNoclip(character)
-    if noclipConnection then
-        noclipConnection:Disconnect()
-        noclipConnection = nil
-    end
-
-    for part, value in pairs(originalCanCollide) do
-        if part and part:IsA("BasePart") then
-            part.CanCollide = value
-        end
-    end
-
-    originalCanCollide = {}
-end
-
-local infiniteJumpEnabled = false
-local infiniteJumpConnection
-
-local function enableInfiniteJump()
-    if infiniteJumpConnection then
-        infiniteJumpConnection:Disconnect()
-    end
-
-    infiniteJumpConnection = UserInputService.JumpRequest:Connect(function()
-        if infiniteJumpEnabled then
-            local char = player.Character
-            local hum = char and char:FindFirstChild("Humanoid")
-            if hum then
-                hum:ChangeState(Enum.HumanoidStateType.Jumping)
-            end
-        end
-    end)
-end
-
-local function disableInfiniteJump()
-    if infiniteJumpConnection then
-        infiniteJumpConnection:Disconnect()
-        infiniteJumpConnection = nil
-    end
-end
-
-player.CharacterAdded:Connect(function(character)
-    task.wait(0.5)
-
-    if noclipEnabled then
-        enableNoclip(character)
-    end
-
-    if infiniteJumpEnabled then
-        enableInfiniteJump()
-    end
-end)
-
-MiscTab:AddToggle({
-    Title = "No-Clip",
-    Content = "Walk through walls",
-    Default = false,
-    Callback = function(value)
-        noclipEnabled = value
-        local char = player.Character
-
-        if value and char then
-            enableNoclip(char)
-        else
-            disableNoclip(char)
-        end
-    end
-})
-
-MiscTab:AddToggle({
-    Title = "Infinite Jump",
-    Content = "Jump infinitely",
-    Default = false,
-    Callback = function(value)
-        infiniteJumpEnabled = value
-
-        if value then
-            enableInfiniteJump()
-        else
-            disableInfiniteJump()
-        end
-    end
+local ExtraTab = Window:CreateTab({
+    Name = "Extras",
+    Icon = "rbxassetid://10709752732" 
 })
 
 local TeleportTab = Window:CreateTab({
     Name = "Teleport",
-    Icon = "rbxassetid://10709752254" -- lucide-airplay (teleport/move)
+    Icon = "rbxassetid://10709752254" 
 })
 
 Library:SetNotification({
