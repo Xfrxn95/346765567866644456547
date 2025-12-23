@@ -1,114 +1,76 @@
--- // Load Fluent Renewed
-local Library = loadstring(game:HttpGetAsync(
-    "https://github.com/ActualMasterOogway/Fluent-Renewed/releases/latest/download/Fluent.luau"
-))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/1NFERNO-HUB/Main/refs/heads/main/Settings/UI/1NFERNO_Library.lua"))()
 
-local SaveManager = loadstring(game:HttpGetAsync(
-    "https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/SaveManager.luau"
-))()
-
-local InterfaceManager = loadstring(game:HttpGetAsync(
-    "https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"
-))()
-
--- // Window
-local Window = Library:CreateWindow{
-    Title = "Satan Crew / SC On Top",
-    SubTitle = "Build a Boat version",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(830, 525),
-    Resize = true,
-    MinSize = Vector2.new(470, 380),
-    Acrylic = true,
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.RightControl
-}
-
--- // Tabs
-local Tabs = {
-    Main = Window:CreateTab{
-        Title = "Main",
-        Icon = "user-round"
-    },
-    Farm = Window:CreateTab{
-        Title = "Farm",
-        Icon = "leaf"
-    },
-    Settings = Window:CreateTab{
-        Title = "Settings",
-        Icon = "settings"
-    }
-}
-
--- // Notify
-Library:Notify{
-    Title = "Welcome",
-    Content = "Join SC for more scripts",
-    SubContent = "SC On Top",
-    Duration = 5
-}
-
--- // MAIN TAB CONTENT
-Tabs.Main:CreateParagraph({
-    Title = "Welcome to Satan Crew",
-    Content = "Build A Boat For Treasure Script"
+local Window = Library:CreateWindow({
+    Title = "Satan Crew Script",
+    Description = "Build a boat Version",
+    ["Tab Width"] = 120,
+    SizeUi = UDim2.fromOffset(550, 315)
 })
 
-Tabs.Main:CreateParagraph({
-    Title = "Credits",
-    Content = "Script created by Sherya (Isabella)"
+local HomeTab = Window:CreateTab({
+    Name = "Home",
+    Icon = "rbxassetid://10709753570" -- lucide-home
 })
 
-Tabs.Main:CreateParagraph({
-    Title = "Instructions",
-    Content = "Enter the farm to farm\nAdjust whatever you want\nAnd enjoy!"
+HomeTab:AddParagraph({
+    Title = "Welcome To Satan Crew",
+    Content = "Build A Boat For Teasure Script"
 })
 
-Tabs.Main:CreateButton{
-    Title = "Discord",
-    Description = "Copy Discord invite to clipboard",
+HomeTab:AddSeperator({
+    Title = "Credits"
+})
+
+HomeTab:AddLine()
+
+HomeTab:AddParagraph({
+    Title = "Dev",
+    Content = "Script Create Made By Sherya"
+})
+
+HomeTab:AddParagraph({
+    Title = "Contributors",
+    Content = "Rafael\nBRXYXN\nHavoc"
+})
+
+HomeTab:AddSeperator({
+    Title = "Info"
+})
+
+HomeTab:AddLine()
+
+HomeTab:AddButton({
+    Title = "Join Disccord",
+    Content = "Get updates and support",
     Callback = function()
-        local link = "https://discord.gg/5VZsWs3NTv"
-
-        if setclipboard then
-            setclipboard(link)
-        elseif toclipboard then
-            toclipboard(link)
-        end
-
-        Window:Dialog{
-            Title = "Discord",
-            Content = "Discord link copied to clipboard!",
-            Buttons = {
-                { Title = "OK" }
-            }
-        }
+        print("Test Button Clicked")
     end
-}
+})
 
--- // SETTINGS TAB (Save + Interface)
-SaveManager:SetLibrary(Library)
-InterfaceManager:SetLibrary(Library)
+local FarmTab = Window:CreateTab({
+    Name = "Farm",
+    Icon = "rbxassetid://10709752035" -- lucide-activity (farm / auto)
+})
 
--- Do not save themes in configs
-SaveManager:IgnoreThemeSettings()
+local MiscTab = Window:CreateTab({
+    Name = "Misc",
+    Icon = "rbxassetid://10709752906" -- lucide-album (misc/opciones)
+})
 
--- Folders
-InterfaceManager:SetFolder("FluentScriptHub")
-SaveManager:SetFolder("FluentScriptHub/BuildABoat")
+local BuildTab = Window:CreateTab({
+    Name = "Build",
+    Icon = "rbxassetid://10709753808" -- lucide-hammer
+})
 
--- Build UI
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-SaveManager:BuildConfigSection(Tabs.Settings)
+local TeleportTab = Window:CreateTab({
+    Name = "Teleport",
+    Icon = "rbxassetid://10709752254" -- lucide-airplay (teleport/move)
+})
 
--- // Final
-Window:SelectTab(1)
-
-Library:Notify{
-    Title = "Ready",
-    Content = "UI loaded successfully",
-    Duration = 4
-}
-
--- Auto-load config if exists
-SaveManager:LoadAutoloadConfig()
+Library:SetNotification({
+    Title = "Welcome",
+    Description = "Loaded",
+    Content = "The script loaded successfully",
+    Time = 0.5,
+    Delay = 3
+})
