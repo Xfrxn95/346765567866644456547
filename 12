@@ -72,6 +72,7 @@ HomeTab:AddSeperator({
     Title = "SC On Top"
 })
 
+
 local MainTab = Window:CreateTab({
     Name = "Main",
     Icon = "rbxassetid://7733799901"
@@ -981,151 +982,159 @@ AutoRebirthSection:AddButton({
 
 local PacksTab = Window:CreateTab({
     Name = "Packs Farm",
-    Icon = "rbxassetid://7733799901"
+    Icon = "rbxassetid://7733955511"
 })
 
+-- TAB
 local StatsTab = Window:CreateTab({
     Name = "Stats",
-    Icon = "rbxassetid://7733799901"
+    Icon = "rbxassetid://10734950309"
 })
 
+-- INFO
 StatsTab:AddParagraph({
-    Title = "Player Stats",
-    Content = "Select a player to view stats and combat info"
+    Title = "Stats Viewer",
+    Content = "Select a player to view live stats"
 })
 
-StatsTab:AddSeperator({
-    Title = "Player Selection"
-})
+StatsTab:AddSeperator({ Title = "Player Selection" })
 
-local selectedPlayer = nil
-local statsSection = nil
-
-local function GetPlayerNames()
+-- PLAYER LIST
+local function GetPlayerOptions()
     local t = {}
-    for _, p in ipairs(Players:GetPlayers()) do
-        table.insert(t, p.Name)
+    for _, plr in ipairs(Players:GetPlayers()) do
+        table.insert(t, plr.DisplayName .. " | " .. plr.Name)
     end
     return t
 end
 
--- ==== CALCULATIONS ====
+local SelectedPlayer = nil
 
-local function enemyHealth(player)
-    local dura =
-        player:FindFirstChild("Durability")
-        or (player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Durability"))
-
-    return dura and dura.Value or 0
-end
-
-local function localDamage()
-    local ls = LocalPlayer:FindFirstChild("leaderstats")
-    if not ls or not ls:FindFirstChild("Strength") then return 0 end
-    return ls.Strength.Value * 0.0667
-end
-
-local function hitsToKill(h, d)
-    if d <= 0 then return "∞" end
-    return math.ceil(h / d)
-end
-
--- ==== DISPLAY ====
-
-local function DisplayPlayerStats(player)
-    if statsSection then
-        statsSection:Destroy()
-    end
-
-    statsSection = StatsTab:AddSection("Stats for " .. player.Name, true)
-
-    statsSection:AddParagraph({
-        Title = "Player Info",
-        Content =
-            "Name: " .. player.Name ..
-            "\nUserId: " .. player.UserId
-    })
-
-    -- LEADERSTATS
-    if player:FindFirstChild("leaderstats") then
-        statsSection:AddSeperator({ Title = "Leaderstats" })
-
-        for _, stat in ipairs(player.leaderstats:GetChildren()) do
-            if stat:IsA("IntValue") or stat:IsA("NumberValue") then
-                statsSection:AddParagraph({
-                    Title = stat.Name,
-                    Content = tostring(stat.Value)
-                })
-            end
-        end
-    end
-
-    -- OTHER VALUES
-    local values = {}
-    for _, obj in ipairs(player:GetDescendants()) do
-        if obj:IsA("IntValue") or obj:IsA("NumberValue") then
-            if not (obj.Parent and obj.Parent.Name == "leaderstats") then
-                table.insert(values, obj)
-            end
-        end
-    end
-
-    if #values > 0 then
-        statsSection:AddSeperator({ Title = "Other Stats" })
-
-        for _, v in ipairs(values) do
-            statsSection:AddParagraph({
-                Title = v.Name,
-                Content = tostring(v.Value)
-            })
-        end
-    end
-
-    -- COMBAT INFO
-    statsSection:AddSeperator({ Title = "Combat Info" })
-
-    local h = enemyHealth(player)
-    local d = localDamage()
-
-    statsSection:AddParagraph({
-        Title = "Enemy Health",
-        Content = tostring(h)
-    })
-
-    statsSection:AddParagraph({
-        Title = "Your Damage",
-        Content = tostring(d)
-    })
-
-    statsSection:AddParagraph({
-        Title = "Hits To Kill",
-        Content = tostring(hitsToKill(h, d))
-    })
-end
-
+-- DROPDOWN
 StatsTab:AddDropdown({
     Title = "Select Player",
     Content = "Choose a player",
     Multi = false,
-    Options = GetPlayerNames(),
+    Options = GetPlayerOptions(),
     Default = {},
-    Callback = function(selected)
-        if selected and selected[1] then
-            local plr = Players:FindFirstChild(selected[1])
-            if plr then
-                selectedPlayer = plr
-                DisplayPlayerStats(plr)
-            end
+    Callback = function(sel)
+        if sel and sel[1] then
+            local name = sel[1]:match("| (.+)")
+            SelectedPlayer = Players:FindFirstChild(name)
+        else
+            SelectedPlayer = nil
         end
     end
 })
 
--- REFRESH
+-- FORMATTERS
+local function Format(num)
+    if not num then return "0" end
+    local abs = math.abs(num)
+    local suffix = {"","K","M","B","T","Qa","Qi"}
+    local i = 1
+    while abs >= 1000 and i < #suffix do
+        abs /= 1000
+        i += 1
+    end
+    return string.format("%.2f%s", abs, suffix[i])
+end
+
+-- SECTION
+local StatsSection = StatsTab:AddSection("Player Stats", true)
+
+-- PARAGRAPHS
+local StrengthP   = StatsSection:AddParagraph({Title="Strength", Content="N/A"})
+local RebirthsP   = StatsSection:AddParagraph({Title="Rebirths", Content="N/A"})
+local KillsP      = StatsSection:AddParagraph({Title="Kills", Content="N/A"})
+local GemsP       = StatsSection:AddParagraph({Title="Gems", Content="N/A"})
+local DurabilityP = StatsSection:AddParagraph({Title="Durability", Content="N/A"})
+local AgilityP    = StatsSection:AddParagraph({Title="Agility", Content="N/A"})
+local EvilP       = StatsSection:AddParagraph({Title="Evil Karma", Content="N/A"})
+local GoodP       = StatsSection:AddParagraph({Title="Good Karma", Content="N/A"})
+
+StatsSection:AddSeperator({ Title = "Combat Stats" })
+
+local EnemyHealthP = StatsSection:AddParagraph({Title="Enemy Health", Content="N/A"})
+local DamageP      = StatsSection:AddParagraph({Title="Your Damage", Content="N/A"})
+local HitsP        = StatsSection:AddParagraph({Title="Hits To Kill", Content="N/A"})
+
+-- CALCULATIONS
+local function GetEnemyHealth(plr)
+    if not plr then return 0 end
+    local dura = plr:FindFirstChild("Durability")
+    if not dura then return 0 end
+    return dura.Value * 1.2
+end
+
+local function GetLocalDamage()
+    local stats = LocalPlayer:FindFirstChild("leaderstats")
+    if not stats then return 0 end
+    local str = stats:FindFirstChild("Strength")
+    if not str then return 0 end
+    return str.Value * 0.0667
+end
+
+local function HitsToKill(health, dmg)
+    if dmg <= 0 then return "∞" end
+    local hits = math.ceil(health / dmg)
+    return hits > 50 and "∞" or hits
+end
+
+-- UPDATE LOOP
 task.spawn(function()
-    while task.wait(2) do
-        if selectedPlayer and selectedPlayer.Parent then
-            DisplayPlayerStats(selectedPlayer)
+    while task.wait(0.3) do
+        if not SelectedPlayer then
+            StrengthP:Set({Content="N/A"})
+            RebirthsP:Set({Content="N/A"})
+            KillsP:Set({Content="N/A"})
+            GemsP:Set({Content="N/A"})
+            DurabilityP:Set({Content="N/A"})
+            AgilityP:Set({Content="N/A"})
+            EvilP:Set({Content="N/A"})
+            GoodP:Set({Content="N/A"})
+            EnemyHealthP:Set({Content="N/A"})
+            DamageP:Set({Content="N/A"})
+            HitsP:Set({Content="N/A"})
+            continue
         end
+
+        local ls = SelectedPlayer:FindFirstChild("leaderstats")
+
+        if ls then
+            if ls:FindFirstChild("Strength") then
+                StrengthP:Set({Content = Format(ls.Strength.Value)})
+            end
+            if ls:FindFirstChild("Rebirths") then
+                RebirthsP:Set({Content = Format(ls.Rebirths.Value)})
+            end
+            if ls:FindFirstChild("Kills") then
+                KillsP:Set({Content = Format(ls.Kills.Value)})
+            end
+        end
+
+        if SelectedPlayer:FindFirstChild("Gems") then
+            GemsP:Set({Content = Format(SelectedPlayer.Gems.Value)})
+        end
+        if SelectedPlayer:FindFirstChild("Durability") then
+            DurabilityP:Set({Content = Format(SelectedPlayer.Durability.Value)})
+        end
+        if SelectedPlayer:FindFirstChild("Agility") then
+            AgilityP:Set({Content = Format(SelectedPlayer.Agility.Value)})
+        end
+        if SelectedPlayer:FindFirstChild("evilKarma") then
+            EvilP:Set({Content = Format(SelectedPlayer.evilKarma.Value)})
+        end
+        if SelectedPlayer:FindFirstChild("goodKarma") then
+            GoodP:Set({Content = Format(SelectedPlayer.goodKarma.Value)})
+        end
+
+        local hp = GetEnemyHealth(SelectedPlayer)
+        local dmg = GetLocalDamage()
+
+        EnemyHealthP:Set({Content = Format(hp)})
+        DamageP:Set({Content = Format(dmg)})
+        HitsP:Set({Content = tostring(HitsToKill(hp, dmg))})
     end
 end)
 
