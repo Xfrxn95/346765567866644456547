@@ -7,49 +7,73 @@ local Window = Library:CreateWindow({
     Image = "rbxassetid://129692939071021"
 })
 
-local HomeTab = Window:CreateTab({
-    Name = "Home",
-    Icon = "rbxassetid://7733911490"
+local TestTab = Window:CreateTab({
+    Name = "Test Tab",
+    Icon = "rbxassetid://10734950309"
 })
 
-HomeTab:AddParagraph({
-    Title = "Welcome To Satan Crew",
-    Content = "Build A Boat For Teasure Script"
+TestTab:AddParagraph({
+    Title = "Test Paragraph",
+    Content = "Test paragraph content"
+})
+TestTab:AddParagraph({
+    Title = "Test Paragraph",
+    Content = [[
+]]
 })
 
-HomeTab:AddButton({
-    Title = "Discord Server",
-    Content = "Join our Discord server to receive future updates",
+TestTab:AddSeperator({
+    Title = "Test Seperator"
+})
+
+
+TestTab:AddLine()
+
+TestTab:AddButton({
+    Title = "Test Button",
+    Content = "Test button content",
     Callback = function()
-        if setclipboard then
-            setclipboard("https://discord.gg/5VZsWs3NTv")
-        end
+        print("Test Button Clicked")
     end
 })
 
-HomeTab:AddLine()
-
-HomeTab:AddParagraph({
-    Title = "Dev",
-    Content = "MissSherya"
+TestTab:AddToggle({
+    Title = "Test Toggle",
+    Content = "Test toggle content",
+    Default = false,
+    Callback = function(value)
+        print("Test Toggle:", value)
+    end
 })
 
-HomeTab:AddParagraph({
-    Title = "Contributors",
-    Content = "Havoc\nBrxyxn"
+TestTab:AddSlider({
+    Title = "Test Slider",
+    Content = "Test slider content",
+    Increment = 1,
+    Min = 0,
+    Max = 100,
+    Default = 50,
+    Callback = function(value)
+        print("Test Slider:", value)
+    end
 })
 
-local FarmTab = Window:CreateTab({
-    Name = "Farm",
-    Icon = "rbxassetid://7733799901"
+TestTab:AddInput({
+    Title = "Test Input",
+    Content = "Test input content",
+    Default = "",
+    Callback = function(value)
+        print("Test Input:", value)
+    end
 })
 
-local MiscTab = Window:CreateTab({
-    Name = "Misc",
-    Icon = "rbxassetid://10723433811"
-})
-
-local TeleportTab = Window:CreateTab({
-    Name = "Teleport",
-    Icon = "rbxassetid://0987654321"
+TestTab:AddDropdown({
+    Title = "Test Dropdown",
+    Content = "Test dropdown content",
+    Multi = false,
+    Options = {"Option 1", "Option 2", "Option 3"},
+    Default = {"Option 1"},
+    Callback = function(selected)
+        print("Test Dropdown:", selected[1])
+    end
 })
