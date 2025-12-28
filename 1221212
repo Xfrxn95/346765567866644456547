@@ -9,42 +9,42 @@ local Window = Library:CreateWindow({
 
 local HomeTab = Window:CreateTab({
     Name = "Home",
-    Icon = "rbxassetid://7733911490"
+    Icon = "rbxassetid://7733911490" -- HOME (válido)
 })
 
 local MainTab = Window:CreateTab({
     Name = "Main",
-    Icon = "rbxassetid://7733799901"
+    Icon = "rbxassetid://7733799901" -- DASHBOARD
 })
 
 local FarmTab = Window:CreateTab({
     Name = "Farm",
-    Icon = "rbxassetid://7733800016"
+    Icon = "rbxassetid://7734053495" -- FARM / TOOLS
 })
 
 local PacksTab = Window:CreateTab({
     Name = "Packs Farm",
-    Icon = "rbxassetid://7733800125"
+    Icon = "rbxassetid://7733955511" -- BAG / PACKS
 })
 
 local MiscTab = Window:CreateTab({
     Name = "Misc",
-    Icon = "rbxassetid://10723433811"
+    Icon = "rbxassetid://10723433811" -- SETTINGS
 })
 
 local StatsTab = Window:CreateTab({
     Name = "Stats",
-    Icon = "rbxassetid://7733800234"
+    Icon = "rbxassetid://7733673987" -- STATS / CHART
 })
 
 local KillerTab = Window:CreateTab({
     Name = "Killer",
-    Icon = "rbxassetid://7733800346"
+    Icon = "rbxassetid://7733716840" -- SWORD / COMBAT
 })
 
 local TeleportTab = Window:CreateTab({
     Name = "Teleport",
-    Icon = "rbxassetid://7733800457"
+    Icon = "rbxassetid://7733954760" -- LOCATION / TELEPORT
 })
 
 Library:SetNotification({
