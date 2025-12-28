@@ -989,61 +989,34 @@ local StatsTab = Window:CreateTab({
     Icon = "rbxassetid://7733799901"
 })
 
-local SelectedPlayerName = ""
+StatsTab:AddParagraph({
+    Title = "Player Stats",
+    Content = "Select a player to view stats and combat info"
+})
 
--- Players list
-local playerOptions = {}
-for _, plr in ipairs(Players:GetPlayers()) do
-    table.insert(playerOptions, plr.DisplayName .. " | " .. plr.Name)
-end
+StatsTab:AddSeperator({
+    Title = "Player Selection"
+})
 
-StatsTab:AddDropdown({
-    Title = "Select Player",
-    Content = "Selecciona un jugador",
-    Multi = false,
-    Options = playerOptions,
-    Default = {},
-    Callback = function(selected)
-        SelectedPlayerName = selected[1] and selected[1]:match("| (.+)") or ""
+local selectedPlayer = nil
+local statsSection = nil
+
+local function GetPlayerNames()
+    local t = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        table.insert(t, p.Name)
     end
-})
-
--- MAIN PARAGRAPH (stats)
-local StatsParagraph = StatsTab:AddParagraph({
-    Title = "Player Statistics",
-    Content = "Selecciona un jugador"
-})
-
--- ADVANCED PARAGRAPH
-local AdvancedParagraph = StatsTab:AddParagraph({
-    Title = "Combat Info",
-    Content = "N/A"
-})
-
--- FORMAT FUNCTIONS
-local function commas(n)
-    return tostring(math.floor(n)):reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
+    return t
 end
 
-local function abbr(n)
-    local a = {"","K","M","B","T","Qa","Qi"}
-    local i = 1
-    while n >= 1000 and i < #a do
-        n /= 1000
-        i += 1
-    end
-    return string.format("%.2f", n) .. a[i]
-end
+-- ==== CALCULATIONS ====
 
-local function format(n)
-    return commas(n) .. " | " .. abbr(n)
-end
+local function enemyHealth(player)
+    local dura =
+        player:FindFirstChild("Durability")
+        or (player:FindFirstChild("leaderstats") and player.leaderstats:FindFirstChild("Durability"))
 
--- DAMAGE / HEALTH
-local function enemyHealth(plr)
-    local d = plr:FindFirstChild("Durability")
-        or (plr:FindFirstChild("leaderstats") and plr.leaderstats:FindFirstChild("Durability"))
-    return d and d.Value or 0
+    return dura and dura.Value or 0
 end
 
 local function localDamage()
@@ -1052,75 +1025,107 @@ local function localDamage()
     return ls.Strength.Value * 0.0667
 end
 
-local function hits(h, d)
+local function hitsToKill(h, d)
     if d <= 0 then return "∞" end
     return math.ceil(h / d)
 end
 
--- UPDATE LOOP (ESTABLE)
+-- ==== DISPLAY ====
+
+local function DisplayPlayerStats(player)
+    if statsSection then
+        statsSection:Destroy()
+    end
+
+    statsSection = StatsTab:AddSection("Stats for " .. player.Name, true)
+
+    statsSection:AddParagraph({
+        Title = "Player Info",
+        Content =
+            "Name: " .. player.Name ..
+            "\nUserId: " .. player.UserId
+    })
+
+    -- LEADERSTATS
+    if player:FindFirstChild("leaderstats") then
+        statsSection:AddSeperator({ Title = "Leaderstats" })
+
+        for _, stat in ipairs(player.leaderstats:GetChildren()) do
+            if stat:IsA("IntValue") or stat:IsA("NumberValue") then
+                statsSection:AddParagraph({
+                    Title = stat.Name,
+                    Content = tostring(stat.Value)
+                })
+            end
+        end
+    end
+
+    -- OTHER VALUES
+    local values = {}
+    for _, obj in ipairs(player:GetDescendants()) do
+        if obj:IsA("IntValue") or obj:IsA("NumberValue") then
+            if not (obj.Parent and obj.Parent.Name == "leaderstats") then
+                table.insert(values, obj)
+            end
+        end
+    end
+
+    if #values > 0 then
+        statsSection:AddSeperator({ Title = "Other Stats" })
+
+        for _, v in ipairs(values) do
+            statsSection:AddParagraph({
+                Title = v.Name,
+                Content = tostring(v.Value)
+            })
+        end
+    end
+
+    -- COMBAT INFO
+    statsSection:AddSeperator({ Title = "Combat Info" })
+
+    local h = enemyHealth(player)
+    local d = localDamage()
+
+    statsSection:AddParagraph({
+        Title = "Enemy Health",
+        Content = tostring(h)
+    })
+
+    statsSection:AddParagraph({
+        Title = "Your Damage",
+        Content = tostring(d)
+    })
+
+    statsSection:AddParagraph({
+        Title = "Hits To Kill",
+        Content = tostring(hitsToKill(h, d))
+    })
+end
+
+StatsTab:AddDropdown({
+    Title = "Select Player",
+    Content = "Choose a player",
+    Multi = false,
+    Options = GetPlayerNames(),
+    Default = {},
+    Callback = function(selected)
+        if selected and selected[1] then
+            local plr = Players:FindFirstChild(selected[1])
+            if plr then
+                selectedPlayer = plr
+                DisplayPlayerStats(plr)
+            end
+        end
+    end
+})
+
+-- REFRESH
 task.spawn(function()
-    while task.wait(0.4) do
-        if SelectedPlayerName == "" then
-            StatsParagraph:Set({
-                Title = "Player Statistics",
-                Content = "Selecciona un jugador"
-            })
-            AdvancedParagraph:Set({
-                Title = "Combat Info",
-                Content = "N/A"
-            })
-            continue
+    while task.wait(2) do
+        if selectedPlayer and selectedPlayer.Parent then
+            DisplayPlayerStats(selectedPlayer)
         end
-
-        local plr = Players:FindFirstChild(SelectedPlayerName)
-        if not plr then continue end
-
-        local lines = {}
-
-        if plr:FindFirstChild("Gems") then
-            table.insert(lines, "Gems: " .. format(plr.Gems.Value))
-        end
-        if plr:FindFirstChild("Agility") then
-            table.insert(lines, "Agility: " .. format(plr.Agility.Value))
-        end
-        if plr:FindFirstChild("Durability") then
-            table.insert(lines, "Durability: " .. format(plr.Durability.Value))
-        end
-        if plr:FindFirstChild("evilKarma") then
-            table.insert(lines, "Evil Karma: " .. format(plr.evilKarma.Value))
-        end
-        if plr:FindFirstChild("goodKarma") then
-            table.insert(lines, "Good Karma: " .. format(plr.goodKarma.Value))
-        end
-
-        local ls = plr:FindFirstChild("leaderstats")
-        if ls then
-            if ls:FindFirstChild("Strength") then
-                table.insert(lines, "Strength: " .. format(ls.Strength.Value))
-            end
-            if ls:FindFirstChild("Rebirths") then
-                table.insert(lines, "Rebirths: " .. format(ls.Rebirths.Value))
-            end
-            if ls:FindFirstChild("Kills") then
-                table.insert(lines, "Kills: " .. format(ls.Kills.Value))
-            end
-        end
-
-        StatsParagraph:Set({
-            Title = "Player Statistics",
-            Content = table.concat(lines, "\n")
-        })
-
-        local h = enemyHealth(plr)
-        local d = localDamage()
-
-        AdvancedParagraph:Set({
-            Title = "Combat Info",
-            Content =
-                "Enemy Health: " .. format(h) ..
-                "\nYour Damage: " .. format(d) ..
-                "\nHits To Kill: " .. tostring(hits(h, d))
-        })
     end
 end)
 
