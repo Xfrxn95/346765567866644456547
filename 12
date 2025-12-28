@@ -1,10 +1,10 @@
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/1NFERNO-HUB/Main/refs/heads/main/Settings/UI/1NFERNO_Library.lua"))()
 local Window = Library:CreateWindow({
-    Title = "Satan Crew",
-    Description = "Build A Boat Version",
+    Title = "Title",
+    Description = "Description",
     ["Tab Width"] = 120,
     SizeUi = UDim2.fromOffset(550, 315),
-    Image = "rbxassetid://105246306720943"
+    Image = "rbxassetid://136261556009916"
 })
 
 local TestTab = Window:CreateTab({
