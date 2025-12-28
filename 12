@@ -448,6 +448,10 @@ MainTab:AddToggle({
     end
 })
 
+MainTab:AddSeperator({
+    Title = "Error Mds"
+})
+
 local FarmTab = Window:CreateTab({
     Name = "Farm",
     Icon = "rbxassetid://7733799901"
@@ -672,58 +676,6 @@ ToolsSection:AddToggle({
                 task.wait(0.1)
             end
         end)
-    end
-})
-
-ToolsSection:AddToggle({
-    Title = "Auto Punch",
-    Content = "Golpea automáticamente",
-    Default = false,
-    Callback = function(Value)
-        _G.fastHitActive = Value
-        
-        if Value then
-            task.spawn(function()
-                while _G.fastHitActive do
-                    if not _G.fastHitActive then break end
-                    
-                    local player = game.Players.LocalPlayer
-                    local punch = player.Backpack:FindFirstChild("Punch")
-                    if punch then
-                        punch.Parent = player.Character
-                        if punch:FindFirstChild("attackTime") then
-                            punch.attackTime.Value = 0
-                        end
-                    end
-                    task.wait(0.1)
-                end
-            end)
-            
-            task.spawn(function()
-                while _G.fastHitActive do
-                    if not _G.fastHitActive then break end
-                    
-                    local player = game.Players.LocalPlayer
-                    player.muscleEvent:FireServer("punch", "rightHand")
-                    player.muscleEvent:FireServer("punch", "leftHand")
-                    
-                    local character = player.Character
-                    if character then
-                        local punchTool = character:FindFirstChild("Punch")
-                        if punchTool then
-                            punchTool:Activate()
-                        end
-                    end
-                    task.wait(0)
-                end
-            end)
-        else
-            local character = game.Players.LocalPlayer.Character
-            local equipped = character:FindFirstChild("Punch")
-            if equipped then
-                equipped.Parent = game.Players.LocalPlayer.Backpack
-            end
-        end
     end
 })
 
@@ -1019,10 +971,118 @@ local PacksTab = Window:CreateTab({
     Icon = "rbxassetid://7733799901"
 })
 
+
+
 local StatsTab = Window:CreateTab({
     Name = "Stats",
     Icon = "rbxassetid://7733799901"
 })
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local SelectedPlayerName = ""
+
+-- Lista de jugadores
+local playerOptions = {}
+for _, plr in ipairs(Players:GetPlayers()) do
+    table.insert(playerOptions, plr.DisplayName .. " | " .. plr.Name)
+end
+
+-- Dropdown en StatsTab
+StatsTab:AddDropdown({
+    Title = "Select Player Stats",
+    Content = "Selecciona un jugador",
+    Multi = false,
+    Options = playerOptions,
+    Default = {},
+    Callback = function(selected)
+        if selected[1] then
+            SelectedPlayerName = selected[1]:match("| (.+)")
+        else
+            SelectedPlayerName = ""
+        end
+    end
+})
+
+local StatsParagraph = StatsTab:AddParagraph({
+    Title = "Player Statistics",
+    Content = "Selecciona un jugador para ver estadísticas"
+})
+
+local function FormatNumberWithCommas(number)
+    local formatted = tostring(math.floor(number)):reverse():gsub("(%d%d%d)", "%1,"):reverse()
+    return formatted:gsub("^,", "")
+end
+
+local function FormatAbbreviated(number)
+    local abbr = {"", "K", "M", "B", "T", "Qa", "Qi"}
+    local i = 1
+    while number >= 1000 and i < #abbr do
+        number /= 1000
+        i += 1
+    end
+    return string.format("%.2f", number) .. abbr[i]
+end
+
+local function FormatDisplay(value)
+    return FormatNumberWithCommas(value) .. " | " .. FormatAbbreviated(value)
+end
+
+task.spawn(function()
+    while task.wait(0.3) do
+        if SelectedPlayerName == "" then
+            StatsParagraph:Set({
+                Title = "Player Statistics",
+                Content = "Selecciona un jugador para ver estadísticas"
+            })
+            continue
+        end
+
+        local player = Players:FindFirstChild(SelectedPlayerName)
+        if not player then continue end
+
+        local text = {}
+
+        if player:FindFirstChild("Gems") then
+            table.insert(text, "Gems: " .. FormatDisplay(player.Gems.Value))
+        end
+
+        if player:FindFirstChild("Agility") then
+            table.insert(text, "Agility: " .. FormatDisplay(player.Agility.Value))
+        end
+
+        if player:FindFirstChild("Durability") then
+            table.insert(text, "Durability: " .. FormatDisplay(player.Durability.Value))
+        end
+
+        if player:FindFirstChild("evilKarma") then
+            table.insert(text, "Evil Karma: " .. FormatDisplay(player.evilKarma.Value))
+        end
+
+        if player:FindFirstChild("goodKarma") then
+            table.insert(text, "Good Karma: " .. FormatDisplay(player.goodKarma.Value))
+        end
+
+        local leaderstats = player:FindFirstChild("leaderstats")
+        if leaderstats then
+            if leaderstats:FindFirstChild("Strength") then
+                table.insert(text, "Strength: " .. FormatDisplay(leaderstats.Strength.Value))
+            end
+            if leaderstats:FindFirstChild("Rebirths") then
+                table.insert(text, "Rebirths: " .. FormatDisplay(leaderstats.Rebirths.Value))
+            end
+            if leaderstats:FindFirstChild("Kills") then
+                table.insert(text, "Kills: " .. FormatDisplay(leaderstats.Kills.Value))
+            end
+        end
+
+        StatsParagraph:Set({
+            Title = "Player Statistics",
+            Content = table.concat(text, "\n")
+        })
+    end
+end)
 
 local MiscTab = Window:CreateTab({
     Name = "Misc",
