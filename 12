@@ -1,10 +1,10 @@
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/1NFERNO-HUB/Main/refs/heads/main/Settings/UI/1NFERNO_Library.lua"))()
 local Window = Library:CreateWindow({
-    Title = "Title",
-    Description = "Description",
+    Title = "Satan Crew",
+    Description = "Build A Boat Version",
     ["Tab Width"] = 120,
     SizeUi = UDim2.fromOffset(550, 315),
-    Image = "rbxassetid://129692939071021"
+    Image = "rbxassetid://105246306720943"
 })
 
 local TestTab = Window:CreateTab({
@@ -76,4 +76,41 @@ TestTab:AddDropdown({
     Callback = function(selected)
         print("Test Dropdown:", selected[1])
     end
+})
+local TestSection = TestTab:AddSection("Test Section", true)
+
+TestSection:AddButton({
+    Title = "Test Section Button",
+    Content = "Test section button content",
+    Callback = function()
+        print("Test Section Button Clicked")
+    end
+})
+
+TestSection:AddToggle({
+    Title = "Test Section Toggle",
+    Content = "Test section toggle content",
+    Default = false,
+    Callback = function(value)
+        print("Test Section Toggle:", value)
+    end
+})
+
+TestSection:AddDropdown({
+    Title = "Test Dropdown",
+    Content = "Test dropdown content",
+    Multi = false,
+    Options = {"Option 1", "Option 2", "Option 3"},
+    Default = {"Option 1"},
+    Callback = function(selected)
+        print("Test Dropdown:", selected[1])
+    end
+})
+
+Library:SetNotification({
+    Title = "Test Hub",
+    Description = "Loaded",
+    Content = "Test script loaded successfully",
+    Time = 0.5,
+    Delay = 3
 })
