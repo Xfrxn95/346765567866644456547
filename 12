@@ -985,32 +985,33 @@ local PacksTab = Window:CreateTab({
     Icon = "rbxassetid://7733955511"
 })
 
--- TAB
 local StatsTab = Window:CreateTab({
     Name = "Stats",
     Icon = "rbxassetid://10734950309"
 })
 
--- INFO
 StatsTab:AddParagraph({
-    Title = "Stats Viewer",
+    Title = "Stats Dashboard",
     Content = "Select a player to view live stats"
 })
 
-StatsTab:AddSeperator({ Title = "Player Selection" })
+StatsTab:AddSeperator({
+    Title = "Player Selection"
+})
 
--- PLAYER LIST
 local function GetPlayerOptions()
     local t = {}
     for _, plr in ipairs(Players:GetPlayers()) do
-        table.insert(t, plr.DisplayName .. " | " .. plr.Name)
+        table.insert(t, plr.DisplayName)
     end
     return t
 end
 
 local SelectedPlayer = nil
+local PreviousStats = {}
+local CumulativeGains = {}
+local SelectionTime = 0
 
--- DROPDOWN
 StatsTab:AddDropdown({
     Title = "Select Player",
     Content = "Choose a player",
@@ -1018,123 +1019,261 @@ StatsTab:AddDropdown({
     Options = GetPlayerOptions(),
     Default = {},
     Callback = function(sel)
+        SelectedPlayer = nil
+        PreviousStats = {}
+        CumulativeGains = {}
+        SelectionTime = 0
         if sel and sel[1] then
-            local name = sel[1]:match("| (.+)")
-            SelectedPlayer = Players:FindFirstChild(name)
-        else
-            SelectedPlayer = nil
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if plr.DisplayName == sel[1] then
+                    SelectedPlayer = plr
+                    SelectionTime = 0
+                    break
+                end
+            end
         end
     end
 })
 
--- FORMATTERS
-local function Format(num)
-    if not num then return "0" end
+local function FormatNumber(num)
+    if not num then return "0", "0" end
+    local real = tostring(math.floor(num)):reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
     local abs = math.abs(num)
     local suffix = {"","K","M","B","T","Qa","Qi"}
     local i = 1
     while abs >= 1000 and i < #suffix do
-        abs /= 1000
-        i += 1
+        abs = abs / 1000
+        i = i + 1
     end
-    return string.format("%.2f%s", abs, suffix[i])
+    local short = string.format("%.2f%s", abs, suffix[i])
+    return real, short
 end
 
--- SECTION
+local function FormatTime(seconds)
+    seconds = math.floor(seconds)
+    
+    local days = math.floor(seconds / 86400)
+    local hours = math.floor((seconds % 86400) / 3600)
+    local minutes = math.floor((seconds % 3600) / 60)
+    local secs = seconds % 60
+    
+    local parts = {}
+    
+    if days > 0 then
+        table.insert(parts, days .. " day" .. (days ~= 1 and "s" or ""))
+    end
+    if hours > 0 then
+        table.insert(parts, hours .. " hour" .. (hours ~= 1 and "s" or ""))
+    end
+    if minutes > 0 then
+        table.insert(parts, minutes .. " minute" .. (minutes ~= 1 and "s" or ""))
+    end
+    if secs > 0 or #parts == 0 then
+        table.insert(parts, secs .. " second" .. (secs ~= 1 and "s" or ""))
+    end
+    
+    if #parts == 1 then
+        return parts[1]
+    elseif #parts == 2 then
+        return parts[1] .. " and " .. parts[2]
+    else
+        return table.concat(parts, ", ", 1, #parts - 1) .. " and " .. parts[#parts]
+    end
+end
+
 local StatsSection = StatsTab:AddSection("Player Stats", true)
+local AllStatsP = StatsSection:AddParagraph({
+    Title = "Stats",
+    Content = "N/A"
+})
 
--- PARAGRAPHS
-local StrengthP   = StatsSection:AddParagraph({Title="Strength", Content="N/A"})
-local RebirthsP   = StatsSection:AddParagraph({Title="Rebirths", Content="N/A"})
-local KillsP      = StatsSection:AddParagraph({Title="Kills", Content="N/A"})
-local GemsP       = StatsSection:AddParagraph({Title="Gems", Content="N/A"})
-local DurabilityP = StatsSection:AddParagraph({Title="Durability", Content="N/A"})
-local AgilityP    = StatsSection:AddParagraph({Title="Agility", Content="N/A"})
-local EvilP       = StatsSection:AddParagraph({Title="Evil Karma", Content="N/A"})
-local GoodP       = StatsSection:AddParagraph({Title="Good Karma", Content="N/A"})
+local GainsP = StatsSection:AddParagraph({
+    Title = "Gains",
+    Content = "N/A"
+})
 
-StatsSection:AddSeperator({ Title = "Combat Stats" })
 
-local EnemyHealthP = StatsSection:AddParagraph({Title="Enemy Health", Content="N/A"})
-local DamageP      = StatsSection:AddParagraph({Title="Your Damage", Content="N/A"})
-local HitsP        = StatsSection:AddParagraph({Title="Hits To Kill", Content="N/A"})
-
--- CALCULATIONS
-local function GetEnemyHealth(plr)
-    if not plr then return 0 end
-    local dura = plr:FindFirstChild("Durability")
-    if not dura then return 0 end
-    return dura.Value * 1.2
-end
-
-local function GetLocalDamage()
-    local stats = LocalPlayer:FindFirstChild("leaderstats")
-    if not stats then return 0 end
-    local str = stats:FindFirstChild("Strength")
-    if not str then return 0 end
-    return str.Value * 0.0667
-end
-
-local function HitsToKill(health, dmg)
-    if dmg <= 0 then return "∞" end
-    local hits = math.ceil(health / dmg)
-    return hits > 50 and "∞" or hits
-end
-
--- UPDATE LOOP
 task.spawn(function()
     while task.wait(0.3) do
         if not SelectedPlayer then
-            StrengthP:Set({Content="N/A"})
-            RebirthsP:Set({Content="N/A"})
-            KillsP:Set({Content="N/A"})
-            GemsP:Set({Content="N/A"})
-            DurabilityP:Set({Content="N/A"})
-            AgilityP:Set({Content="N/A"})
-            EvilP:Set({Content="N/A"})
-            GoodP:Set({Content="N/A"})
-            EnemyHealthP:Set({Content="N/A"})
-            DamageP:Set({Content="N/A"})
-            HitsP:Set({Content="N/A"})
-            continue
-        end
-
-        local ls = SelectedPlayer:FindFirstChild("leaderstats")
-
-        if ls then
-            if ls:FindFirstChild("Strength") then
-                StrengthP:Set({Content = Format(ls.Strength.Value)})
+            AllStatsP:Set({
+                Title = "Stats",
+                Content = "Select a player"
+            })
+            GainsP:Set({
+                Title = "Gains",
+                Content = "Select a player"
+            })
+        else
+            SelectionTime = SelectionTime + 0.3
+            local timerDisplay = FormatTime(SelectionTime)
+            
+            local ls = SelectedPlayer:FindFirstChild("leaderstats")
+            local statsText = ""
+            local gainsText = ""
+            
+            if ls then
+                if ls:FindFirstChild("Strength") then
+                    local full, short = FormatNumber(ls.Strength.Value)
+                    statsText = statsText .. "Strength: " .. full .. " | " .. short .. "\n"
+                    
+                    if not PreviousStats.Strength then
+                        PreviousStats.Strength = ls.Strength.Value
+                        CumulativeGains.Strength = 0
+                    end
+                    
+                    local gain = ls.Strength.Value - PreviousStats.Strength
+                    if gain > 0 then
+                        CumulativeGains.Strength = CumulativeGains.Strength + gain
+                        PreviousStats.Strength = ls.Strength.Value
+                    end
+                    
+                    local gainFull, gainShort = FormatNumber(CumulativeGains.Strength)
+                    gainsText = gainsText .. "Strength: +" .. gainFull .. " | +" .. gainShort .. "\n"
+                end
+                if ls:FindFirstChild("Rebirths") then
+                    local full, short = FormatNumber(ls.Rebirths.Value)
+                    statsText = statsText .. "Rebirths: " .. full .. " | " .. short .. "\n"
+                    
+                    if not PreviousStats.Rebirths then
+                        PreviousStats.Rebirths = ls.Rebirths.Value
+                        CumulativeGains.Rebirths = 0
+                    end
+                    
+                    local gain = ls.Rebirths.Value - PreviousStats.Rebirths
+                    if gain > 0 then
+                        CumulativeGains.Rebirths = CumulativeGains.Rebirths + gain
+                        PreviousStats.Rebirths = ls.Rebirths.Value
+                    end
+                    
+                    local gainFull, gainShort = FormatNumber(CumulativeGains.Rebirths)
+                    gainsText = gainsText .. "Rebirths: +" .. gainFull .. " | +" .. gainShort .. "\n"
+                end
+                if ls:FindFirstChild("Kills") then
+                    local full, short = FormatNumber(ls.Kills.Value)
+                    statsText = statsText .. "Kills: " .. full .. " | " .. short .. "\n"
+                    
+                    if not PreviousStats.Kills then
+                        PreviousStats.Kills = ls.Kills.Value
+                        CumulativeGains.Kills = 0
+                    end
+                    
+                    local gain = ls.Kills.Value - PreviousStats.Kills
+                    if gain > 0 then
+                        CumulativeGains.Kills = CumulativeGains.Kills + gain
+                        PreviousStats.Kills = ls.Kills.Value
+                    end
+                    
+                    local gainFull, gainShort = FormatNumber(CumulativeGains.Kills)
+                    gainsText = gainsText .. "Kills: +" .. gainFull .. " | +" .. gainShort .. "\n"
+                end
             end
-            if ls:FindFirstChild("Rebirths") then
-                RebirthsP:Set({Content = Format(ls.Rebirths.Value)})
+
+            if SelectedPlayer:FindFirstChild("Gems") then
+                local full, short = FormatNumber(SelectedPlayer.Gems.Value)
+                statsText = statsText .. "Gems: " .. full .. " | " .. short .. "\n"
+                
+                if not PreviousStats.Gems then
+                    PreviousStats.Gems = SelectedPlayer.Gems.Value
+                    CumulativeGains.Gems = 0
+                end
+                
+                local gain = SelectedPlayer.Gems.Value - PreviousStats.Gems
+                if gain > 0 then
+                    CumulativeGains.Gems = CumulativeGains.Gems + gain
+                    PreviousStats.Gems = SelectedPlayer.Gems.Value
+                end
+                
+                local gainFull, gainShort = FormatNumber(CumulativeGains.Gems)
+                gainsText = gainsText .. "Gems: +" .. gainFull .. " | +" .. gainShort .. "\n"
             end
-            if ls:FindFirstChild("Kills") then
-                KillsP:Set({Content = Format(ls.Kills.Value)})
+            if SelectedPlayer:FindFirstChild("Durability") then
+                local full, short = FormatNumber(SelectedPlayer.Durability.Value)
+                statsText = statsText .. "Durability: " .. full .. " | " .. short .. "\n"
+                
+                if not PreviousStats.Durability then
+                    PreviousStats.Durability = SelectedPlayer.Durability.Value
+                    CumulativeGains.Durability = 0
+                end
+                
+                local gain = SelectedPlayer.Durability.Value - PreviousStats.Durability
+                if gain > 0 then
+                    CumulativeGains.Durability = CumulativeGains.Durability + gain
+                    PreviousStats.Durability = SelectedPlayer.Durability.Value
+                end
+                
+                local gainFull, gainShort = FormatNumber(CumulativeGains.Durability)
+                gainsText = gainsText .. "Durability: +" .. gainFull .. " | +" .. gainShort .. "\n"
             end
-        end
+            if SelectedPlayer:FindFirstChild("Agility") then
+                local full, short = FormatNumber(SelectedPlayer.Agility.Value)
+                statsText = statsText .. "Agility: " .. full .. " | " .. short .. "\n"
+                
+                if not PreviousStats.Agility then
+                    PreviousStats.Agility = SelectedPlayer.Agility.Value
+                    CumulativeGains.Agility = 0
+                end
+                
+                local gain = SelectedPlayer.Agility.Value - PreviousStats.Agility
+                if gain > 0 then
+                    CumulativeGains.Agility = CumulativeGains.Agility + gain
+                    PreviousStats.Agility = SelectedPlayer.Agility.Value
+                end
+                
+                local gainFull, gainShort = FormatNumber(CumulativeGains.Agility)
+                gainsText = gainsText .. "Agility: +" .. gainFull .. " | +" .. gainShort .. "\n"
+            end
+            if SelectedPlayer:FindFirstChild("evilKarma") then
+                local full, short = FormatNumber(SelectedPlayer.evilKarma.Value)
+                statsText = statsText .. "Evil Karma: " .. full .. " | " .. short .. "\n"
+                
+                if not PreviousStats.evilKarma then
+                    PreviousStats.evilKarma = SelectedPlayer.evilKarma.Value
+                    CumulativeGains.evilKarma = 0
+                end
+                
+                local gain = SelectedPlayer.evilKarma.Value - PreviousStats.evilKarma
+                if gain > 0 then
+                    CumulativeGains.evilKarma = CumulativeGains.evilKarma + gain
+                    PreviousStats.evilKarma = SelectedPlayer.evilKarma.Value
+                end
+                
+                local gainFull, gainShort = FormatNumber(CumulativeGains.evilKarma)
+                gainsText = gainsText .. "Evil Karma: +" .. gainFull .. " | +" .. gainShort .. "\n"
+            end
+            if SelectedPlayer:FindFirstChild("goodKarma") then
+                local full, short = FormatNumber(SelectedPlayer.goodKarma.Value)
+                statsText = statsText .. "Good Karma: " .. full .. " | " .. short
+                
+                if not PreviousStats.goodKarma then
+                    PreviousStats.goodKarma = SelectedPlayer.goodKarma.Value
+                    CumulativeGains.goodKarma = 0
+                end
+                
+                local gain = SelectedPlayer.goodKarma.Value - PreviousStats.goodKarma
+                if gain > 0 then
+                    CumulativeGains.goodKarma = CumulativeGains.goodKarma + gain
+                    PreviousStats.goodKarma = SelectedPlayer.goodKarma.Value
+                end
+                
+                local gainFull, gainShort = FormatNumber(CumulativeGains.goodKarma)
+                if gainsText ~= "" then
+                    gainsText = gainsText .. "Good Karma: +" .. gainFull .. " | +" .. gainShort
+                else
+                    gainsText = "Good Karma: +" .. gainFull .. " | +" .. gainShort
+                end
+            end
 
-        if SelectedPlayer:FindFirstChild("Gems") then
-            GemsP:Set({Content = Format(SelectedPlayer.Gems.Value)})
+            AllStatsP:Set({
+                Title = SelectedPlayer.DisplayName .. " | " .. timerDisplay,
+                Content = statsText
+            })
+            
+            GainsP:Set({
+                Title = "Gains | " .. timerDisplay,
+                Content = gainsText ~= "" and gainsText or "Waiting for gains..."
+            })
         end
-        if SelectedPlayer:FindFirstChild("Durability") then
-            DurabilityP:Set({Content = Format(SelectedPlayer.Durability.Value)})
-        end
-        if SelectedPlayer:FindFirstChild("Agility") then
-            AgilityP:Set({Content = Format(SelectedPlayer.Agility.Value)})
-        end
-        if SelectedPlayer:FindFirstChild("evilKarma") then
-            EvilP:Set({Content = Format(SelectedPlayer.evilKarma.Value)})
-        end
-        if SelectedPlayer:FindFirstChild("goodKarma") then
-            GoodP:Set({Content = Format(SelectedPlayer.goodKarma.Value)})
-        end
-
-        local hp = GetEnemyHealth(SelectedPlayer)
-        local dmg = GetLocalDamage()
-
-        EnemyHealthP:Set({Content = Format(hp)})
-        DamageP:Set({Content = Format(dmg)})
-        HitsP:Set({Content = tostring(HitsToKill(hp, dmg))})
     end
 end)
 
