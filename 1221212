@@ -39,7 +39,7 @@ local StatsTab = Window:CreateTab({
 
 local KillerTab = Window:CreateTab({
     Name = "Killer",
-    Icon = "rbxassetid://7733898300"
+    Icon = "rbxassetid://7733715976"
 })
 
 local TeleportTab = Window:CreateTab({
