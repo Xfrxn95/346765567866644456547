@@ -1,0 +1,177 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/1NFERNO-HUB/Main/refs/heads/main/Settings/UI/1NFERNO_Library.lua"))()
+local Window = Library:CreateWindow({
+    Title = "Satan Crew",
+    Description = "Muscle Legends Version",
+    ["Tab Width"] = 120,
+    SizeUi = UDim2.fromOffset(550, 315),
+    Image = "rbxassetid://136261556009916"
+})
+
+local StatsTab = Window:CreateTab({
+    Name = "Stats",
+    Icon = "rbxassetid://7733673987" -- STATS / CHART
+})
+
+-- SERVICES
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- INFO
+StatsTab:AddParagraph({
+    Title = "Stats Viewer",
+    Content = "Select a player to view live stats"
+})
+
+StatsTab:AddSeperator({ Title = "Player Selection" })
+
+-- PLAYER OPTIONS (DISPLAYNAME ONLY)
+local function GetPlayerOptions()
+    local t = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        table.insert(t, plr.DisplayName)
+    end
+    return t
+end
+
+local SelectedPlayer = nil
+
+-- DROPDOWN
+StatsTab:AddDropdown({
+    Title = "Select Player",
+    Content = "Choose a player",
+    Multi = false,
+    Options = GetPlayerOptions(),
+    Default = {},
+    Callback = function(sel)
+        SelectedPlayer = nil
+        if sel and sel[1] then
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if plr.DisplayName == sel[1] then
+                    SelectedPlayer = plr
+                    break
+                end
+            end
+        end
+    end
+})
+
+-- FORMAT FUNCTIONS
+local function FormatFull(num)
+    if not num then return "0" end
+    local real = tostring(num):reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
+    local abs = math.abs(num)
+    local suffix = {"","K","M","B","T","Qa","Qi"}
+    local i = 1
+    while abs >= 1000 and i < #suffix do
+        abs /= 1000
+        i += 1
+    end
+    local short = string.format("%.2f%s", abs, suffix[i])
+    return short .. " [" .. real .. "]"
+end
+
+-- SECTION
+local StatsSection = StatsTab:AddSection("Player Stats", true)
+
+-- PARAGRAPHS
+local StrengthP   = StatsSection:AddParagraph({Title="Strength", Content="N/A"})
+local RebirthsP   = StatsSection:AddParagraph({Title="Rebirths", Content="N/A"})
+local KillsP      = StatsSection:AddParagraph({Title="Kills", Content="N/A"})
+local GemsP       = StatsSection:AddParagraph({Title="Gems", Content="N/A"})
+local DurabilityP = StatsSection:AddParagraph({Title="Durability", Content="N/A"})
+local AgilityP    = StatsSection:AddParagraph({Title="Agility", Content="N/A"})
+local EvilP       = StatsSection:AddParagraph({Title="Evil Karma", Content="N/A"})
+local GoodP       = StatsSection:AddParagraph({Title="Good Karma", Content="N/A"})
+
+StatsSection:AddSeperator({ Title = "Combat Stats" })
+
+local EnemyHealthP = StatsSection:AddParagraph({Title="Enemy Health", Content="N/A"})
+local DamageP      = StatsSection:AddParagraph({Title="Your Damage", Content="N/A"})
+local HitsP        = StatsSection:AddParagraph({Title="Hits To Kill", Content="N/A"})
+
+-- CALCULATIONS
+local function GetEnemyHealth(plr)
+    if not plr then return 0 end
+    local dura = plr:FindFirstChild("Durability")
+    if not dura then return 0 end
+    return dura.Value * 1.2
+end
+
+local function GetLocalDamage()
+    local stats = LocalPlayer:FindFirstChild("leaderstats")
+    if not stats then return 0 end
+    local str = stats:FindFirstChild("Strength")
+    if not str then return 0 end
+    return str.Value * 0.0667
+end
+
+local function HitsToKill(health, dmg)
+    if dmg <= 0 then return "∞" end
+    local hits = math.ceil(health / dmg)
+    return hits > 50 and "∞" or hits
+end
+
+-- UPDATE LOOP
+task.spawn(function()
+    while task.wait(0.3) do
+        if not SelectedPlayer then
+            StrengthP:Set({Content="N/A"})
+            RebirthsP:Set({Content="N/A"})
+            KillsP:Set({Content="N/A"})
+            GemsP:Set({Content="N/A"})
+            DurabilityP:Set({Content="N/A"})
+            AgilityP:Set({Content="N/A"})
+            EvilP:Set({Content="N/A"})
+            GoodP:Set({Content="N/A"})
+            EnemyHealthP:Set({Content="N/A"})
+            DamageP:Set({Content="N/A"})
+            HitsP:Set({Content="N/A"})
+            continue
+        end
+
+        local ls = SelectedPlayer:FindFirstChild("leaderstats")
+
+        if ls then
+            if ls:FindFirstChild("Strength") then
+                StrengthP:Set({Content = FormatFull(ls.Strength.Value)})
+            end
+            if ls:FindFirstChild("Rebirths") then
+                RebirthsP:Set({Content = FormatFull(ls.Rebirths.Value)})
+            end
+            if ls:FindFirstChild("Kills") then
+                KillsP:Set({Content = FormatFull(ls.Kills.Value)})
+            end
+        end
+
+        if SelectedPlayer:FindFirstChild("Gems") then
+            GemsP:Set({Content = FormatFull(SelectedPlayer.Gems.Value)})
+        end
+        if SelectedPlayer:FindFirstChild("Durability") then
+            DurabilityP:Set({Content = FormatFull(SelectedPlayer.Durability.Value)})
+        end
+        if SelectedPlayer:FindFirstChild("Agility") then
+            AgilityP:Set({Content = FormatFull(SelectedPlayer.Agility.Value)})
+        end
+        if SelectedPlayer:FindFirstChild("evilKarma") then
+            EvilP:Set({Content = FormatFull(SelectedPlayer.evilKarma.Value)})
+        end
+        if SelectedPlayer:FindFirstChild("goodKarma") then
+            GoodP:Set({Content = FormatFull(SelectedPlayer.goodKarma.Value)})
+        end
+
+        local hp = GetEnemyHealth(SelectedPlayer)
+        local dmg = GetLocalDamage()
+
+        EnemyHealthP:Set({Content = FormatFull(hp)})
+        DamageP:Set({Content = FormatFull(dmg)})
+        HitsP:Set({Content = tostring(HitsToKill(hp, dmg))})
+    end
+end)
+
+Library:SetNotification({
+    Title = "Welcome",
+    Description = "Loaded",
+    Content = "The script loaded successfully",
+    Time = 0.5,
+    Delay = 3
+})
