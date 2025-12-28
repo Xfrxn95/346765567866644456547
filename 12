@@ -18,7 +18,7 @@ HomeTab:AddParagraph({
 })
 
 HomeTab:AddButton({
-    Title = "Discord Server",
+    Title = "Click me",
     Content = "Join our Discord server to receive future updates",
     Callback = function()
         if setclipboard then
@@ -30,9 +30,9 @@ HomeTab:AddButton({
 HomeTab:AddLine()
 
 HomeTab:AddParagraph({
-    Title = "Contributors",
+    Title = "Dev",
     Content = [[
-Isabella
+Sherya
 Discord : Miss.Sherya
 Roblox : MissSherya
 Tik Tok : xvisherys
@@ -48,14 +48,990 @@ Rafael
 ]]
 })
 
+HomeTab:AddSeperator({
+    Title = "SC On Top"
+})
+
+local MainTab = Window:CreateTab({
+    Name = "Main",
+    Icon = "rbxassetid://7733799901"
+})
+
+MainTab:AddSeperator({
+    Title = "Auto Brawls"
+})
+
+MainTab:AddToggle({
+    Title = "God Mode Brawl",
+    Content = "Join brawl repeatedly",
+    Default = false,
+    Callback = function(State)
+        godModeToggle = State
+
+        if State then
+            task.spawn(function()
+                while godModeToggle do
+                    game:GetService("ReplicatedStorage").rEvents.brawlEvent:FireServer("joinBrawl")
+                    task.wait(0)
+                end
+            end)
+        end
+    end
+})
+
+MainTab:AddToggle({
+    Title = "Auto Win Brawls",
+    Content = "Automatically win brawls",
+    Default = false,
+    Callback = function(bool)
+        getgenv().autoWinBrawl = bool
+
+        local function equipPunch()
+            if not getgenv().autoWinBrawl then return end
+            
+            local character = game.Players.LocalPlayer.Character
+            if not character then return false end
+            
+            if character:FindFirstChild("Punch") then return true end
+            
+            local backpack = game.Players.LocalPlayer.Backpack
+            if not backpack then return false end
+            
+            for _, tool in pairs(backpack:GetChildren()) do
+                if tool.ClassName == "Tool" and tool.Name == "Punch" then
+                    tool.Parent = character
+                    return true
+                end
+            end
+            return false
+        end
+        
+        local function isValidTarget(player)
+            if not player or not player.Parent then return false end
+            if player == Players.LocalPlayer then return false end
+            if whitelist[player.UserId] then return false end
+            
+            local character = player.Character
+            if not character or not character.Parent then return false end
+            
+            local humanoid = character:FindFirstChild("Humanoid")
+            if not humanoid then return false end
+            
+            if not humanoid.Health or humanoid.Health <= 0 then return false end
+            if humanoid:GetState() == Enum.HumanoidStateType.Dead then return false end
+            
+            local rootPart = character:FindFirstChild("HumanoidRootPart")
+            if not rootPart or not rootPart.Parent then return false end
+            
+            return true end
+        
+        local function isLocalPlayerReady()
+            local player = game.Players.LocalPlayer
+            if not player then return false end
+            
+            local character = player.Character
+            if not character or not character.Parent then return false end
+            
+            local humanoid = character:FindFirstChild("Humanoid")
+            if not humanoid or humanoid.Health <= 0 then return false end
+            
+            local leftHand = character:FindFirstChild("LeftHand")
+            local rightHand = character:FindFirstChild("RightHand")
+            
+            return (leftHand ~= nil or rightHand ~= nil)
+        end
+        
+        local function safeTouchInterest(targetPart, localPart)
+            if not targetPart or not targetPart.Parent then return false end
+            if not localPart or not localPart.Parent then return false end
+            
+            local success = pcall(function()
+                firetouchinterest(targetPart, localPart, 0)
+                task.wait(0.01)
+                firetouchinterest(targetPart, localPart, 1)
+            end)
+            
+            return success
+        end
+        
+        task.spawn(function()
+            while getgenv().autoWinBrawl and task.wait(0.5) do
+                if game.Players.LocalPlayer.PlayerGui.gameGui.brawlJoinLabel.Visible then
+                    game.ReplicatedStorage.rEvents.brawlEvent:FireServer("joinBrawl")
+                    game.Players.LocalPlayer.PlayerGui.gameGui.brawlJoinLabel.Visible = false
+                end
+            end
+        end)
+        
+        task.spawn(function()
+            while getgenv().autoWinBrawl and task.wait(0.5) do
+                equipPunch()
+            end
+        end)
+        
+        task.spawn(function()
+            while getgenv().autoWinBrawl and task.wait(0.1) do
+                if isLocalPlayerReady() and game.ReplicatedStorage.brawlInProgress.Value then
+                    local player = game.Players.LocalPlayer
+                    pcall(function() player.muscleEvent:FireServer("punch", "rightHand") end)
+                    pcall(function() player.muscleEvent:FireServer("punch", "leftHand") end)
+                end
+            end
+        end)
+        
+        task.spawn(function()
+            while getgenv().autoWinBrawl and task.wait(0.05) do
+                if isLocalPlayerReady() and game.ReplicatedStorage.brawlInProgress.Value then
+                    local character = game.Players.LocalPlayer.Character
+                    local leftHand = character:FindFirstChild("LeftHand")
+                    local rightHand = character:FindFirstChild("RightHand")
+                    
+                    for _, player in pairs(Players:GetPlayers()) do
+                        pcall(function()
+                            if isValidTarget(player) then
+                                local targetRoot = player.Character.HumanoidRootPart
+                                if leftHand then safeTouchInterest(targetRoot, leftHand) end
+                                if rightHand then safeTouchInterest(targetRoot, rightHand) end
+                            end
+                        end)
+                        task.wait(0.01)
+                    end
+                end
+            end
+        end)
+        
+        task.spawn(function()
+            local lastPlayerCount = 0
+            local stuckCounter = 0
+            
+            while getgenv().autoWinBrawl and task.wait(1) do
+                local currentPlayerCount = #Players:GetPlayers()
+                
+                if currentPlayerCount ~= lastPlayerCount then
+                    stuckCounter = 0
+                    lastPlayerCount = currentPlayerCount
+                else
+                    stuckCounter += 1
+                    if stuckCounter > 5 then
+                        stuckCounter = 0
+                        pcall(function()
+                            local character = game.Players.LocalPlayer.Character
+                            if character and character:FindFirstChild("Punch") then
+                                character.Punch.Parent = game.Players.LocalPlayer.Backpack
+                                task.wait(0.1)
+                                equipPunch()
+                            else
+                                equipPunch()
+                            end
+                        end)
+                    end
+                end
+            end
+        end)
+    end
+})
+
+MainTab:AddToggle({
+    Title = "Auto Join Brawls",
+    Content = "Automatically join brawls",
+    Default = false,
+    Callback = function(bool)
+        getgenv().autoJoinBrawl = bool
+
+        if bool then
+            task.spawn(function()
+                while getgenv().autoJoinBrawl and task.wait(0.5) do
+                    pcall(function()
+                        if game.Players.LocalPlayer.PlayerGui.gameGui.brawlJoinLabel.Visible then
+                            game.ReplicatedStorage.rEvents.brawlEvent:FireServer("joinBrawl")
+                            game.Players.LocalPlayer.PlayerGui.gameGui.brawlJoinLabel.Visible = false
+                        end
+                    end)
+                end
+            end)
+        end
+    end
+})
+
+MainTab:AddSeperator({
+    Title = "OP Things Farm"
+})
+
+MainTab:AddToggle({
+    Title = "Lock Position",
+    Content = "Locks your current position",
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            local currentPos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+            getgenv().posLock = game:GetService("RunService").Heartbeat:Connect(function()
+                if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = currentPos
+                end
+            end)
+        else
+            if getgenv().posLock then
+                getgenv().posLock:Disconnect()
+                getgenv().posLock = nil
+            end
+        end
+    end
+})
+
+MainTab:AddToggle({
+    Title = "Anti Knockback",
+    Content = "Prevents knockback force",
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            local playerName = game.Players.LocalPlayer.Name
+            local rootPart = game.Workspace:FindFirstChild(playerName):FindFirstChild("HumanoidRootPart")
+            local bodyVelocity = Instance.new("BodyVelocity")
+            bodyVelocity.MaxForce = Vector3.new(100000, 0, 100000)
+            bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+            bodyVelocity.P = 1250
+            bodyVelocity.Parent = rootPart
+        else
+            local playerName = game.Players.LocalPlayer.Name
+            local rootPart = game.Workspace:FindFirstChild(playerName):FindFirstChild("HumanoidRootPart")
+            local existingVelocity = rootPart:FindFirstChild("BodyVelocity")
+            if existingVelocity and existingVelocity.MaxForce == Vector3.new(100000, 0, 100000) then
+                existingVelocity:Destroy()
+            end
+        end
+    end
+})
+
+MainTab:AddToggle({
+    Title = "Delete All Frames",
+    Content = "Deletes all Frame objects",
+    Default = false,
+    Callback = function(state)
+        local rSto = game:GetService("ReplicatedStorage")
+        for _, obj in pairs(rSto:GetChildren()) do
+            if obj.Name:match("Frame$") and obj:IsA("GuiObject") then
+                if state then
+                    obj:Destroy()
+                end
+            end
+        end
+    end
+})
+
+MainTab:AddToggle({
+    Title = "Anti AFK UI",
+    Content = "Prevents being kicked for AFK",
+    Default = false,
+    Callback = function(state)
+        if state then
+            
+            if getgenv().AntiAfkExecuted and thisoneissocoldww then 
+                getgenv().AntiAfkExecuted = false
+                getgenv().zamanbaslaticisi = false
+                game.CoreGui.thisoneissocoldww:Destroy()
+            end
+            getgenv().AntiAfkExecuted = true
+
+            local thisoneissocoldww = Instance.new("ScreenGui")
+            local madebybloodofbatus = Instance.new("Frame")
+            local UICornerw = Instance.new("UICorner")
+            local DestroyButton = Instance.new("TextButton")
+            local uselesslabelone = Instance.new("TextLabel")
+            local timerlabel = Instance.new("TextLabel")
+            local uselesslabeltwo = Instance.new("TextLabel")
+            local fpslabel = Instance.new("TextLabel")
+            local uselesslabelthree = Instance.new("TextLabel")
+            local pinglabel = Instance.new("TextLabel")
+            local uselessframeone = Instance.new("Frame")
+            local UICornerww = Instance.new("UICorner")
+            local uselesslabelfour = Instance.new("TextLabel")
+
+            thisoneissocoldww.Name = "thisoneissocoldww"
+            thisoneissocoldww.Parent = game.CoreGui
+            thisoneissocoldww.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+            madebybloodofbatus.Parent = thisoneissocoldww
+            madebybloodofbatus.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+            madebybloodofbatus.Position = UDim2.new(0.085,0,0.13,0)
+            madebybloodofbatus.Size = UDim2.new(0,225,0,96)
+            UICornerw.Parent = madebybloodofbatus
+
+            DestroyButton.Parent = madebybloodofbatus
+            DestroyButton.BackgroundTransparency = 1
+            DestroyButton.Position = UDim2.new(0.87,0,0.02,0)
+            DestroyButton.Size = UDim2.new(0,27,0,15)
+            DestroyButton.Text = "X"
+            DestroyButton.TextColor3 = Color3.fromRGB(255,255,255)
+            DestroyButton.TextSize = 14
+            DestroyButton.MouseButton1Click:Connect(function()
+                getgenv().AntiAfkExecuted = false
+                wait(0.1)
+                thisoneissocoldww:Destroy()
+            end)
+
+            uselesslabelone.Parent = madebybloodofbatus
+            uselesslabelone.BackgroundTransparency = 1
+            uselesslabelone.Position = UDim2.new(0.3,0,0,0)
+            uselesslabelone.Size = UDim2.new(0,95,0,24)
+            uselesslabelone.Text = "Anti AFK V2 By Sherya"
+            uselesslabelone.TextColor3 = Color3.fromRGB(255,255,255)
+            uselesslabelone.TextSize = 14
+
+            timerlabel.Parent = madebybloodofbatus
+            timerlabel.BackgroundTransparency = 1
+            timerlabel.Position = UDim2.new(0.65,0,0.68,0)
+            timerlabel.Size = UDim2.new(0,60,0,24)
+            timerlabel.Text = "0:0:0"
+            timerlabel.TextColor3 = Color3.fromRGB(255,255,255)
+            timerlabel.TextSize = 14
+
+            uselesslabeltwo.Parent = madebybloodofbatus
+            uselesslabeltwo.BackgroundTransparency = 1
+            uselesslabeltwo.Position = UDim2.new(0.03,0,0.37,0)
+            uselesslabeltwo.Size = UDim2.new(0,29,0,24)
+            uselesslabeltwo.Text = "Ping: "
+            uselesslabeltwo.TextColor3 = Color3.fromRGB(255,255,255)
+            uselesslabeltwo.TextSize = 14
+
+            fpslabel.Parent = madebybloodofbatus
+            fpslabel.BackgroundTransparency = 1
+            fpslabel.Position = UDim2.new(0.72,0,0.35,0)
+            fpslabel.Size = UDim2.new(0,55,0,24)
+            fpslabel.Text = "0"
+            fpslabel.TextColor3 = Color3.fromRGB(255,255,255)
+            fpslabel.TextSize = 14
+
+            uselesslabelthree.Parent = madebybloodofbatus
+            uselesslabelthree.BackgroundTransparency = 1
+            uselesslabelthree.Position = UDim2.new(0.5,0,0.35,0)
+            uselesslabelthree.Size = UDim2.new(0,26,0,24)
+            uselesslabelthree.Text = "Fps: "
+            uselesslabelthree.TextColor3 = Color3.fromRGB(255,255,255)
+            uselesslabelthree.TextSize = 14
+
+            pinglabel.Parent = madebybloodofbatus
+            pinglabel.BackgroundTransparency = 1
+            pinglabel.Position = UDim2.new(0.2,0,0.37,0)
+            pinglabel.Size = UDim2.new(0,55,0,24)
+            pinglabel.Text = "0"
+            pinglabel.TextColor3 = Color3.fromRGB(255,255,255)
+            pinglabel.TextSize = 14
+
+            uselessframeone.Parent = madebybloodofbatus
+            uselessframeone.BackgroundColor3 = Color3.fromRGB(255,255,255)
+            uselessframeone.Position = UDim2.new(0.004,0,0.24,0)
+            uselessframeone.Size = UDim2.new(0,224,0,5)
+            UICornerww.CornerRadius = UDim.new(0,50)
+            UICornerww.Parent = uselessframeone
+
+            uselesslabelfour.Parent = madebybloodofbatus
+            uselesslabelfour.BackgroundTransparency = 1
+            uselesslabelfour.Position = UDim2.new(0.05,0,0.81,0)
+            uselesslabelfour.Size = UDim2.new(0,95,0,12)
+            uselesslabelfour.Text = "Anti-Afk Auto Enabled"
+            uselesslabelfour.TextColor3 = Color3.fromRGB(255,255,255)
+            uselesslabelfour.TextSize = 14
+
+            local vu = game:GetService("VirtualUser")
+            game.Players.LocalPlayer.Idled:Connect(function()
+                vu:CaptureController()
+                vu:ClickButton2(Vector2.new())
+            end)
+
+        else
+            getgenv().AntiAfkExecuted = false
+            getgenv().zamanbaslaticisi = false
+            if game.CoreGui:FindFirstChild("thisoneissocoldww") then
+                game.CoreGui.thisoneissocoldww:Destroy()
+            end
+        end
+    end
+})
+
 local FarmTab = Window:CreateTab({
     Name = "Farm",
+    Icon = "rbxassetid://7733799901"
+})
+
+local RocksSection = FarmTab:AddSection("Auto Rock", true)
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+
+local function AddAutoPunchRock(title, rockName, delay)
+    local enabled = false
+
+    RocksSection:AddToggle({
+        Title = title,
+        Content = title,
+        Default = false,
+        Callback = function(state)
+            enabled = state
+
+            if enabled then
+                task.spawn(function()
+                    while enabled do
+                        local rock
+                        
+                        if tonumber(rockName) then
+                            rock = Workspace.machinesFolder:GetChildren()[tonumber(rockName)]
+                        else
+                            rock = Workspace.machinesFolder:FindFirstChild(rockName)
+                        end
+
+                        if rock and rock:FindFirstChild("Rock")
+                        and LocalPlayer.Character
+                        and LocalPlayer.Character:FindFirstChild("LeftHand") then
+                            firetouchinterest(rock.Rock, LocalPlayer.Character.LeftHand, 0)
+                            task.wait(delay)
+                            firetouchinterest(rock.Rock, LocalPlayer.Character.LeftHand, 1)
+                        end
+
+                        RunService.Heartbeat:Wait()
+                    end
+                end)
+            end
+        end
+    })
+end
+
+AddAutoPunchRock("Auto Punch Tiny Rock (0)", "Tiny Rock", 0.01)
+AddAutoPunchRock("Auto Punch Punching Rock (10)", "Punching Rock", 0.01)
+AddAutoPunchRock("Auto Punch Large Rock (100)", "Large Rock", 0.01)
+AddAutoPunchRock("Auto Punch Golden Rock (5K)", "Golden Rock", 0.01)
+AddAutoPunchRock("Auto Punch Frozen Rock (150K)", "Frozen Rock", 0.01)
+AddAutoPunchRock("Auto Punch Mystic Rock (400K)", "Mystic Rock", 0.01)
+AddAutoPunchRock("Auto Punch Inferno Rock (750K)", "Inferno Rock", 0.01)
+AddAutoPunchRock("Auto Punch Rock Of Legends (1M)", "Rock Of Legends", 0.01)
+AddAutoPunchRock("Auto Punch Muscle King Rock (5M)", "Muscle King Mountain", 0.0001)
+AddAutoPunchRock("Auto Punch Jungle Rock (10M)", "Ancient Jungle Rock", 0.0001)
+
+RocksSection:AddToggle({
+    Title = "Auto Punch",
+    Content = "Automatically punch",
+    Default = false,
+    Callback = function(state)
+        _G.autopunch = state
+
+        if state then
+            local connection
+            connection = RunService.Heartbeat:Connect(function()
+                if not _G.autopunch then
+                    connection:Disconnect()
+                    return
+                end
+
+                local char = LocalPlayer.Character
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+
+                if hum then
+                    local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
+                    if punchTool then hum:EquipTool(punchTool) end
+
+                    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+                end
+            end)
+        end
+    end
+})
+
+local ToolsSection = FarmTab:AddSection("Auto Tools", true)
+
+ToolsSection:AddButton({
+    Title = "Gamepass AutoLift",
+    Content = "Desbloquea el gamepass de AutoLift gratis",
+    Callback = function()
+        local gamepassFolder = game:GetService("ReplicatedStorage").gamepassIds
+        local player = game:GetService("Players").LocalPlayer
+        for _, gamepass in pairs(gamepassFolder:GetChildren()) do
+            local value = Instance.new("IntValue")
+            value.Name = gamepass.Name
+            value.Value = gamepass.Value
+            value.Parent = player.ownedGamepasses
+        end
+    end
+})
+
+ToolsSection:AddToggle({
+    Title = "Auto Weight",
+    Content = "Levanta pesas automáticamente",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoWeight = Value
+        
+        if Value then
+            local weightTool = game.Players.LocalPlayer.Backpack:FindFirstChild("Weight")
+            if weightTool then
+                game.Players.LocalPlayer.Character.Humanoid:EquipTool(weightTool)
+            end
+        else
+            local character = game.Players.LocalPlayer.Character
+            local equipped = character:FindFirstChild("Weight")
+            if equipped then
+                equipped.Parent = game.Players.LocalPlayer.Backpack
+            end
+        end
+        
+        task.spawn(function()
+            while _G.AutoWeight do
+                if not _G.AutoWeight then break end
+                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+                task.wait(0.1)
+            end
+        end)
+    end
+})
+
+ToolsSection:AddToggle({
+    Title = "Auto Pushups",
+    Content = "Haz flexiones automáticamente",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoPushups = Value
+        
+        if Value then
+            local pushupsTool = game.Players.LocalPlayer.Backpack:FindFirstChild("Pushups")
+            if pushupsTool then
+                game.Players.LocalPlayer.Character.Humanoid:EquipTool(pushupsTool)
+            end
+        else
+            local character = game.Players.LocalPlayer.Character
+            local equipped = character:FindFirstChild("Pushups")
+            if equipped then
+                equipped.Parent = game.Players.LocalPlayer.Backpack
+            end
+        end
+        
+        task.spawn(function()
+            while _G.AutoPushups do
+                if not _G.AutoPushups then break end
+                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+                task.wait(0.1)
+            end
+        end)
+    end
+})
+
+ToolsSection:AddToggle({
+    Title = "Auto Handstands",
+    Content = "Haz paradas de manos automáticamente",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoHandstands = Value
+        
+        if Value then
+            local handstandsTool = game.Players.LocalPlayer.Backpack:FindFirstChild("Handstands")
+            if handstandsTool then
+                game.Players.LocalPlayer.Character.Humanoid:EquipTool(handstandsTool)
+            end
+        else
+            local character = game.Players.LocalPlayer.Character
+            local equipped = character:FindFirstChild("Handstands")
+            if equipped then
+                equipped.Parent = game.Players.LocalPlayer.Backpack
+            end
+        end
+        
+        task.spawn(function()
+            while _G.AutoHandstands do
+                if not _G.AutoHandstands then break end
+                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+                task.wait(0.1)
+            end
+        end)
+    end
+})
+
+ToolsSection:AddToggle({
+    Title = "Auto Situps",
+    Content = "Haz abdominales automáticamente",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoSitups = Value
+        
+        if Value then
+            local situpsTool = game.Players.LocalPlayer.Backpack:FindFirstChild("Situps")
+            if situpsTool then
+                game.Players.LocalPlayer.Character.Humanoid:EquipTool(situpsTool)
+            end
+        else
+            local character = game.Players.LocalPlayer.Character
+            local equipped = character:FindFirstChild("Situps")
+            if equipped then
+                equipped.Parent = game.Players.LocalPlayer.Backpack
+            end
+        end
+        
+        task.spawn(function()
+            while _G.AutoSitups do
+                if not _G.AutoSitups then break end
+                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+                task.wait(0.1)
+            end
+        end)
+    end
+})
+
+ToolsSection:AddToggle({
+    Title = "Auto Punch",
+    Content = "Golpea automáticamente",
+    Default = false,
+    Callback = function(Value)
+        _G.fastHitActive = Value
+        
+        if Value then
+            task.spawn(function()
+                while _G.fastHitActive do
+                    if not _G.fastHitActive then break end
+                    
+                    local player = game.Players.LocalPlayer
+                    local punch = player.Backpack:FindFirstChild("Punch")
+                    if punch then
+                        punch.Parent = player.Character
+                        if punch:FindFirstChild("attackTime") then
+                            punch.attackTime.Value = 0
+                        end
+                    end
+                    task.wait(0.1)
+                end
+            end)
+            
+            task.spawn(function()
+                while _G.fastHitActive do
+                    if not _G.fastHitActive then break end
+                    
+                    local player = game.Players.LocalPlayer
+                    player.muscleEvent:FireServer("punch", "rightHand")
+                    player.muscleEvent:FireServer("punch", "leftHand")
+                    
+                    local character = player.Character
+                    if character then
+                        local punchTool = character:FindFirstChild("Punch")
+                        if punchTool then
+                            punchTool:Activate()
+                        end
+                    end
+                    task.wait(0)
+                end
+            end)
+        else
+            local character = game.Players.LocalPlayer.Character
+            local equipped = character:FindFirstChild("Punch")
+            if equipped then
+                equipped.Parent = game.Players.LocalPlayer.Backpack
+            end
+        end
+    end
+})
+
+ToolsSection:AddToggle({
+    Title = "Fast Tools",
+    Content = "Acelera todas las herramientas",
+    Default = false,
+    Callback = function(Value)
+        _G.FastTools = Value
+        
+        local defaultSpeeds = {
+            {"Punch","attackTime",Value and 0 or 0.35},
+            {"Ground Slam","attackTime",Value and 0 or 6},
+            {"Stomp","attackTime",Value and 0 or 7},
+            {"Handstands","repTime",Value and 0 or 1},
+            {"Pushups","repTime",Value and 0 or 1},
+            {"Weight","repTime",Value and 0 or 1},
+            {"Situps","repTime",Value and 0 or 1}
+        }
+        
+        local player = game.Players.LocalPlayer
+        local backpack = player:WaitForChild("Backpack")
+        
+        for _, toolInfo in ipairs(defaultSpeeds) do
+            local tool = backpack:FindFirstChild(toolInfo[1])
+            if tool and tool:FindFirstChild(toolInfo[2]) then
+                tool[toolInfo[2]].Value = toolInfo[3]
+            end
+            
+            local equippedTool = player.Character and player.Character:FindFirstChild(toolInfo[1])
+            if equippedTool and equippedTool:FindFirstChild(toolInfo[2]) then
+                equippedTool[toolInfo[2]].Value = toolInfo[3]
+            end
+        end
+    end
+})
+
+local ToolsCombinedSection = FarmTab:AddSection("Auto Tools Combined", true)
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+local function AddAutoTool(title, toolName, rockName, delay)
+    local enabled = false
+
+    local function Equip()
+        local bp = LocalPlayer:FindFirstChild("Backpack")
+        local tool = bp and bp:FindFirstChild(toolName)
+        if tool and not LocalPlayer.Character:FindFirstChild(toolName) then
+            LocalPlayer.Character.Humanoid:EquipTool(tool)
+        end
+    end
+
+    local function Unequip()
+        local char = LocalPlayer.Character
+        local tool = char and char:FindFirstChild(toolName)
+        if tool then
+            tool.Parent = LocalPlayer.Backpack
+        end
+    end
+
+    ToolsCombinedSection:AddToggle({
+        Title = title,
+        Content = "Auto " .. toolName .. " + Auto Punch Rock",
+        Default = false,
+        Callback = function(state)
+            enabled = state
+
+            if enabled then
+                Equip()
+                _G.autopunch = true
+
+                task.spawn(function()
+                    while enabled do
+                        LocalPlayer.muscleEvent:FireServer("rep")
+
+                        local rock = workspace.machinesFolder:FindFirstChild(rockName)
+                        if rock and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("LeftHand") then
+                            firetouchinterest(rock.Rock, LocalPlayer.Character.LeftHand, 0)
+                            task.wait(delay)
+                            firetouchinterest(rock.Rock, LocalPlayer.Character.LeftHand, 1)
+                        end
+
+                        local char = LocalPlayer.Character
+                        local hum = char and char:FindFirstChildOfClass("Humanoid")
+                        if hum then
+                            local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch")
+                            if punchTool then
+                                hum:EquipTool(punchTool)
+                            end
+                            LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                            LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+                        end
+
+                        RunService.RenderStepped:Wait()
+                        Equip()
+                    end
+                end)
+            else
+                _G.autopunch = false
+                Unequip()
+            end
+        end
+    })
+
+    LocalPlayer.CharacterAdded:Connect(function()
+        if enabled then
+            Equip()
+        else
+            Unequip()
+        end
+    end)
+end
+
+AddAutoTool("Auto Pushups + Auto Punch Rock", "Pushups", "Ancient Jungle Rock", 0.0001)
+AddAutoTool("Auto Situps + Auto Punch Rock", "Situps", "Ancient Jungle Rock", 0.0001)
+AddAutoTool("Auto Handstands + Auto Punch Rock", "Handstands", "Ancient Jungle Rock", 0.0001)
+AddAutoTool("Auto Weight + Auto Punch Rock", "Weight", "Ancient Jungle Rock", 0.0001)
+
+local AutoRebirthSection = FarmTab:AddSection("Auto Rebirth", true)
+
+AutoRebirthSection:AddInput({
+    Title = "Rebirth Target",
+    Content = "Cantidad objetivo de renacimientos",
+    Default = "",
+    Callback = function(text)
+        local newValue = tonumber(text)
+        if newValue and newValue > 0 then
+            targetRebirthValue = newValue
+            updateStats()
+
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Objetivo Actualizado",
+                Text = "Nuevo objetivo: " .. tostring(targetRebirthValue) .. " renacimientos",
+                Duration = 0
+            })
+        else
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Entrada Inválida",
+                Text = "Ingresa un número válido mayor que 0",
+                Duration = 0
+            })
+        end
+    end
+})
+
+local infiniteEnabled = false
+local targetEnabled = false
+
+AutoRebirthSection:AddToggle({
+    Title = "Auto Rebirth Target",
+    Content = "Renace hasta alcanzar el objetivo",
+    Default = false,
+    Callback = function(bool)
+        targetEnabled = bool
+        _G.targetRebirthActive = bool
+
+        if bool then
+            _G.infiniteRebirthActive = false
+            infiniteEnabled = false
+
+            task.spawn(function()
+                while _G.targetRebirthActive do
+                    task.wait(0.1)
+
+                    local currentRebirths =
+                        game.Players.LocalPlayer.leaderstats.Rebirths.Value
+
+                    if currentRebirths >= targetRebirthValue then
+                        _G.targetRebirthActive = false
+                        targetEnabled = false
+
+                        game:GetService("StarterGui"):SetCore("SendNotification", {
+                            Title = "¡Objetivo Alcanzado!",
+                            Text = "Has alcanzado " .. tostring(targetRebirthValue) .. " renacimientos",
+                            Duration = 5
+                        })
+                        break
+                    end
+
+                    game:GetService("ReplicatedStorage")
+                        .rEvents.rebirthRemote:InvokeServer("rebirthRequest")
+                end
+            end)
+        end
+    end
+})
+
+AutoRebirthSection:AddToggle({
+    Title = "Auto Rebirth (Infinite)",
+    Content = "Renacimiento infinito sin parar",
+    Default = false,
+    Callback = function(bool)
+        infiniteEnabled = bool
+        _G.infiniteRebirthActive = bool
+
+        if bool then
+            _G.targetRebirthActive = false
+            targetEnabled = false
+
+            task.spawn(function()
+                while _G.infiniteRebirthActive do
+                    task.wait(0.1)
+                    game:GetService("ReplicatedStorage")
+                        .rEvents.rebirthRemote:InvokeServer("rebirthRequest")
+                end
+            end)
+        end
+    end
+})
+
+AutoRebirthSection:AddToggle({
+    Title = "Auto Size 1",
+    Content = "Fija el tamaño a 1 constantemente",
+    Default = false,
+    Callback = function(bool)
+        _G.autoSizeActive = bool
+
+        if bool then
+            task.spawn(function()
+                while _G.autoSizeActive do
+                    task.wait()
+                    game:GetService("ReplicatedStorage")
+                        .rEvents.changeSpeedSizeRemote:InvokeServer("changeSize", 1)
+                end
+            end)
+        end
+    end
+})
+
+AutoRebirthSection:AddToggle({
+    Title = "Auto Size 2",
+    Content = "Fija el tamaño a 2 constantemente",
+    Default = false,
+    Callback = function(bool)
+        _G.autoSizeActive = bool
+
+        if bool then
+            task.spawn(function()
+                while _G.autoSizeActive do
+                    task.wait()
+                    game:GetService("ReplicatedStorage")
+                        .rEvents.changeSpeedSizeRemote:InvokeServer("changeSize", 2)
+                end
+            end)
+        end
+    end
+})
+
+AutoRebirthSection:AddToggle({
+    Title = "Auto Teleport King",
+    Content = "Teletransporta al Rey constantemente",
+    Default = false,
+    Callback = function(state)
+        _G.SafeZone = state
+
+        if state then
+            task.spawn(function()
+                while _G.SafeZone do
+                    task.wait(0.001)
+                    local char = game.Players.LocalPlayer.Character
+                    local pos = Vector3.new(-8636, 17, -5759)
+
+                    if char and char:FindFirstChild("HumanoidRootPart") then
+                        char.HumanoidRootPart.CFrame = CFrame.new(pos)
+                    end
+                end
+            end)
+        end
+    end
+})
+
+AutoRebirthSection:AddButton({
+    Title = "Anti Rebirth",
+    Content = "Bloquea el rebirthRemote",
+    Callback = function()
+        local oldNamecall
+        oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
+            local args = { ... }
+
+            if self.Name == "rebirthRemote" and args[1] == "rebirthRequest" then
+                return
+            end
+
+            return oldNamecall(self, unpack(args))
+        end)
+    end
+})
+
+local PacksTab = Window:CreateTab({
+    Name = "Packs Farm",
+    Icon = "rbxassetid://7733799901"
+})
+
+local StatsTab = Window:CreateTab({
+    Name = "Stats",
     Icon = "rbxassetid://7733799901"
 })
 
 local MiscTab = Window:CreateTab({
     Name = "Misc",
     Icon = "rbxassetid://10723433811"
+})
+
+local KillerTab = Window:CreateTab({
+    Name = "Killer",
+    Icon = "rbxassetid://7733799901"
 })
 
 local TeleportTab = Window:CreateTab({
