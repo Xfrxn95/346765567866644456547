@@ -1,3 +1,23 @@
+-- Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+
+-- General
+local godModeToggle = false
+local targetRebirthValue = 0
+local whitelist = {}
+local updateStats = function() end
+
+-- Flags
+local autoWinBrawl = false
+local autoJoinBrawl = false
+local posLock = nil
+local autoSize1Active = false
+local autoSize2Active = false
+local SafeZone = false
+
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/1NFERNO-HUB/Main/refs/heads/main/Settings/UI/1NFERNO_Library.lua"))()
 local Window = Library:CreateWindow({
     Title = "Satan Crew",
@@ -459,9 +479,6 @@ local FarmTab = Window:CreateTab({
 
 local RocksSection = FarmTab:AddSection("Auto Rock", true)
 
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
 
 local function AddAutoPunchRock(title, rockName, delay)
@@ -713,11 +730,7 @@ ToolsSection:AddToggle({
     end
 })
 
-local ToolsCombinedSection = FarmTab:AddSection("Auto Tools Combined", true)
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
+local ToolsCombinedSection = FarmTab:AddSection("Auto Tools V2", true)
 
 local function AddAutoTool(title, toolName, rockName, delay)
     local enabled = false
@@ -971,115 +984,142 @@ local PacksTab = Window:CreateTab({
     Icon = "rbxassetid://7733799901"
 })
 
-
-
 local StatsTab = Window:CreateTab({
     Name = "Stats",
     Icon = "rbxassetid://7733799901"
 })
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
 local SelectedPlayerName = ""
 
--- Lista de jugadores
+-- Players list
 local playerOptions = {}
 for _, plr in ipairs(Players:GetPlayers()) do
     table.insert(playerOptions, plr.DisplayName .. " | " .. plr.Name)
 end
 
--- Dropdown en StatsTab
 StatsTab:AddDropdown({
-    Title = "Select Player Stats",
+    Title = "Select Player",
     Content = "Selecciona un jugador",
     Multi = false,
     Options = playerOptions,
     Default = {},
     Callback = function(selected)
-        if selected[1] then
-            SelectedPlayerName = selected[1]:match("| (.+)")
-        else
-            SelectedPlayerName = ""
-        end
+        SelectedPlayerName = selected[1] and selected[1]:match("| (.+)") or ""
     end
 })
 
+-- MAIN PARAGRAPH (stats)
 local StatsParagraph = StatsTab:AddParagraph({
     Title = "Player Statistics",
-    Content = "Selecciona un jugador para ver estadísticas"
+    Content = "Selecciona un jugador"
 })
 
-local function FormatNumberWithCommas(number)
-    local formatted = tostring(math.floor(number)):reverse():gsub("(%d%d%d)", "%1,"):reverse()
-    return formatted:gsub("^,", "")
+-- ADVANCED PARAGRAPH
+local AdvancedParagraph = StatsTab:AddParagraph({
+    Title = "Combat Info",
+    Content = "N/A"
+})
+
+-- FORMAT FUNCTIONS
+local function commas(n)
+    return tostring(math.floor(n)):reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
 end
 
-local function FormatAbbreviated(number)
-    local abbr = {"", "K", "M", "B", "T", "Qa", "Qi"}
+local function abbr(n)
+    local a = {"","K","M","B","T","Qa","Qi"}
     local i = 1
-    while number >= 1000 and i < #abbr do
-        number /= 1000
+    while n >= 1000 and i < #a do
+        n /= 1000
         i += 1
     end
-    return string.format("%.2f", number) .. abbr[i]
+    return string.format("%.2f", n) .. a[i]
 end
 
-local function FormatDisplay(value)
-    return FormatNumberWithCommas(value) .. " | " .. FormatAbbreviated(value)
+local function format(n)
+    return commas(n) .. " | " .. abbr(n)
 end
 
+-- DAMAGE / HEALTH
+local function enemyHealth(plr)
+    local d = plr:FindFirstChild("Durability")
+        or (plr:FindFirstChild("leaderstats") and plr.leaderstats:FindFirstChild("Durability"))
+    return d and d.Value or 0
+end
+
+local function localDamage()
+    local ls = LocalPlayer:FindFirstChild("leaderstats")
+    if not ls or not ls:FindFirstChild("Strength") then return 0 end
+    return ls.Strength.Value * 0.0667
+end
+
+local function hits(h, d)
+    if d <= 0 then return "∞" end
+    return math.ceil(h / d)
+end
+
+-- UPDATE LOOP (ESTABLE)
 task.spawn(function()
-    while task.wait(0.3) do
+    while task.wait(0.4) do
         if SelectedPlayerName == "" then
             StatsParagraph:Set({
                 Title = "Player Statistics",
-                Content = "Selecciona un jugador para ver estadísticas"
+                Content = "Selecciona un jugador"
+            })
+            AdvancedParagraph:Set({
+                Title = "Combat Info",
+                Content = "N/A"
             })
             continue
         end
 
-        local player = Players:FindFirstChild(SelectedPlayerName)
-        if not player then continue end
+        local plr = Players:FindFirstChild(SelectedPlayerName)
+        if not plr then continue end
 
-        local text = {}
+        local lines = {}
 
-        if player:FindFirstChild("Gems") then
-            table.insert(text, "Gems: " .. FormatDisplay(player.Gems.Value))
+        if plr:FindFirstChild("Gems") then
+            table.insert(lines, "Gems: " .. format(plr.Gems.Value))
+        end
+        if plr:FindFirstChild("Agility") then
+            table.insert(lines, "Agility: " .. format(plr.Agility.Value))
+        end
+        if plr:FindFirstChild("Durability") then
+            table.insert(lines, "Durability: " .. format(plr.Durability.Value))
+        end
+        if plr:FindFirstChild("evilKarma") then
+            table.insert(lines, "Evil Karma: " .. format(plr.evilKarma.Value))
+        end
+        if plr:FindFirstChild("goodKarma") then
+            table.insert(lines, "Good Karma: " .. format(plr.goodKarma.Value))
         end
 
-        if player:FindFirstChild("Agility") then
-            table.insert(text, "Agility: " .. FormatDisplay(player.Agility.Value))
-        end
-
-        if player:FindFirstChild("Durability") then
-            table.insert(text, "Durability: " .. FormatDisplay(player.Durability.Value))
-        end
-
-        if player:FindFirstChild("evilKarma") then
-            table.insert(text, "Evil Karma: " .. FormatDisplay(player.evilKarma.Value))
-        end
-
-        if player:FindFirstChild("goodKarma") then
-            table.insert(text, "Good Karma: " .. FormatDisplay(player.goodKarma.Value))
-        end
-
-        local leaderstats = player:FindFirstChild("leaderstats")
-        if leaderstats then
-            if leaderstats:FindFirstChild("Strength") then
-                table.insert(text, "Strength: " .. FormatDisplay(leaderstats.Strength.Value))
+        local ls = plr:FindFirstChild("leaderstats")
+        if ls then
+            if ls:FindFirstChild("Strength") then
+                table.insert(lines, "Strength: " .. format(ls.Strength.Value))
             end
-            if leaderstats:FindFirstChild("Rebirths") then
-                table.insert(text, "Rebirths: " .. FormatDisplay(leaderstats.Rebirths.Value))
+            if ls:FindFirstChild("Rebirths") then
+                table.insert(lines, "Rebirths: " .. format(ls.Rebirths.Value))
             end
-            if leaderstats:FindFirstChild("Kills") then
-                table.insert(text, "Kills: " .. FormatDisplay(leaderstats.Kills.Value))
+            if ls:FindFirstChild("Kills") then
+                table.insert(lines, "Kills: " .. format(ls.Kills.Value))
             end
         end
 
         StatsParagraph:Set({
             Title = "Player Statistics",
-            Content = table.concat(text, "\n")
+            Content = table.concat(lines, "\n")
+        })
+
+        local h = enemyHealth(plr)
+        local d = localDamage()
+
+        AdvancedParagraph:Set({
+            Title = "Combat Info",
+            Content =
+                "Enemy Health: " .. format(h) ..
+                "\nYour Damage: " .. format(d) ..
+                "\nHits To Kill: " .. tostring(hits(h, d))
         })
     end
 end)
@@ -1106,3 +1146,4 @@ Library:SetNotification({
     Time = 0.5,
     Delay = 3
 })
+
