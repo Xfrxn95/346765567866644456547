@@ -1,116 +1,72 @@
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/1NFERNO-HUB/Main/refs/heads/main/Settings/UI/1NFERNO_Library.lua"))()
 local Window = Library:CreateWindow({
-    Title = "Title",
-    Description = "Description",
+    Title = "Satan Crew",
+    Description = "Muscle Legends Version",
     ["Tab Width"] = 120,
     SizeUi = UDim2.fromOffset(550, 315),
     Image = "rbxassetid://136261556009916"
 })
 
-local TestTab = Window:CreateTab({
-    Name = "Test Tab",
-    Icon = "rbxassetid://10734950309"
+local HomeTab = Window:CreateTab({
+    Name = "Home",
+    Icon = "rbxassetid://7733911490"
 })
 
-TestTab:AddParagraph({
-    Title = "Test Paragraph",
-    Content = "Test paragraph content"
+HomeTab:AddParagraph({
+    Title = "Welcome To Satan Crew",
+    Content = "Build A Boat For Teasure Script"
 })
-TestTab:AddParagraph({
-    Title = "Test Paragraph",
+
+HomeTab:AddButton({
+    Title = "Discord Server",
+    Content = "Join our Discord server to receive future updates",
+    Callback = function()
+        if setclipboard then
+            setclipboard("https://discord.gg/5VZsWs3NTv")
+        end
+    end
+})
+
+HomeTab:AddLine()
+
+HomeTab:AddParagraph({
+    Title = "Contributors",
     Content = [[
+Isabella
+Discord : Miss.Sherya
+Roblox : MissSherya
+Tik Tok : xvisherys
 ]]
 })
 
-TestTab:AddSeperator({
-    Title = "Test Seperator"
+HomeTab:AddParagraph({
+    Title = "Contributors",
+    Content = [[
+Havoc
+Brxyxn
+Rafael
+]]
 })
 
-
-TestTab:AddLine()
-
-TestTab:AddButton({
-    Title = "Test Button",
-    Content = "Test button content",
-    Callback = function()
-        print("Test Button Clicked")
-    end
+local FarmTab = Window:CreateTab({
+    Name = "Farm",
+    Icon = "rbxassetid://7733799901"
 })
 
-TestTab:AddToggle({
-    Title = "Test Toggle",
-    Content = "Test toggle content",
-    Default = false,
-    Callback = function(value)
-        print("Test Toggle:", value)
-    end
+local MiscTab = Window:CreateTab({
+    Name = "Misc",
+    Icon = "rbxassetid://10723433811"
 })
 
-TestTab:AddSlider({
-    Title = "Test Slider",
-    Content = "Test slider content",
-    Increment = 1,
-    Min = 0,
-    Max = 100,
-    Default = 50,
-    Callback = function(value)
-        print("Test Slider:", value)
-    end
-})
-
-TestTab:AddInput({
-    Title = "Test Input",
-    Content = "Test input content",
-    Default = "",
-    Callback = function(value)
-        print("Test Input:", value)
-    end
-})
-
-TestTab:AddDropdown({
-    Title = "Test Dropdown",
-    Content = "Test dropdown content",
-    Multi = false,
-    Options = {"Option 1", "Option 2", "Option 3"},
-    Default = {"Option 1"},
-    Callback = function(selected)
-        print("Test Dropdown:", selected[1])
-    end
-})
-local TestSection = TestTab:AddSection("Test Section", true)
-
-TestSection:AddButton({
-    Title = "Test Section Button",
-    Content = "Test section button content",
-    Callback = function()
-        print("Test Section Button Clicked")
-    end
-})
-
-TestSection:AddToggle({
-    Title = "Test Section Toggle",
-    Content = "Test section toggle content",
-    Default = false,
-    Callback = function(value)
-        print("Test Section Toggle:", value)
-    end
-})
-
-TestSection:AddDropdown({
-    Title = "Test Dropdown",
-    Content = "Test dropdown content",
-    Multi = false,
-    Options = {"Option 1", "Option 2", "Option 3"},
-    Default = {"Option 1"},
-    Callback = function(selected)
-        print("Test Dropdown:", selected[1])
-    end
+local TeleportTab = Window:CreateTab({
+    Name = "Teleport",
+    Icon = "rbxassetid://0987654321"
 })
 
 Library:SetNotification({
-    Title = "Test Hub",
+    Title = "Welcome",
     Description = "Loaded",
-    Content = "Test script loaded successfully",
+    Content = "The script loaded successfully",
     Time = 0.5,
     Delay = 3
 })
