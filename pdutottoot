@@ -1034,7 +1034,7 @@ end)
 
 FarmTab:AddLabel("Chat Spy")
 
-window:AddButton("Chat Spy", function()
+FarmTab:AddButton("Chat Spy", function()
 
     --// CONFIG
     local Config = {
