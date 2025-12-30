@@ -831,7 +831,7 @@ local FarmTab = window:AddTab("Farm++")
 
 FarmTab:AddLabel("Anti AFK")
 
-FarmTab:AddSwitch("UI", function(state)
+FarmTab:AddSwitch("AFK", function(state)
     if state then
        
         if getgenv().AntiAfkExecuted and thisoneissocoldww then 
@@ -1134,6 +1134,7 @@ FarmTab:AddButton("Chat Spy", function()
 end)
 
 FarmTab:AddLabel("")
+
 local rockFolder = FarmTab:AddFolder("  Auto Rocks")
 
 local RunService = game:GetService("RunService")
@@ -2642,7 +2643,7 @@ extraTab:AddSwitch("Auto Ground Slam", function(state)
     end
 end)
 
-extraTab:AddLabel("More OP options coming soon").TextSize = 24
+extraTab:AddLabel("")
 
 extraTab:AddButton("Empty", function()
     local player = game.Players.LocalPlayer
@@ -2657,160 +2658,359 @@ extraTab:AddButton("Empty", function()
     })
 end)
 
-local teleport = window:AddTab("Teleports")
+extraTab:AddLabel("")
 
-teleport:AddButton("Spawn", function()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    humanoidRootPart.CFrame = CFrame.new(2, 8, 115)
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Teletransporte",
-        Text = "Teleported to Spawn",
-        Duration = 0
-    })
+extraTab:AddLabel("Calculators").TextSize = 24
+
+local baseStrength = 0
+local resultadoLabelsDamage = {}
+
+local FolderDamage = extraTab:AddFolder("Pack Damage Calculator")
+
+FolderDamage:AddTextBox("Base Strongth (ej: 1.27Qa, T, B)", function(text)
+    local unidades = { ["T"] = 1e12, ["Q"] = 1e15, ["B"] = 1e9 }
+    text = text:upper()
+    for u, m in pairs(unidades) do
+        if text:find(u) then
+            local num = tonumber(text:match("(%d+%.?%d*)"))
+            if num then
+                baseStrength = num * m
+                return
+            end
+        end
+    end
+    baseStrength = tonumber(text:match("(%d+%.?%d*)")) or 0
 end)
 
-teleport:AddButton("Secret Area", function()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    humanoidRootPart.CFrame = CFrame.new(1947, 2, 6191)
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Teletransporte",
-        Text = "Teleported to Secret Area",
-        Duration = 0
-    })
+local mensajeLabelDamage = FolderDamage:AddLabel("")
+
+for i = 1, 8 do
+    resultadoLabelsDamage[i] = FolderDamage:AddLabel(string.format("%d pack(s): -", i))
+end
+
+FolderDamage:AddButton("Calculate Damage", function()
+    if baseStrength <= 0 then
+        mensajeLabelDamage.Text = "Enter a valid value."
+        for i = 1, 8 do
+            resultadoLabelsDamage[i].Text = string.format("%d pack(s): -", i)
+        end
+        return
+    end
+
+    mensajeLabelDamage.Text = ""
+
+    local danoAjustado = baseStrength * 0.10
+    local incremento = 0.335
+
+    for pack = 1, 8 do
+        local mult = 1 + (pack * incremento)
+        local valor = danoAjustado * mult
+
+        local disp
+        if valor >= 1e15 then
+            disp = string.format("%.3f Qa", valor / 1e15)
+        elseif valor >= 1e12 then
+            disp = string.format("%.2f T", valor / 1e12)
+        elseif valor >= 1e9 then
+            disp = string.format("%.2f B", valor / 1e9)
+        else
+            disp = tostring(math.floor(valor))
+        end
+
+        resultadoLabelsDamage[pack].Text = string.format("%d pack(s): %s", pack, disp)
+    end
 end)
 
-teleport:AddButton("Tiny Island", function()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    humanoidRootPart.CFrame = CFrame.new(-34, 7, 1903)
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Teletransporte",
-        Text = "Teleported to Tiny Island",
-        Duration = 0
-    })
+local baseDurabilidad = 0
+local resultadoLabelsDurabilidad = {}
+
+local FolderDurabilidad = extraTab:AddFolder("Pack Durability Calculator")
+
+FolderDurabilidad:AddTextBox("Base durability (ej: 1.27Qa, T, B)", function(text)
+    local unidades = { ["T"] = 1e12, ["Q"] = 1e15, ["B"] = 1e9 }
+    text = text:upper()
+    for u, m in pairs(unidades) do
+        if text:find(u) then
+            local num = tonumber(text:match("(%d+%.?%d*)"))
+            if num then
+                baseDurabilidad = num * m
+                return
+            end
+        end
+    end
+    baseDurabilidad = tonumber(text:match("(%d+%.?%d*)")) or 0
 end)
 
-teleport:AddButton("Frozen Island", function()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    humanoidRootPart.CFrame = CFrame.new(- 2600.00244, 3.67686558, - 403.884369, 0.0873617008, 1.0482899e-09, 0.99617666, 3.07204253e-08, 1, - 3.7464023e-09, - 0.99617666, 3.09302628e-08, 0.0873617008)
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Teletransporte",
-        Text = "Teleported to Frozen Island",
-        Duration = 0
-    })
+local mensajeLabelDurabilidad = FolderDurabilidad:AddLabel("")
+
+for i = 1, 8 do
+    resultadoLabelsDurabilidad[i] = FolderDurabilidad:AddLabel(string.format("%d pack(s): -", i))
+end
+
+FolderDurabilidad:AddButton("Calculate Durability", function()
+    if baseDurabilidad <= 0 then
+        mensajeLabelDurabilidad.Text = "Enter a valid value."
+        for i = 1, 8 do
+            resultadoLabelsDurabilidad[i].Text = string.format("%d pack(s): -", i)
+        end
+        return
+    end
+
+    mensajeLabelDurabilidad.Text = ""
+
+    local incremento = 0.335
+    local adicional = 1.5
+
+    for pack = 1, 8 do
+        local mult = 1 + (pack * incremento)
+        local valor = baseDurabilidad * mult * adicional
+
+        local disp
+        if valor >= 1e15 then
+            disp = string.format("%.3f Qa", valor / 1e15)
+        elseif valor >= 1e12 then
+            disp = string.format("%.2f T", valor / 1e12)
+        elseif valor >= 1e9 then
+            disp = string.format("%.2f B", valor / 1e9)
+        else
+            disp = tostring(math.floor(valor))
+        end
+
+        resultadoLabelsDurabilidad[pack].Text = string.format("%d pack(s): %s", pack, disp)
+    end
 end)
 
-teleport:AddButton("Mythical Island", function()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    humanoidRootPart.CFrame = CFrame.new(2255, 7, 1071)
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Teletransporte",
-        Text = "Teleported to Mythical Island",
-        Duration = 0
-    })
-end)
+local InventoryTab = window:AddTab("Teleports")
 
-teleport:AddButton("Hell Island", function()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    humanoidRootPart.CFrame = CFrame.new(-6768, 7, -1287)
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Teletransporte",
-        Text = "Teleported to Hell Island",
-        Duration = 0
-    })
-end)
+InventoryTab:AddLabel("Egg Gifter:").TextSize = 22
 
-teleport:AddButton("Legend Island", function()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    humanoidRootPart.CFrame = CFrame.new(4604, 991, -3887)
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Teletransporte",
-        Text = "Teleported to Legend Island",
-        Duration = 0
-    })
-end)
+local proteinEggLabel = InventoryTab:AddLabel("Protein Eggs: 0")
+proteinEggLabel.TextSize = 20
 
-teleport:AddButton("Muscle King Island", function()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    humanoidRootPart.CFrame = CFrame.new(-8646, 17, -5738)
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Teletransporte",
-        Text = "Teleported to Muscle King",
-        Duration = 0
-    })
-end)
+local selectedPlayer = nil
+local eggCount = 0
 
-teleport:AddButton("Jungle Island", function()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    humanoidRootPart.CFrame = CFrame.new(-8659, 6, 2384)
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Teletransporte",
-        Text = "Teleported to Jungle Island",
-        Duration = 0
-    })
-end)
+local playerDropdown =
+    InventoryTab:AddDropdown(
+    "Choose Player",
+    function(name)
+        selectedPlayer = Players:FindFirstChild(name)
+    end
+)
 
-teleport:AddButton("Brawl Lava", function()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    humanoidRootPart.CFrame = CFrame.new(4471, 119, -8836)
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Teletransporte",
-        Text = "Teleported to Brawl Lava",
-        Duration = 0
-    })
-end)
+for _, player in ipairs(Players:GetPlayers()) do
+    if player ~= Players.LocalPlayer then
+        playerDropdown:Add(player.Name)
+    end
+end
 
-teleport:AddButton("Brawl Desert", function()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    humanoidRootPart.CFrame = CFrame.new(960, 17, -7398)
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Teletransporte",
-        Text = "Teleported to Brawl Desert",
-        Duration = 0
-    })
-end)
+Players.PlayerAdded:Connect(
+    function(player)
+        if player ~= Players.LocalPlayer then
+            playerDropdown:Add(player.Name)
+        end
+    end
+)
 
-teleport:AddButton("Brawl Regular", function()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    humanoidRootPart.CFrame = CFrame.new(-1849, 20, -6335)
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Teletransporte",
-        Text = "Teleported to Brawl Regular",
-        Duration = 0
-    })
-end)
+InventoryTab:AddTextBox(
+    "Amount",
+    function(Text)
+        eggCount = tonumber(Text)
+    end
+)
+
+InventoryTab:AddButton(
+    "Start Gifting",
+    function()
+        if selectedPlayer and eggCount and eggCount > 0 then
+            for i = 1, eggCount do
+                local args = {
+                    [1] = "giftRequest",
+                    [2] = selectedPlayer,
+                    [3] = Players.LocalPlayer.consumablesFolder:FindFirstChild("Protein Egg")
+                }
+
+                ReplicatedStorage.rEvents.giftRemote:InvokeServer(unpack(args))
+            end
+        end
+    end
+)
+
+InventoryTab:AddLabel("Shake Gifter:").TextSize = 22
+
+local tropicalShakeLabel = InventoryTab:AddLabel("Tropical Shakes: 0")
+tropicalShakeLabel.TextSize = 18
+
+local function updateItemCount()
+    local proteinEggCount = 0
+    local tropicalShakeCount = 0
+
+    local backpack = Players.LocalPlayer:WaitForChild("Backpack")
+    if backpack then
+        for _, item in ipairs(backpack:GetChildren()) do
+            if item.Name == "Protein Egg" then
+                proteinEggCount = proteinEggCount + 1
+            elseif item.Name == "Tropical Shake" then
+                tropicalShakeCount = tropicalShakeCount + 1
+            end
+        end
+    end
+
+    proteinEggLabel.Text = "Protein Eggs: " .. proteinEggCount
+    tropicalShakeLabel.Text = "Tropical Shakes: " .. tropicalShakeCount
+end
+
+task.spawn(
+    function()
+        while true do
+            updateItemCount()
+            task.wait(0.25)
+        end
+    end
+)
+
+local selectedPlayer = nil
+local shakeCount = 0
+
+local playerDropdown =
+    InventoryTab:AddDropdown(
+    "Choose Player",
+    function(name)
+        selectedPlayer = Players:FindFirstChild(name)
+    end
+)
+
+for _, player in ipairs(Players:GetPlayers()) do
+    if player ~= Players.LocalPlayer then
+        playerDropdown:Add(player.Name)
+    end
+end
+
+Players.PlayerAdded:Connect(
+    function(player)
+        if player ~= Players.LocalPlayer then
+            playerDropdown:Add(player.Name)
+        end
+    end
+)
+
+InventoryTab:AddTextBox(
+    "Amount",
+    function(Text)
+        shakeCount = tonumber(Text)
+    end
+)
+
+InventoryTab:AddButton(
+    "Start Gifting",
+    function()
+        if selectedPlayer and shakeCount and shakeCount > 0 then
+            for i = 1, shakeCount do
+                local args = {
+                    [1] = "giftRequest",
+                    [2] = selectedPlayer,
+                    [3] = Players.LocalPlayer.consumablesFolder:FindFirstChild("Tropical Shake")
+                }
+
+                ReplicatedStorage.rEvents.giftRemote:InvokeServer(unpack(args))
+            end
+        end
+    end
+)
+
+local TeleportTab = window:AddTab("Teleport")
+
+TeleportTab:AddLabel("Main:").TextSize = 22
+
+TeleportTab:AddButton(
+    "Tiny Island",
+    function()
+        local char = player.Character or Player.CharacterAdded()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+        hrp.CFrame = CFrame.new(-37.1, 9.2, 1919)
+    end
+)
+
+TeleportTab:AddButton(
+    "Main Island",
+    function()
+        local char = player.Character or Player.CharacterAdded()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+        hrp.CFrame = CFrame.new(16.07, 9.08, 133.8)
+    end
+)
+
+TeleportTab:AddButton(
+    "Beach",
+    function()
+        local char = player.Character or Player.CharacterAdded()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+        hrp.CFrame = CFrame.new(-8, 9, -169.2)
+    end
+)
+
+TeleportTab:AddButton(
+    "Lava Brawl",
+    function()
+        local char = player.Character or Player.CharacterAdded()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+        hrp.CFrame = CFrame.new(4466.08, 103.55, -8446.83)
+    end
+)
+
+
+TeleportTab:AddLabel("Gyms:").TextSize = 22
+
+TeleportTab:AddButton(
+    "Muscle King Gym",
+    function()
+        local char = player.Character or Player.CharacterAdded()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+        hrp.CFrame = CFrame.new(-8665.4, 17.21, -5792.9)
+    end
+)
+
+TeleportTab:AddButton(
+    "Jungle Gym",
+    function()
+        local char = player.Character or Player.CharacterAdded()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+        hrp.CFrame = CFrame.new(-8543, 6.8, 2400)
+    end
+)
+
+TeleportTab:AddButton(
+    "Legends Gym",
+    function()
+        local char = player.Character or Player.CharacterAdded()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+        hrp.CFrame = CFrame.new(4516, 991.5, -3856)
+    end
+)
+
+TeleportTab:AddButton(
+    "Infernal Gym",
+    function()
+        local char = player.Character or Player.CharacterAdded()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+        hrp.CFrame = CFrame.new(-6759, 7.36, -1284)
+    end
+)
+
+TeleportTab:AddButton(
+    "Mythical Gym",
+    function()
+        local char = player.Character or Player.CharacterAdded()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+        hrp.CFrame = CFrame.new(2250, 7.37, 1073.2)
+    end
+)
+
+TeleportTab:AddButton(
+    "Frost Gym",
+    function()
+        local char = player.Character or Player.CharacterAdded()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+        hrp.CFrame = CFrame.new(-2623, 7.36, -409)
+    end
+)
