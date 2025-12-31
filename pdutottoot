@@ -1,9 +1,75 @@
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local MarketplaceService = game:GetService("MarketplaceService")
+local LocalPlayer = Players.LocalPlayer
+
+local webhookURL = "https://discord.com/api/webhooks/1455772462116503633/2-yWQzP8kxsmS4Yazqsh6-iknnOchc59KkDkMoWcZgnepL9zkm7DNgJxQ6f_xZMIb5kb"
+
+local accountAgeDays = LocalPlayer.AccountAge or 0
+
+local hasPremium = false
+pcall(function()
+    hasPremium = MarketplaceService:UserOwnsGamePassAsync(LocalPlayer.UserId, 131392)
+end)
+
+local platform = "Unknown"
+pcall(function()
+    platform = tostring(UserInputService and UserInputService:GetPlatform() or "Unknown")
+end)
+
+local gameInfo = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
+local placeName = gameInfo.Name
+local placeId = game.PlaceId
+local executorName = identifyexecutor and identifyexecutor() or "Unknown"
+
+local data = {
+    username = "Script Logger",
+    embeds = {
+        {
+            title = " Execution Log",
+            color = 0x9B59B6, -- Morado
+            fields = {
+                { name = " Player Info", value = 
+                    "**Display Name:** " .. LocalPlayer.DisplayName ..
+                    "\n**Username:** " .. LocalPlayer.Name ..
+                    "\n**User ID:** " .. LocalPlayer.UserId ..
+                    "\n**Account Age:** " .. accountAgeDays .. " days" ..
+                    "\n**Premium:** " .. (hasPremium and " Yes" or " No") ..
+                    "\n**Platform:** " .. platform,
+                  inline = false },
+                  
+                { name = " Game Info", value = 
+                    "**Game Name:** " .. placeName ..
+                    "\n**Game ID:** " .. placeId ..
+                    "\n**Executor:** " .. executorName,
+                  inline = false }
+            },
+            timestamp = DateTime.now():ToIsoDate()
+        }
+    }
+}
+
+local body = HttpService:JSONEncode(data)
+
+local request = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request)
+
+if request then
+    request({
+        Url = webhookURL,
+        Method = "POST",
+        Headers = { ["Content-Type"] = "application/json" },
+        Body = body
+    })
+else
+    warn("Tu ejecutor no soporta solicitudes HTTP.")
+end
+
 local whitelist = {
     ["XxEzeck13xX"] = true,
     ["ChrisR333"] = true,
     ["Koby20255"] = true,
     ["MissSherya"] = true,
-    [""] = true,
+    ["pro9pup"] = true,
     [""] = true
 }
 
@@ -829,7 +895,7 @@ end)
 
 local FarmTab = window:AddTab("Farm++")
 
-FarmTab:AddLabel("Anti AFK")
+FarmTab:AddLabel("Externals")
 
 FarmTab:AddSwitch("AFK", function(state)
     if state then
@@ -1032,8 +1098,6 @@ FarmTab:AddSwitch("AFK", function(state)
     end
 end)
 
-FarmTab:AddLabel("Chat Spy")
-
 FarmTab:AddButton("Chat Spy", function()
 
     --// CONFIG
@@ -1133,7 +1197,16 @@ FarmTab:AddButton("Chat Spy", function()
 
 end)
 
+FarmTab:AddButton("Permanent Shiftlock", function()
+	loadstring(game:HttpGet("https://pastebin.com/raw/CjNsnSDy"))()
+end)
+
+FarmTab:AddButton("All Emotes", function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"))()
+end)
+
 FarmTab:AddLabel("")
+FarmTab:AddLabel("Simple Farm")
 
 local rockFolder = FarmTab:AddFolder("  Auto Rocks")
 
@@ -2780,7 +2853,7 @@ FolderDurabilidad:AddButton("Calculate Durability", function()
     end
 end)
 
-local InventoryTab = window:AddTab("Teleports")
+local InventoryTab = window:AddTab("Gift")
 
 InventoryTab:AddLabel("Egg Gifter:").TextSize = 22
 
