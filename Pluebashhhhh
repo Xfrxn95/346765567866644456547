@@ -3,18 +3,53 @@ local player = Players.LocalPlayer
 
 local displayName = player.DisplayName
 if not displayName or displayName == "" then
-    displayName = player.Name
+	displayName = player.Name
 end
 
 local title = ("Galaxy XVI Free Version | Welcome %s"):format(displayName)
 
-library = loadstring(game:HttpGet("https://raw.githubusercontent.com/CoronaBlanca/Lxbrxrys/refs/heads/main/Xlxrxxm"))()
+library = loadstring(game:HttpGet(
+	"https://raw.githubusercontent.com/Xfrxn95/havo/refs/heads/main/libraryyyyyy"
+))()
 
+-- PALETA DE MORADOS
+local PurpleColors = {
+	Color3.fromRGB(64, 0, 128),
+	Color3.fromRGB(75, 0, 130),
+	Color3.fromRGB(88, 24, 124),
+	Color3.fromRGB(106, 13, 173),
+	Color3.fromRGB(125, 60, 152),
+	Color3.fromRGB(138, 43, 226),
+	Color3.fromRGB(148, 0, 211),
+	Color3.fromRGB(155, 89, 182),
+	Color3.fromRGB(165, 105, 189),
+	Color3.fromRGB(186, 85, 211),
+	Color3.fromRGB(195, 155, 211),
+	Color3.fromRGB(208, 170, 255),
+	Color3.fromRGB(191, 85, 236),
+}
+
+-- CREAR VENTANA
 local window = library:AddWindow(title, {
-    main_color = Color3.fromRGB(27, 6, 87),
-    min_size = Vector2.new(600, 800),
-    can_resize = true,
+	main_color = PurpleColors[1],
+	min_size = Vector2.new(600, 800),
+	can_resize = true,
 })
+
+-- CAMBIO AUTOMÁTICO
+task.spawn(function()
+	local i = 1
+	while true do
+		if window and window.SetTheme then
+			window:SetTheme({ main_color = PurpleColors[i] })
+		elseif window then
+			window.main_color = PurpleColors[i]
+		end
+
+		i = i % #PurpleColors + 1
+		task.wait(2.5)
+	end
+end)
 
 local mainTab = window:AddTab("Main")
 
